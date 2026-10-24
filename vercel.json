@@ -1,0 +1,31 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "ai-service": {
+      "root": "examguard-fullstack-vscode/ai-service",
+      "framework": "fastapi"
+    },
+    "client": {
+      "root": "examguard-fullstack-vscode/client",
+      "framework": "vite"
+    },
+    "server": {
+      "root": "examguard-fullstack-vscode/server",
+      "framework": "express"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "server"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "client"
+      }
+    }
+  ]
+}
