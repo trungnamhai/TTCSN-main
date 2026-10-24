@@ -1,0 +1,69 @@
+.eg-navbar {
+  height: 76px;
+  background: #ffffff;
+  border-bottom: 1px solid #e6edf7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.eg-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.eg-brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: #4e80ee;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(78, 128, 238, 0.25);
+}
+
+.eg-brand-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: #10243e;
+  line-height: 1.2;
+}
+
+.eg-brand-subtitle {
+  font-size: 13px;
+  color: #637896;
+  margin-top: 2px;
+}
+
+.eg-role-switch {
+  background: #edf2fa;
+  padding: 5px;
+  border-radius: 14px;
+  display: flex;
+  gap: 4px;
+}
+
+.eg-role-btn {
+  border: none;
+  background: transparent;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5a6e8c;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.eg-role-btn.active {
+  background: #ffffff;
+  color: #3b71e8;
+  box-shadow: 0 2px 6px rgba(16, 36, 62, 0.08);
+}
