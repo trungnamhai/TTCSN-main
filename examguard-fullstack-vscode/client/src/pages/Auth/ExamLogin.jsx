@@ -11,6 +11,7 @@ export default function ExamLogin({ onLoginSuccess }) {
   const [agreedRules, setAgreedRules] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +21,7 @@ export default function ExamLogin({ onLoginSuccess }) {
     const trimmedPass = sessionCode.trim();
 
     if (!trimmedCode || !trimmedPass) {
-      setError("Vui lòng nhập đầy đủ Mã sinh viên và Mật khẩu / Mã ca thi.");
+      setError("Vui lòng nhập đầy đủ Mã sinh viên và Mật khẩu");
       return;
     }
     if (!agreedRules) {
@@ -88,17 +89,30 @@ export default function ExamLogin({ onLoginSuccess }) {
             title: "Lập trình Web",
           },
         });
+      } else if (
+        err instanceof TypeError ||
+        err.message === "Failed to fetch"
+      ) {
+        // Không kết nối được server
+        setError(
+          "Không kết nối được máy chủ. Vui lòng kiểm tra mạng và thử lại.",
+        );
       } else {
         setError(err.message || "Mã sinh viên hoặc mật khẩu không chính xác.");
       }
+    } finally {
+      // Luôn mở khóa nút, dù thành công hay thất bại
+      setLoading(false);
     }
   };
 
   return (
     <div className="eg-login-page" style={{ backgroundImage: `url(${bgImg})` }}>
-      <div className="eg-top-left-logo">
-        <img src={logoImg} alt="TRACNGHIEM Logo" className="eg-login-logo" />
-      </div>
+      <header className="eg-glass-header">
+        <div className="eg-header-brand">
+          <img src={logoImg} alt="TRACNGHIEM Logo" className="eg-login-logo" />
+        </div>
+      </header>
 
       <div className="eg-auth-card">
         <h1 className="eg-card-title">Đăng nhập phòng thi</h1>
@@ -114,21 +128,64 @@ export default function ExamLogin({ onLoginSuccess }) {
             <input
               type="text"
               className="eg-input"
-              placeholder="Nhập mã sinh viên (VD: 2024603201)"
+              placeholder="Nhập mã sinh viên."
               value={studentCode}
               onChange={(e) => setStudentCode(e.target.value)}
             />
           </div>
 
           <div className="eg-form-group">
-            <label className="eg-label">Mật khẩu / Mã ca thi</label>
-            <input
-              type="password"
-              className="eg-input"
-              placeholder="Nhập mật khẩu hoặc mã ca thi"
-              value={sessionCode}
-              onChange={(e) => setSessionCode(e.target.value)}
-            />
+            <label className="eg-label">Mật khẩu</label>
+            <div className="eg-password-wrap">
+              <input
+                type={showPassword ? "text" : "password"}
+                className="eg-input eg-input-password"
+                placeholder="Nhập mật khẩu."
+                value={sessionCode}
+                onChange={(e) => setSessionCode(e.target.value)}
+              />
+              <button
+                type="button"
+                className="eg-eye-btn"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+              >
+                {showPassword ? (
+                  /* Mắt gạch chéo: đang hiện mật khẩu */
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                ) : (
+                  /* Mắt thường: đang ẩn mật khẩu */
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           <label className="eg-checkbox-row">
@@ -144,7 +201,7 @@ export default function ExamLogin({ onLoginSuccess }) {
           </label>
 
           <button type="submit" className="eg-primary-btn" disabled={loading}>
-            {loading ? "Đang kiểm tra thông tin..." : "Đăng nhập hệ thống"}
+            {loading ? "Đang kiểm tra thông tin..." : "Đăng nhập"}
           </button>
         </form>
       </div>
