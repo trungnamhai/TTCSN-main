@@ -1,131 +1,535 @@
-.eg-face-card {
-  max-width: 560px;
+/* ==========================================================================
+   Exam Check-in & Face Verification Styles
+   Design: Enterprise SaaS, Light Blue & White, 2px-4px radius, clean typography
+   ========================================================================== */
+
+.eg-checkin-page {
+  min-height: 100vh;
+  background: var(--eg-bg, #eef4fc);
+  color: var(--eg-ink, #0b2545);
+  font-family: "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
+  padding: 32px 24px;
+  box-sizing: border-box;
 }
 
-.eg-face-mode-switch {
+.eg-checkin-shell {
+  max-width: 1140px;
+  margin: 0 auto;
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Header */
+.eg-checkin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 8px;
 }
 
-.eg-face-mode-btn {
-  padding: 6px 11px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: #f8fafc;
-  color: #334155;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
+.eg-checkin-title {
+  margin: 4px 0 6px 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--eg-ink, #0b2545);
+  line-height: 1.25;
 }
 
-.eg-face-mode-two.active {
-  background: #fee2e2;
-  color: #b91c1c;
+.eg-checkin-desc {
+  margin: 0;
+  font-size: 14px;
+  color: var(--eg-muted, #3f5878);
 }
 
-.eg-face-mode-one.active {
-  background: #dcfce7;
-  color: #15803d;
+.eg-checkin-desc strong {
+  color: var(--eg-ink, #0b2545);
 }
 
-.eg-face-mode-live {
-  color: #1d4ed8;
+/* Grid 2 Columns */
+.eg-checkin-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+  align-items: start;
 }
 
-.eg-face-mode-live.active {
-  background: #dbeafe;
+@media (max-width: 900px) {
+  .eg-checkin-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.eg-camera-container {
+/* Video Wrap */
+.eg-checkin-video-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.eg-video-container-wrap {
   position: relative;
   width: 100%;
-  height: 330px;
-  background: #101928;
-  border-radius: 16px;
+  aspect-ratio: 4 / 3;
+  background: #0f172a;
+  border-radius: var(--eg-radius, 2px);
   overflow: hidden;
-  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-.eg-camera-video {
+.eg-live-video-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.eg-live-stream-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: none;
+}
+
+.eg-live-stream-video.is-active {
+  display: block;
+}
+
+.eg-camera-offline-placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 13.5px;
+}
+
+/* Face guide oval */
+.eg-face-guide-oval {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  height: 290px;
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 12px;
+}
+
+.eg-guide-text {
+  background: rgba(0, 0, 0, 0.65);
+  color: #ffffff;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  text-align: center;
+}
+
+/* Captured Photo Preview */
+.eg-captured-preview-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.eg-captured-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.eg-camera-video.is-hidden {
-  display: none;
-}
-
-.eg-camera-video.is-visible {
-  display: block;
-}
-
-.eg-face-simulation {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  background: linear-gradient(180deg, #b8c2ae 0%, #8e9b82 100%);
-}
-
-.eg-face-extra-person {
+.eg-captured-badge {
   position: absolute;
-  left: 38px;
-  bottom: 18px;
-  width: 145px;
-  height: 175px;
-  border: 2px dashed #ef4444;
-  border-radius: 12px;
-  background: rgba(239, 68, 68, 0.14);
-  display: flex;
-  align-items: flex-start;
-  padding: 8px;
-  color: #fff;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(11, 37, 69, 0.85);
+  color: #ffffff;
+  padding: 4px 10px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
+  border-radius: 2px;
 }
 
-.eg-face-candidate {
-  width: 215px;
-  height: 245px;
-  margin-bottom: 18px;
-  border: 2px solid #f59e0b;
-  border-radius: 14px;
-  background: rgba(15, 23, 42, 0.28);
+.eg-captured-badge.is-danger {
+  background: rgba(220, 38, 38, 0.95);
+  color: #ffffff;
+}
+
+/* Hardware status strip */
+.eg-hardware-status-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--eg-surface-alt, #f6f9fe);
+  border: 1px solid var(--eg-tint-strong, #dce8f8);
+  border-radius: var(--eg-radius, 2px);
+  font-size: 13px;
+}
+
+.eg-hw-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eg-hw-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.eg-hw-dot.ok {
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+
+.eg-hw-dot.err {
+  background: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+.eg-mic-vu-meter {
+  width: 60px;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-left: 4px;
+}
+
+.eg-mic-vu-bar {
+  height: 100%;
+  background: #16a34a;
+  transition: width 0.08s ease;
+}
+
+/* Photo actions */
+.eg-photo-actions-wrap {
+  display: flex;
+  gap: 12px;
+}
+
+.eg-btn-snap {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Steps checklist */
+.eg-checkin-steps {
+  list-style: none;
+  margin: 16px 0 20px 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 10px;
-  color: #fff;
-  font-size: 12.5px;
+  gap: 10px;
+}
+
+.eg-step-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  background: var(--eg-surface-alt, #f6f9fe);
+  border: 1px solid var(--eg-tint-strong, #dce8f8);
+  border-radius: var(--eg-radius, 2px);
+  transition: all 0.15s ease;
+}
+
+.eg-step-item.is-done {
+  border-left: 3px solid var(--eg-ok, #0b6b3a);
+  background: #f0fdf4;
+}
+
+.eg-step-num {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
   font-weight: 700;
 }
 
-.eg-face-candidate.is-valid {
-  border-color: #22c55e;
+.eg-step-item.is-done .eg-step-num {
+  background: var(--eg-ok, #0b6b3a);
+  color: #ffffff;
 }
 
-.eg-face-distance {
-  font-size: 11px;
-  opacity: 0.9;
+.eg-step-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.eg-status-text {
+.eg-step-text strong {
   font-size: 13.5px;
-  color: #637896;
-  margin: 10px 0 16px;
+  color: var(--eg-ink, #0b2545);
 }
 
-.eg-face-back-btn {
-  margin-top: 12px;
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: #64748b;
-  font-size: 13.5px;
+.eg-step-text span {
+  font-size: 12px;
+  color: var(--eg-muted, #3f5878);
+}
+
+/* Simulation Switcher */
+.eg-simulation-switch-box {
+  padding: 12px 14px;
+  background: #f1f5f9;
+  border-radius: var(--eg-radius, 2px);
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.eg-sim-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--eg-muted, #3f5878);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.eg-sim-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.eg-sim-btn {
+  padding: 5px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--eg-radius, 2px);
+  background: #ffffff;
+  color: var(--eg-ink, #0b2545);
+  font-size: 12.5px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.eg-sim-btn:hover {
+  background: #f8fafc;
+}
+
+.eg-sim-btn.active {
+  background: var(--eg-accent, #1a66e0);
+  border-color: var(--eg-accent, #1a66e0);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.eg-sim-btn.active.is-danger {
+  background: var(--eg-danger, #b42318);
+  border-color: var(--eg-danger, #b42318);
+  color: #ffffff;
+}
+
+/* Action bar */
+.eg-checkin-action-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.eg-btn-submit-checkin {
+  width: 100%;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   PANEL ĐANG CHỜ DUYỆT (PENDING APPROVAL)
+   ========================================================================== */
+.eg-checkin-waiting-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 32px;
+  gap: 18px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.eg-waiting-icon-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eg-radar-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #3b82f6;
+  animation: eg-radar 2s ease-out infinite;
+}
+
+@keyframes eg-radar {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+.eg-waiting-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--eg-ink, #0b2545);
+}
+
+.eg-waiting-desc {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--eg-muted, #3f5878);
+  max-width: 520px;
+  line-height: 1.5;
+}
+
+.eg-waiting-photo-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--eg-surface-alt, #f6f9fe);
+  border: 1px solid var(--eg-tint-strong, #dce8f8);
+  border-radius: var(--eg-radius, 2px);
+}
+
+.eg-waiting-photo-preview img {
+  width: 180px;
+  height: 135px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.eg-waiting-photo-preview span {
+  font-size: 12px;
+  color: var(--eg-muted, #3f5878);
+  font-weight: 500;
+}
+
+.eg-waiting-status-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.eg-demo-self-approve-box {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eg-demo-note {
+  font-size: 12px;
+  color: var(--eg-muted, #3f5878);
+}
+
+/* ==========================================================================
+   PANEL ĐÃ ĐƯỢC DUYỆT (APPROVED) & TỪ CHỐI (REJECTED)
+   ========================================================================== */
+.eg-checkin-approved-panel,
+.eg-checkin-rejected-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 32px;
+  gap: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.eg-approved-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--eg-ok-tint, #ddf5e8);
+  color: var(--eg-ok, #0b6b3a);
+  font-size: 32px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eg-approved-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--eg-ok, #0b6b3a);
+}
+
+.eg-approved-desc {
+  margin: 0;
+  font-size: 15px;
+  color: var(--eg-muted, #3f5878);
+}
+
+.eg-rejected-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--eg-danger-tint, #fdecea);
+  color: var(--eg-danger, #b42318);
+  font-size: 32px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eg-rejected-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--eg-danger, #b42318);
+}
+
+.eg-rejected-desc {
+  margin: 0;
+  font-size: 15px;
+  color: var(--eg-danger, #b42318);
 }

@@ -1,0 +1,226 @@
+/* Attempt Detail Modal CSS */
+.eg-modal-attempt-card {
+  max-width: 780px;
+  width: 95%;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 48px -12px rgba(11, 37, 69, 0.28);
+}
+
+.eg-modal-attempt-card .eg-modal-header {
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--eg-tint-strong, #dce8f8);
+  padding: 18px 24px;
+}
+
+.eg-modal-attempt-card .eg-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.eg-modal-attempt-card .eg-modal-footer {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--eg-tint-strong, #dce8f8);
+  padding: 14px 24px;
+  background: var(--eg-surface-alt, #f6f9fe);
+}
+
+/* Custom scrollbar for attempt body */
+.eg-modal-attempt-card .eg-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.eg-modal-attempt-card .eg-modal-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.eg-modal-attempt-card .eg-modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.eg-modal-attempt-card .eg-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.eg-modal-subtext {
+  font-size: 13px;
+  color: var(--eg-subtle, #54698a);
+  margin-top: 4px;
+}
+
+.eg-attempt-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--eg-surface-alt, #f6f9fe);
+  border: 1px solid var(--eg-tint-strong, #dce8f8);
+  border-radius: var(--eg-radius, 2px);
+  margin-bottom: 20px;
+}
+
+.eg-attempt-sum-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.eg-sum-label {
+  font-size: 12px;
+  color: var(--eg-muted, #3f5878);
+  font-weight: 500;
+}
+
+.eg-sum-score {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.eg-sum-score.is-pass {
+  color: var(--eg-ok, #0b6b3a);
+}
+
+.eg-sum-score.is-fail {
+  color: var(--eg-danger, #b42318);
+}
+
+.eg-attempt-violations-box {
+  padding: 14px 18px;
+  background: var(--eg-danger-tint, #fdecea);
+  border-left: 3px solid var(--eg-danger, #b42318);
+  border-radius: var(--eg-radius, 2px);
+  margin-bottom: 20px;
+}
+
+.eg-attempt-box-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--eg-ink, #0b2545);
+  margin: 0 0 10px 0;
+}
+
+.eg-attempt-logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eg-attempt-log-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #7f1d1d;
+}
+
+.eg-log-time {
+  font-weight: 600;
+}
+
+.eg-log-type {
+  font-family: var(--eg-mono, monospace);
+  background: #fee2e2;
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.eg-log-dist {
+  font-style: italic;
+  color: #991b1b;
+  margin-left: auto;
+}
+
+.eg-attempt-questions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.eg-attempt-questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.eg-attempt-q-card {
+  padding: 16px;
+  border-radius: var(--eg-radius, 2px);
+  background: #ffffff;
+  border: 1px solid var(--eg-tint-strong, #dce8f8);
+}
+
+.eg-attempt-q-card.is-correct {
+  border-left: 4px solid var(--eg-ok, #0b6b3a);
+}
+
+.eg-attempt-q-card.is-wrong {
+  border-left: 4px solid var(--eg-danger, #b42318);
+}
+
+.eg-attempt-q-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.eg-q-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--eg-muted, #3f5878);
+}
+
+.eg-attempt-q-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--eg-ink, #0b2545);
+  margin: 0 0 10px 0;
+  line-height: 1.45;
+}
+
+.eg-attempt-ans-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--eg-surface-alt, #f6f9fe);
+  padding: 10px 14px;
+  border-radius: var(--eg-radius, 2px);
+  font-size: 13px;
+}
+
+.eg-ans-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.eg-ans-lbl {
+  color: var(--eg-muted, #3f5878);
+  min-width: 150px;
+}
+
+.eg-ans-val {
+  font-weight: 600;
+}
+
+.eg-ans-val.ok-val {
+  color: var(--eg-ok, #0b6b3a);
+}
+
+.eg-ans-val.wrong-val {
+  color: var(--eg-danger, #b42318);
+}
+
+.eg-ans-val.correct-val {
+  color: var(--eg-ok, #0b6b3a);
+}

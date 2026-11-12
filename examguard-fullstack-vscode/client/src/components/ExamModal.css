@@ -1,0 +1,129 @@
+.eg-exam-modal {
+  max-width: 680px;
+  width: 92%;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.eg-form-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e40af;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 6px;
+  margin-top: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.eg-matrix-warning-badge {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #b45309;
+  background: #fffbeb;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #fef3c7;
+}
+
+.eg-modal-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .eg-modal-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.eg-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 650px) {
+  .eg-matrix-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.eg-matrix-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eg-matrix-item.is-easy {
+  border-color: #a7f3d0;
+  background: #f0fdf4;
+}
+
+.eg-matrix-item.is-medium {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.eg-matrix-item.is-hard {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.eg-matrix-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.eg-matrix-input {
+  text-align: center;
+  font-weight: 600;
+  padding: 5px;
+}
+
+.eg-matrix-ratio {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.eg-shuffle-options {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.eg-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #334155;
+  cursor: pointer;
+}
+
+.eg-checkbox-label input {
+  margin-top: 2px;
+  cursor: pointer;
+}

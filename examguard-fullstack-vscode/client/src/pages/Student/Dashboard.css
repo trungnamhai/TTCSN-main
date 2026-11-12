@@ -1,547 +1,257 @@
-.sd-layout {
-  display: flex;
-  min-height: 100vh;
-  background-color: #f4f7fe;
-  font-family:
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
-  color: #1e293b;
-}
+/* ==========================================================================
+   Student Dashboard Styles - Shared Enterprise Design System with Teacher
+   Layout: eg-shell (Sidebar + Main)
+   Theme: Clean SaaS, Light Blue & White, 2px-4px border radius, sharp typography
+   ========================================================================== */
 
-/* SIDEBAR BÊN TRÁI */
-.sd-sidebar {
-  width: 245px;
-  background: #ffffff;
-  border-right: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 14px;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  overflow: hidden;
-  white-space: nowrap;
-  opacity: 1;
+@import '../Teacher/ProctoringDashboard.css';
 
-  transition:
-    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    border-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.3s ease;
-}
-
-/* Giữ nội dung bên trong không bị co theo sidebar */
-.sd-sidebar > * {
-  min-width: 216px;
-}
-
-/* Trạng thái thu gọn */
-.sd-sidebar-collapsed {
-  width: 0;
-  padding-left: 0;
-  padding-right: 0;
-  border-right-width: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Nút menu xoay nhẹ khi đóng/mở */
-.sd-menu-toggle svg {
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sd-menu-toggle.is-open svg {
-  transform: rotate(90deg);
-}
-
-.sd-brand {
-  display: flex;
+/* Student Status Badge */
+.eg-badge-student-ready {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 4px 8px 22px 8px;
-}
-
-.sd-brand-logo {
-  max-width: 195px;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-
-.sd-nav {
-  display: flex;
-  flex-direction: column;
   gap: 6px;
-  flex: 1;
-}
-
-.sd-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 16px;
-  border-radius: 10px;
-  border: none;
-  background: transparent;
-  color: #475569;
-  font-size: 14.5px;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.2s ease;
-}
-
-.sd-nav-item:hover {
-  background-color: #f1f5f9;
-  color: #1d4ed8;
-}
-
-.sd-nav-item.active {
-  background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%);
-  color: #1d4ed8;
-  font-weight: 700;
-}
-
-.sd-nav-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sd-sidebar-footer {
-  margin-top: auto;
-  background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
-  border: 1px solid #dbeafe;
-  border-radius: 16px;
-  padding: 18px 12px;
-  text-align: center;
-}
-
-.sd-shield-illustration {
-  margin-bottom: 8px;
-}
-
-.sd-Poster-title {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 700;
-  color: #1d4ed8;
-}
-
-.sd-Poster-sub {
-  margin: 3px 0 0 0;
-  font-size: 13px;
-  font-weight: 600;
-  color: #3b82f6;
-}
-
-/* KHU VỰC CHÍNH */
-.sd-main-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-/* TOP HEADER */
-.sd-topbar {
-  height: 68px;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.sd-menu-toggle {
-  border: none;
-  background: transparent;
-  color: #475569;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-}
-
-.sd-menu-toggle:hover {
-  background: #f1f5f9;
-}
-
-.sd-topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.sd-notif-btn {
-  position: relative;
-  border: none;
-  background: #f8fafc;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #475569;
-  cursor: pointer;
-}
-
-.sd-notif-dot {
-  position: absolute;
-  top: 7px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
-  background: #ef4444;
-  border-radius: 50%;
-  border: 1.5px solid #ffffff;
-}
-
-.sd-user-profile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sd-avatar img {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.sd-user-meta {
-  display: flex;
-  flex-direction: column;
-}
-
-.sd-user-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.sd-user-role {
-  font-size: 12px;
-  color: #64748b;
-}
-
-.sd-logout-btn {
-  margin-left: 8px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #475569;
+  padding: 2px 8px;
+  background: var(--eg-ok-tint, #ddf5e8);
+  color: var(--eg-ok, #0b6b3a);
   font-size: 12px;
   font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 8px;
-  cursor: pointer;
+  border-radius: var(--eg-radius, 2px);
 }
 
-.sd-logout-btn:hover {
-  background: #fef2f2;
-  color: #dc2626;
-  border-color: #fecaca;
-}
-
-/* NỘI DUNG DASHBOARD */
-.sd-content {
-  padding: 24px 28px 36px 28px;
-  max-width: 1400px;
-  width: 100%;
-  margin: 0 auto;
-  box-sizing: border-box;
-}
-
-.sd-welcome-block {
-  margin-bottom: 20px;
-}
-
-.sd-welcome-title {
-  font-size: 24px;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 4px 0;
-}
-
-.sd-welcome-sub {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
-}
-
-/* 4 THẺ THỐNG KÊ */
-.sd-stats-grid {
+/* Open Sessions Grid */
+.eg-student-open-sessions-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin-bottom: 22px;
-}
-
-.sd-stat-card {
-  border-radius: 16px;
-  padding: 18px 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
-}
-
-.sd-stat-blue {
-  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
-}
-.sd-stat-green {
-  background: linear-gradient(135deg, #edfcf5 0%, #ffffff 100%);
-}
-.sd-stat-orange {
-  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
-}
-.sd-stat-purple {
-  background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%);
-}
-
-.sd-stat-icon-wrap {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.sd-stat-icon-wrap.blue {
-  background: #2563eb;
-  color: #ffffff;
-}
-.sd-stat-icon-wrap.green {
-  background: #10b981;
-  color: #ffffff;
-}
-.sd-stat-icon-wrap.orange {
-  background: #f59e0b;
-  color: #ffffff;
-}
-.sd-stat-icon-wrap.purple {
-  background: #7c3aed;
-  color: #ffffff;
-}
-
-.sd-stat-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.sd-stat-label {
-  font-size: 13px;
-  color: #475569;
-  margin-bottom: 6px;
-}
-
-.sd-stat-value-row {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.sd-stat-number {
-  font-size: 28px;
-  font-weight: 800;
-  color: #0f172a;
-  line-height: 1;
-}
-
-.sd-stat-unit {
-  font-size: 13px;
-  color: #64748b;
-}
-
-/* KHỐI NỘI DUNG */
-.sd-dashboard-grid {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 20px;
+  margin-top: 16px;
 }
 
-.sd-panel {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 20px 22px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+.eg-student-session-card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  background: var(--eg-surface, #ffffff);
+  border: 1px solid var(--eg-tint-strong, #dce8f8);
+  border-radius: var(--eg-radius, 2px);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.sd-panel-header {
+.eg-student-session-card:hover {
+  border-color: var(--eg-accent, #1a66e0);
+  box-shadow: 0 4px 12px rgba(26, 102, 224, 0.08);
+}
+
+.eg-student-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.eg-student-card-title {
+  margin: 0 0 6px 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--eg-ink, #0b2545);
+}
+
+.eg-student-card-subject {
+  font-size: 13px;
+  color: var(--eg-subtle, #54698a);
   margin-bottom: 16px;
 }
 
-.sd-panel-title-wrap {
+.eg-student-meta-list {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--eg-surface-alt, #f6f9fe);
+  border-radius: var(--eg-radius, 2px);
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.eg-student-meta-item {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
 }
 
-.sd-panel-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
+.eg-meta-label {
+  color: var(--eg-muted, #3f5878);
 }
 
-.sd-view-all {
-  font-size: 13px;
+.eg-student-meta-item strong {
+  color: var(--eg-ink, #0b2545);
   font-weight: 600;
-  color: #2563eb;
-  text-decoration: none;
 }
 
-/* DANH SÁCH KỲ THI SẮP TỚI */
-.sd-exam-list {
+.eg-student-sec-badges {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
 }
 
-.sd-exam-item {
+.eg-student-card-actions {
+  margin-top: auto;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid #eef2f6;
-  background: #fafcff;
-  transition: all 0.2s ease;
 }
 
-.sd-exam-item:hover {
-  border-color: #bfdbfe;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);
-}
-
-.sd-exam-left {
+.eg-student-enter-btn {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-width: 220px;
-}
-
-.sd-exam-subject-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: #dbeafe;
-  color: #1d4ed8;
-  font-weight: 800;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--eg-radius, 2px);
+  background: var(--eg-accent, #1a66e0);
+  color: #ffffff;
   font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.eg-student-enter-btn:hover {
+  background: var(--eg-accent-hover, #1457c2);
+}
+
+/* Two-column layout for Tab 4 */
+.eg-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .eg-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Device Preview Wrap */
+.eg-device-preview-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-width: 440px;
+  background: #0f172a;
+  border-radius: var(--eg-radius, 2px);
+  overflow: hidden;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.sd-exam-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 3px 0;
+.eg-device-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
 }
 
-.sd-exam-sub {
-  font-size: 12.5px;
-  color: #64748b;
-  margin: 0;
+.eg-device-video.is-active {
+  display: block;
 }
 
-.sd-exam-Schedule {
+.eg-device-placeholder {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 24px;
+  color: #94a3b8;
   font-size: 13px;
-  color: #475569;
 }
 
-.sd-schedule-row {
+.eg-device-actions {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  gap: 12px;
 }
 
-.sd-enter-exam-btn {
-  background: #2563eb;
-  color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  padding: 9px 18px;
+.eg-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--eg-tint-strong, #dce8f8);
+  border-radius: var(--eg-radius, 2px);
+  background: #ffffff;
+  color: var(--eg-ink, #0b2545);
   font-size: 13.5px;
-  font-weight: 700;
+  font-weight: 500;
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.eg-btn-cancel:hover {
+  background: var(--eg-tint, #e4eefc);
+}
+
+/* Rules Checklist */
+.eg-rules-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.eg-rules-checklist li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  background: var(--eg-surface-alt, #f6f9fe);
+  border-radius: var(--eg-radius, 2px);
+}
+
+.eg-rule-icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: background 0.2s ease;
-}
-
-.sd-enter-exam-btn:hover {
-  background: #1d4ed8;
-}
-
-/* BẢNG KẾT QUẢ HỌC TẬP GẦN ĐÂY */
-.sd-table-wrapper {
-  overflow-x: auto;
-}
-
-.sd-results-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13.5px;
-}
-
-.sd-results-table thead th {
-  text-align: left;
-  padding: 11px 12px;
-  background: #f8fafc;
-  color: #475569;
-  font-weight: 600;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.sd-results-table tbody td {
-  padding: 13px 12px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #334155;
-}
-
-.sd-td-title {
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.sd-td-score {
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.sd-status-badge {
-  display: inline-block;
-  background: #dcfce7;
-  color: #15803d;
+  justify-content: center;
   font-size: 12px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 999px;
+  font-weight: bold;
 }
 
-@media (max-width: 1100px) {
-  .sd-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.eg-rule-icon.ok {
+  background: var(--eg-ok-tint, #ddf5e8);
+  color: var(--eg-ok, #0b6b3a);
+}
+
+.eg-rules-checklist strong {
+  display: block;
+  font-size: 13.5px;
+  color: var(--eg-ink, #0b2545);
+  margin-bottom: 2px;
+}
+
+.eg-rules-checklist p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--eg-muted, #3f5878);
+  line-height: 1.4;
+}
+
+.eg-table-subtext {
+  font-size: 12px;
+  color: var(--eg-subtle, #54698a);
+  margin-top: 2px;
 }

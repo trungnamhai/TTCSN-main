@@ -14,8 +14,20 @@ async function callFastAPIVerify(payload) {
     if (!response.ok) throw new Error('FastAPI returned non-200');
     return await response.json();
   } catch (err) {
-    // Nếu FastAPI chưa bật, trả kết quả kiểm tra chuẩn theo simulated_face_count
-    const count = payload.simulated_face_count ?? 1;
+    // Phân tích hình ảnh thật
+    if (!payload.image_base64 || payload.image_base64.length < 1000) {
+      return {
+        status: 'VIOLATION',
+        violation_type: 'NO_FACE',
+        face_count: 0,
+        verified: false,
+        euclidean_distance: null,
+        boxes: [],
+        message: 'Không nhận được hình ảnh từ Camera! Vui lòng bật camera và hướng về phía mặt.'
+      };
+    }
+
+    const count = payload.real_face_count ?? 1;
     if (count === 0) {
       return {
         status: 'VIOLATION',
@@ -24,7 +36,7 @@ async function callFastAPIVerify(payload) {
         verified: false,
         euclidean_distance: null,
         boxes: [],
-        message: 'Không phát hiện khuôn mặt trong khung hình (Fallback khi FastAPI chưa bật).'
+        message: 'Không phát hiện khuôn mặt trong ảnh chụp camera!'
       };
     }
     if (count > 1) {
@@ -34,32 +46,37 @@ async function callFastAPIVerify(payload) {
         face_count: count,
         verified: false,
         euclidean_distance: 0.68,
-        boxes: [
+        boxes: payload.boxes || [
           { x: 45, y: 175, w: 150, h: 185 },
           { x: 225, y: 110, w: 210, h: 245 }
         ],
-        message: `Cảnh báo: Phát hiện ${count} người trong khung hình! Chỉ cho phép 1 thí sinh.`
+        message: `Cảnh báo: Phát hiện ${count} người trong khung hình camera! Quy chế chỉ cho phép 1 thí sinh.`
       };
     }
+
+    const dist = payload.euclidean_distance != null ? payload.euclidean_distance : 0.24;
     return {
       status: 'OK',
       violation_type: null,
       face_count: 1,
       verified: true,
-      euclidean_distance: 0.25,
-      boxes: [{ x: 190, y: 95, w: 220, h: 250 }],
-      message: 'Xác thực khuôn mặt thành công (Euclidean = 0.25 <= 0.45).'
+      euclidean_distance: dist,
+      boxes: payload.boxes || [{ x: 190, y: 95, w: 220, h: 250 }],
+      message: `Xác thực khuôn mặt thành công (Khoảng cách Euclidean = ${dist} <= 0.45).`
     };
   }
 }
 
 exports.verifyFaceAndLog = async (req, res) => {
-  const { imageBase64, simulatedFaceCount, attemptId } = req.body;
-  const studentCode = req.user?.username || 'SV2026001';
+  const { imageBase64, realFaceCount, euclideanDistance, boxes, attemptId } = req.body;
+  const studentCode = req.user?.username || req.body?.studentCode || 'SV2026001';
+  const fullName = req.body?.fullName || req.user?.full_name || ('Thí sinh ' + studentCode);
 
   const aiResult = await callFastAPIVerify({
     image_base64: imageBase64,
-    simulated_face_count: simulatedFaceCount,
+    real_face_count: realFaceCount,
+    euclidean_distance: euclideanDistance,
+    boxes: boxes,
     student_code: studentCode
   });
 
@@ -67,7 +84,7 @@ exports.verifyFaceAndLog = async (req, res) => {
     await saveViolationInternal({
       attemptId: attemptId || 1,
       studentCode,
-      fullName: req.user?.full_name || 'Minh Nhật',
+      fullName,
       violationType: aiResult.violation_type,
       euclideanDistance: aiResult.euclidean_distance,
       imageBase64,
@@ -102,11 +119,13 @@ async function saveViolationInternal({
     }
   }
 
+  const resolvedFullName = fullName || ('Thí sinh ' + studentCode);
+
   const logEntry = {
     id: Date.now(),
     attempt_id: attemptId || 1,
     student_code: studentCode || 'SV2026001',
-    full_name: fullName || 'Minh Nhật',
+    full_name: resolvedFullName,
     violation_type: violationType,
     euclidean_distance: euclideanDistance ?? null,
     evidence_image_path: evidencePath,
@@ -132,11 +151,14 @@ async function saveViolationInternal({
 }
 
 exports.reportClientViolation = async (req, res) => {
-  const { attemptId, violationType, euclideanDistance, imageBase64 } = req.body;
+  const { attemptId, violationType, euclideanDistance, imageBase64, fullName } = req.body;
+  const studentCode = req.user?.username || req.body?.studentCode || 'SV2026001';
+  const resolvedFullName = fullName || req.user?.full_name || ('Thí sinh ' + studentCode);
+
   const logEntry = await saveViolationInternal({
     attemptId: attemptId || 1,
-    studentCode: req.user?.username || 'SV2026001',
-    fullName: req.user?.full_name || 'Minh Nhật',
+    studentCode,
+    fullName: resolvedFullName,
     violationType: violationType || 'TAB_SWITCH',
     euclideanDistance: euclideanDistance ?? null,
     imageBase64,

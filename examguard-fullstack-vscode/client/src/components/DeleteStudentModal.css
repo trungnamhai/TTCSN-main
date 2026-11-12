@@ -1,0 +1,143 @@
+/* DeleteStudentModal.css - Clean, Crisp & Minimal Corner Radius */
+.dsm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: dsmFadeIn 0.15s ease-out;
+}
+
+@keyframes dsmFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dsm-modal {
+  background: #ffffff;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(226, 232, 240, 0.9);
+  overflow: hidden;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.dsm-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.dsm-title {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.dsm-desc {
+  margin: 0 0 10px 0;
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.dsm-desc code {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.dsm-warning {
+  margin: 0 0 16px 0;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: #fffafa;
+  border: 1px solid #fee2e2;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.dsm-alert {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 12.5px;
+}
+
+.dsm-alert-error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.dsm-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.dsm-btn-cancel {
+  flex: 1;
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dsm-btn-cancel:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.dsm-btn-delete {
+  flex: 1;
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #dc2626;
+  background: #dc2626;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.dsm-btn-delete:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.dsm-btn-delete:disabled,
+.dsm-btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

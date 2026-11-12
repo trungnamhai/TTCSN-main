@@ -1,0 +1,15 @@
+.eg-subject-modal {
+  max-width: 580px;
+  width: 90%;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+  overflow: hidden;
+}
+
+.eg-monospace-input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}

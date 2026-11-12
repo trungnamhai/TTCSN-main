@@ -1,0 +1,9 @@
+.eg-delete-modal {
+  max-width: 500px;
+  width: 90%;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+  overflow: hidden;
+}

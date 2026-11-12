@@ -1,4 +1,14 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const getBackendBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== 'undefined' && window.location.hostname) {
+    return `http://${window.location.hostname}:5000/api`;
+  }
+  return 'http://localhost:5000/api';
+};
+
+const API_URL = getBackendBaseUrl();
 
 export async function apiRequest(endpoint, { method = 'GET', body, token } = {}) {
   const headers = { 'Content-Type': 'application/json' };
@@ -11,6 +21,13 @@ export async function apiRequest(endpoint, { method = 'GET', body, token } = {})
     headers,
     body: body ? JSON.stringify(body) : undefined
   });
+
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('json')) {
+    throw new Error(
+      `API ${endpoint} trả về HTML thay vì JSON (${response.status}). Hãy khởi động lại backend ExamGuard ở cổng 5000.`
+    );
+  }
 
   const data = await response.json();
   if (!response.ok) {

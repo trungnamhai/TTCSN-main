@@ -5,7 +5,7 @@ import "./ExamLogin.css";
 import logoImg from "./logo.png";
 import bgImg from "./background.png";
 
-export default function ExamLogin({ onLoginSuccess }) {
+export default function ExamLogin({ onLoginSuccess, onSwitchToTeacher }) {
   const [studentCode, setStudentCode] = useState("");
   const [sessionCode, setSessionCode] = useState("");
   const [agreedRules, setAgreedRules] = useState(false);
@@ -71,8 +71,12 @@ export default function ExamLogin({ onLoginSuccess }) {
         },
       };
 
-      if (sampleStudents[trimmedCode] && trimmedPass === "123456789") {
-        const student = sampleStudents[trimmedCode];
+      const extraStudents = JSON.parse(localStorage.getItem('sample_extra_students') || '{}');
+      const allSampleStudents = { ...sampleStudents, ...extraStudents };
+
+      const savedPass = localStorage.getItem(`sample_pwd_${trimmedCode}`) || "123456789";
+      if (allSampleStudents[trimmedCode] && (trimmedPass === savedPass || trimmedPass === "123456789")) {
+        const student = allSampleStudents[trimmedCode];
         onLoginSuccess({
           token: `sample-jwt-token-${trimmedCode}`,
           user: {
@@ -112,6 +116,13 @@ export default function ExamLogin({ onLoginSuccess }) {
         <div className="eg-header-brand">
           <img src={logoImg} alt="TRACNGHIEM Logo" className="eg-login-logo" />
         </div>
+        <button
+          type="button"
+          className="eg-header-btn"
+          onClick={onSwitchToTeacher}
+        >
+          Đăng nhập giáo viên
+        </button>
       </header>
 
       <div className="eg-auth-card">

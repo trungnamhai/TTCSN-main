@@ -1,0 +1,23 @@
+.eg-teacher-login-card {
+  position: relative;
+  padding-top: 40px;
+}
+
+.eg-teacher-login-mark {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: #eaf1ff;
+  color: #1d4ed8;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.eg-teacher-login-note {
+  margin-top: 22px;
+  color: #64748b;
+  font-size: 13px;
+}

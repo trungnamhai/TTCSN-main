@@ -1,0 +1,2190 @@
+
+Gemini
+
+Cuộc trò chuyện mới
+Thư viện
+Đã lên lịch
+Sinh viên
+
+Hiện thêm
+Sổ ghi chú mới
+"advancement.smfs.tame_ghost.title": "Tame Ghost", "advancement.smfs.tame_ghost.description": "Become a ghost tamer, tame your first ghost", "effect.smfs.lost": "Lost", "effect.smfs.wish_curse": "Wish Curse", "effect.smfs.wish_curse.lightning_hit": "The lightning of Wish Curse has struck you!", "effect.smfs.purification": "Purification", "effect.smfs.purification.description": "Immune to the negative effects of Silence", "entity.smfs.zhao_kai_ming.wish_curse_applied": "You have bee
+Thiết kế màn hình hệ thống thi
+Xóa các thẻ giao diện Dashboard
+Thiết Kế Logo Phòng Chống Gian Lận
+Cách dọn dẹp ổ C đầy
+Tùy chỉnh giao diện trang đăng nhập
+hãy thiết kế 1 website chống gian lận trong thi trực tuyến làm theo các yêu cầu ở trong các file tr
+Hướng Dẫn Kết Nối Minecraft LAN
+Đồng bộ hình nền Wallpaper Engine
+Render Hacktoberfest Credit Link Safety
+Khám phá và Phân tích Dữ liệu (EDA)
+Tùy Chỉnh Giao Diện Thông Báo
+Làm rõ thông tin cử chỉ
+Đề tài thực tập tích hợp AI
+Tối ưu quạt tản nhiệt Lenovo LOQ
+Top Game Thủ Thành iOS Hay Nhất
+Các phương pháp sắp xếp dữ liệu
+Giải đáp linh kiện bên trong laptop
+OS Installer Encryption Options Guide
+Tóm tắt dự án làm slide
+Yêu cầu Tóm tắt Bài thuyết trình
+Yêu cầu số điện thoại tạo iCloud
+Đếm Số Lượng Chữ Số Bằng Đệ Quy
+Khôi phục danh bạ bị mất trên điện thoại
+Chọn ổ đĩa cài đặt Windows 11
+Hướng dẫn cài đặt Linux chi tiết
+Hướng dẫn cài ứng dụng trên Linux
+Hướng dẫn sao lưu Android lên laptop
+Oppo Tự Khởi Động Lại Khi Lướt TikTok
+Bảng Tổng Hợp 12 Thì Tiếng Anh
+Trò chuyện với Gemini
+từ đây hãy hình dung cho tôi các màn hình và chức năng của trang sinh viên và giáo viên, đơn giản nhất có thể
+
+Hệ thống được chia thành hai phân hệ giao diện chính dành cho Sinh viên và Giảng viên, kết nối trực tiếp với 10 bảng trong cơ sở dữ liệu để xử lý quy trình thi và giám sát tự động.   
+SQL
++ 1
+
+1. Trang dành cho Sinh viên (5 màn hình cơ bản)
+Phân hệ Sinh viên được thiết kế tối giản theo luồng một chiều từ lúc đăng nhập, xác thực khuôn mặt cho đến khi hoàn thành bài thi:   
+DOCX
+
+Màn hình 1: Đăng nhập & Cập nhật hồ sơ khuôn mặt
+
+Đăng nhập: Ô nhập tên đăng nhập (username - Mã sinh viên) và mật khẩu (password_hash).   
+SQL
++ 1
+
+Cập nhật ảnh mẫu: Chức năng tải lên hoặc chụp ảnh chân dung gốc (profile_image_url) để hệ thống AI trích xuất và lưu chuỗi vector khuôn mặt 128 chiều (face_embedding trong bảng users) phục vụ đối soát khi vào thi.   
+SQL
++ 1
+
+Màn hình 2: Danh sách ca thi (ExamList)
+
+Hiển thị lịch thi: Liệt kê các ca thi (exam_sessions) theo môn học (subjects) và đề thi (exams) cùng thời gian mở đề (start_time) và đóng đề (end_time).   
+SQL
++ 1
+
+Vào phòng thi: Ô nhập hoặc chọn mã ca thi (session_code) và nút "Vào phòng thi".   
+SQL
++ 1
+
+Màn hình 3: Xác thực khuôn mặt 1:1 trước giờ thi (FaceVerify)
+
+Khung chụp Webcam: Hiển thị camera trực tiếp kèm khung căn chỉnh để sinh viên giữ thẳng đầu và chụp ảnh định danh trước khi mở đề.   
+DOCX
+
+Kiểm tra điều kiện mở đề: Hệ thống tự động đếm số người và tính khoảng cách Euclidean với ảnh hồ sơ. Nếu có đúng 1 khuôn mặt và khoảng cách d <= 0.6, hệ thống sẽ mở đề thi; nếu sai khác hoặc có nhiều người, màn hình báo lỗi và cho phép thử lại tối đa 3 lần trước khi khóa phòng thi.   
+DOCX
++ 1
+
+Màn hình 4: Phòng làm bài thi (ExamRoom)
+
+Khóa môi trường thi: Tự động bật chế độ toàn màn hình (Fullscreen) ngay khi vào bài, đồng thời vô hiệu hóa chuột phải, chặn phím tắt (Ctrl+C, Ctrl+V, Alt+Tab) và chặn mở công cụ F12 (DevTools).   
+DOCX
+
+Khu vực làm bài: Hiển thị đồng hồ đếm ngược đồng bộ từ máy chủ, nội dung câu hỏi (questions) và các đáp án A, B, C, D (answers) đã được xáo trộn ngẫu nhiên.   
+SQL
++ 1
+
+Tự động lưu & Nộp bài: Mỗi khi sinh viên chọn đáp án (selected_answer_id), hệ thống tự động lưu ngầm vào bảng attempt_details mỗi 5–10 giây. Bài thi sẽ đóng lại khi sinh viên nhấn nút "Nộp bài" hoặc khi đồng hồ đếm ngược về 0.   
+SQL
++ 2
+
+Giám sát ngầm & Cảnh báo: Webcam tự động chụp ảnh ngầm mỗi 15–30 giây. Nếu sinh viên thoát toàn màn hình, chuyển tab, rời khỏi vị trí hoặc có người lạ xuất hiện, một hộp thoại cảnh báo nhắc nhở sẽ bật lên ngay trên màn hình.   
+DOCX
++ 1
+
+Màn hình 5: Kết quả bài thi (ExamResult)
+
+Tra cứu điểm: Hiển thị thời gian nộp bài (submit_time), trạng thái bài thi (status là SUBMITTED) và tổng điểm đạt được (total_score trên thang điểm 10 từ bảng exam_attempts).   
+SQL
++ 1
+
+2. Trang dành cho Giảng viên (5 màn hình cơ bản)
+Phân hệ Giảng viên tập trung vào công tác biên soạn ngân hàng đề, mở ca thi và theo dõi cảnh báo gian lận theo thời gian thực:   
+DOCX
+
+Màn hình 1: Quản lý Sinh viên & Duyệt ảnh hồ sơ
+
+Danh sách lớp thi: Xem danh sách tài khoản sinh viên (users) theo môn học và phân quyền truy cập (roles).   
+SQL
++ 1
+
+Kiểm duyệt ảnh: Xem và phê duyệt ảnh chân dung mẫu (profile_image_url) của sinh viên trước kỳ thi để đảm bảo dữ liệu đối soát AI chính xác.   
+SQL
++ 1
+
+Màn hình 2: Ngân hàng câu hỏi (QuestionBank)
+
+Quản lý môn học: Tạo và xem danh sách môn học (subjects) gồm mã môn (subject_code), tên môn (subject_name) và mô tả (description).   
+SQL
++ 1
+
+Soạn thảo câu hỏi (CRUD): Thêm, sửa, xóa câu hỏi (questions) theo nội dung (content), loại câu hỏi (SINGLE_CHOICE, MULTIPLE_CHOICE), độ khó (EASY, MEDIUM, HARD) và nhập các phương án trả lời kèm tích chọn đáp án đúng (is_correct trong bảng answers).   
+SQL
++ 1
+
+Nhập nhanh: Nút "Import Excel" hỗ trợ tải lên hàng loạt câu hỏi từ tệp Excel chuẩn hóa.   
+DOCX
+
+Màn hình 3: Khởi tạo Đề thi (CreateExam)
+
+Thiết lập thông số đề: Biểu mẫu nhập tiêu đề bài thi (title), chọn môn học (subject_id), thời gian làm bài tính bằng phút (duration_minutes), tổng số câu hỏi (total_questions) và điểm đạt (passing_score) lưu vào bảng exams.   
+SQL
++ 1
+
+Cấu hình chống nhìn bài: Hai nút gạt (checkbox/toggle) cho phép bật tự động xáo trộn thứ tự câu hỏi (shuffle_questions) và đảo vị trí các đáp án A, B, C, D (shuffle_answers).   
+SQL
++ 1
+
+Màn hình 4: Quản lý và Lập lịch Ca thi (ExamSessions)
+
+Mở phòng thi: Chọn đề thi (exam_id), tạo mã ca thi (session_code), cài đặt ngày giờ bắt đầu (start_time), ngày giờ kết thúc (end_time) và nút bật/tắt trạng thái hoạt động của ca thi (is_active).   
+SQL
++ 1
+
+Màn hình 5: Bảng điều khiển Giám sát & Báo cáo (Dashboard)
+
+Lưới theo dõi thí sinh trực tiếp (Realtime): Hiển thị danh sách sinh viên đang làm bài trong ca thi cùng trạng thái hiện tại (IN_PROGRESS, SUBMITTED, FORCE_CLOSED từ bảng exam_attempts). Khi một thí sinh vi phạm vượt ngưỡng (quá 3 lần), ô thông tin của thí sinh đó sẽ chớp đỏ tức thì nhờ kết nối WebSocket.   
+SQL
++ 2
+
+Chi tiết Nhật ký vi phạm (Proctoring Logs): Khi giảng viên nhấp vào một thí sinh, màn hình hiển thị danh sách lịch sử vi phạm trích xuất từ bảng proctoring_logs bao gồm: mã lỗi (TAB_SWITCH, EXIT_FULLSCREEN, FACE_MISMATCH, NO_FACE_DETECTED, MULTIPLE_FACES), thời điểm vi phạm (timestamp), chỉ số khoảng cách Euclidean (euclidean_distance) và hình ảnh bằng chứng chụp trực tiếp từ webcam (evidence_image_path).   
+SQL
++ 1
+
+Thống kê & Xuất báo cáo: Xem bảng điểm tổng hợp của cả lớp, thống kê phổ điểm và nút xuất tệp báo cáo kết quả ca thi.   
+DOCX
+
+Bảng đối chiếu nhanh Màn hình và Cơ sở dữ liệu
+Phân hệ	Tên màn hình	Các bảng CSDL tương tác chính
+Sinh viên	1. Đăng nhập & Hồ sơ	
+users, roles 
+SQL
++ 1
+
+Sinh viên	2. Danh sách ca thi (ExamList)	
+subjects, exams, exam_sessions 
+SQL
++ 1
+
+Sinh viên	3. Xác thực khuôn mặt (FaceVerify)	
+users (face_embedding), proctoring_logs 
+SQL
++ 1
+
+Sinh viên	4. Phòng làm bài (ExamRoom)	
+questions, answers, exam_attempts, attempt_details, proctoring_logs 
+SQL
++ 1
+
+Sinh viên	5. Kết quả thi (ExamResult)	
+exam_attempts (total_score, status) 
+SQL
++ 1
+
+Giảng viên	1. Quản lý Sinh viên & Duyệt ảnh	
+users, roles 
+SQL
++ 1
+
+Giảng viên	2. Ngân hàng câu hỏi (QuestionBank)	
+subjects, questions, answers 
+SQL
++ 1
+
+Giảng viên	3. Tạo đề thi (CreateExam)	
+exams, subjects 
+SQL
++ 1
+
+Giảng viên	4. Quản lý ca thi (ExamSessions)	
+exam_sessions, exams 
+SQL
++ 1
+
+Giảng viên	5. Giám sát & Báo cáo (Dashboard)	
+exam_attempts, proctoring_logs, attempt_details 
+SQL
++ 1
+
+Bạn có muốn phác thảo chi tiết bố cục (wireframe dạng chữ) hoặc danh sách các API cần viết cho một màn hình cụ thể nào trong số này không?
+
+gửi ảnh các màn hình cho tôi
+
+Dưới đây là hình ảnh hình dung trực quan cho các màn hình và chức năng cơ bản nhất của cả hai trang: Trang Sinh viên (bên trái) và Trang Giáo viên (bên phải), được thiết kế dưới dạng giao diện hiện đại, tối giản và tích hợp AI chống gian lận:
+
+Trang Sinh viên (Bên trái): Hiển thị không gian phòng thi ở chế độ toàn màn hình (useFullscreen)[cite: 2], gồm đề thi trắc nghiệm[cite: 1, 2], đồng hồ đếm ngược[cite: 2], danh sách câu hỏi[cite: 2] và đặc biệt là ô webcam giám sát AI trực tiếp ở góc trên bên phải (đối soát 1 khuôn mặt, khoảng cách Euclidean hợp lệ d = 0.38)[cite: 1, 2].
+
+Trang Giáo viên (Bên phải): Hiển thị Bảng điều khiển giám sát ca thi thời gian thực (Proctoring Dashboard)[cite: 2], cho phép giáo viên theo dõi trạng thái của từng sinh viên qua lưới camera (xanh là bình thường, đỏ là vi phạm)[cite: 2] và Nhật ký vi phạm trực tiếp (Proctoring Logs) ở cột bên phải, kèm ảnh chụp webcam làm bằng chứng đối soát (evidence_image_path)[cite: 1, 2].
+
+Bạn có muốn thay đổi chi tiết nào trong các tính năng này để phù hợp hơn với nhu cầu của mình không?
+
+, do AI tạo
+ý là trang dashboarh của sinh viên ấy và trang dashboard của giáo viên
+
+Dưới đây là bản phác thảo bố cục trực quan (Wireframe) và các thành phần chức năng cho Trang Dashboard của Sinh viên và Trang Dashboard của Giáo viên ở mức đơn giản, gọn gàng nhất dựa trên thiết kế cơ sở dữ liệu và báo cáo hệ thống.   
+SQL
++ 1
+
+1. Trang Dashboard của Sinh viên (Student Dashboard)
+Trang Dashboard của sinh viên đóng vai trò là màn hình chính ngay sau khi đăng nhập, gom toàn bộ thông tin cá nhân, trạng thái dữ liệu khuôn mặt, danh sách ca thi và bảng điểm vào cùng một trang duy nhất.   
+SQL
++ 1
+
+Plaintext
++-----------------------------------------------------------------------------------+
+| [Logo] HỆ THỐNG THI TRỰC TUYẾN          Xin chào, Bùi Minh Nhật (SV) | [Đăng xuất]|
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  +-----------------------+   +-------------------------------------------------+  |
+|  | 1. HỒ SƠ & KHUÔN MẶT  |   | 2. VÀO PHÒNG THI NHANH                          |  |
+|  |                       |   | Nhập mã ca thi (session_code):                  |  |
+|  |   [ Ảnh chân dung ]   |   | [ IT6121_GK_01            ] [ VÀO PHÒNG THI ]   |  |
+|  |                       |   +-------------------------------------------------+  |
+|  | Mã SV: 20261IT6121    |                                                        |
+|  | Email: nhat@haui...   |   +-------------------------------------------------+  |
+|  |                       |   | 3. DANH SÁCH CA THI HIỆN CÓ (ExamList)          |  |
+|  | Dữ liệu khuôn mặt AI: |   | ----------------------------------------------- |  |
+|  | [v] Đã đăng ký (128-D)|   | * Môn: Thực tập cơ sở ngành (IT6121)            |  |
+|  |                       |   |   Đề: Kiểm tra giữa kỳ đợt 1                    |  |
+|  | [ Cập nhật ảnh mẫu ]  |   |   Thời lượng: 45 phút | Số câu: 40 câu          |  |
+|  +-----------------------+   |   Giờ mở: 08:00 - 09:00 | Trạng thái: ĐANG MỞ   |  |
+|                              |                            [ Xác thực & Vào thi]|  |
+|                              | ----------------------------------------------- |  |
+|                              | * Môn: Cơ sở dữ liệu                            |  |
+|                              |   Giờ mở: 14:00 - 15:00 | Trạng thái: CHƯA MỞ   |  |
+|                              +-------------------------------------------------+  |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | 4. LỊCH SỬ LÀM BÀI & KẾT QUẢ (ExamResult)                                   |  |
+|  | --------------------------------------------------------------------------- |  |
+|  | Kỳ thi / Môn học          | Giờ nộp bài      | Trạng thái  | Điểm số        |  |
+|  | Kiểm tra thường xuyên 1   | 10/10/2026 08:40 | Đã nộp bài  | 8.50 / 10 (Đạt)|  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
+Các khối chức năng chính trên Dashboard Sinh viên:
+
+Khối 1 - Hồ sơ & Định danh AI: Hiển thị thông tin từ bảng users (username, full_name, email, profile_image_url). Tại đây báo trạng thái sinh viên đã có dữ liệu vector khuôn mặt 128 chiều (face_embedding) hay chưa và có nút "Cập nhật ảnh mẫu" để chụp/tải ảnh chân dung phục vụ đối soát chống thi hộ.   
+SQL
++ 3
+
+Khối 2 - Tìm kiếm ca thi theo mã: Ô nhập trực tiếp mã ca thi (session_code từ bảng exam_sessions) giúp sinh viên truy cập nhanh vào phòng thi được chỉ định.   
+SQL
++ 1
+
+Khối 3 - Danh sách ca thi (ExamList): Hiển thị các ca thi đang mở (is_active = TRUE), thông tin môn học (subjects), tiêu đề đề thi (title), thời gian làm bài (duration_minutes), tổng số câu (total_questions) và khung giờ mở đề (start_time - end_time). Khi bấm "Xác thực & Vào thi", hệ thống sẽ bật popup webcam để xác thực khuôn mặt 1:1 trước khi mở đề.   
+SQL
++ 2
+
+Khối 4 - Lịch sử & Kết quả thi (ExamResult): Bảng tra cứu các lượt thi đã thực hiện (exam_attempts), hiển thị thời điểm nộp (submit_time), trạng thái (status: SUBMITTED, IN_PROGRESS, FORCE_CLOSED) và tổng điểm (total_score đối chiếu với điểm đạt passing_score).   
+SQL
++ 1
+
+2. Trang Dashboard của Giáo viên (Teacher Dashboard)
+Trang Dashboard của giáo viên được chia làm Menu điều hướng bên trái (quản lý dữ liệu trước và sau kỳ thi) và Bảng điều khiển trung tâm bên phải (theo dõi tổng quan và giám sát gian lận trực tiếp trong ca thi).   
+DOCX
+
+Plaintext
++-----------------------------------------------------------------------------------+
+| [Logo] QUẢN TRỊ & GIÁM SÁT THI          Giảng viên: ThS. Phạm Thế Anh | [Đăng xuất]|
++----------------------+------------------------------------------------------------+
+| MENU ĐIỀU HƯỚNG      | 1. THỐNG KÊ NHANH HỆ THỐNG                                 |
+|                      | [ 05 Môn học ] [ 450 Câu hỏi ] [ 02 Ca đang mở ] [ 38 Đang thi]
+| > Tổng quan &        | ---------------------------------------------------------- |
+|   Giám sát (Active)  | 2. GIÁM SÁT CA THI TRỰC TIẾP (Proctoring Dashboard)        |
+|                      | Ca thi: IT6121_GK_01 | Môn: Thực tập cơ sở ngành           |
+| > Quản lý Sinh viên  | +-----------------------------------+ +------------------+ |
+|   (Duyệt ảnh mẫu)    | | LƯỚI THÍ SINH ĐANG THI (Realtime) | | NHẬT KÝ VI PHẠM  | |
+|                      | | +--------------+ +--------------+ | | (Proctoring Logs)| |
+| > Ngân hàng câu hỏi  | | | [Ảnh Webcam] | | [Ảnh Webcam] | | | ---------------- | |
+|   (CRUD / Nhập Excel)| | | SV: B.M.Nhật | | SV: T.H.Nam  | | | 14:25 - T.Đ.Mạnh | |
+|                      | | | Đang làm bài | | [!] CẢNH BÁO | | | Lỗi: FACE_MISMATCH| |
+| > Quản lý Đề thi     | | | (Hợp lệ)     | | Chuyển tab(3)| | | (d = 0.72 > 0.6) | |
+|   (Cấu hình xáo trộn)| | +--------------+ +--------------+ | | [Xem ảnh bằng    | |
+|                      | | +--------------+ +--------------+ | |  chứng webcam]   | |
+| > Quản lý Ca thi     | | | [Ảnh Webcam] | | [Ảnh Webcam] | | | ---------------- | |
+|   (Lập lịch mở đề)   | | | SV: T.V.Trung| | SV: T.Đ.Mạnh | | | 14:24 - T.H.Nam  | |
+|                      | | | Đã nộp bài   | | [!] ĐỔI NGƯỜI| | | Lỗi: TAB_SWITCH  | |
+| > Thống kê & Báo cáo | | | Điểm: 9.0    | | (Chớp đỏ ô)  | | | ---------------- | |
+|   (Xuất điểm Excel)  | | +--------------+ +--------------+ | | 14:22 - N.Q.Trường| |
+|                      | +-----------------------------------+ +------------------+ |
++----------------------+------------------------------------------------------------+
+Các khối chức năng chính trên Dashboard Giáo viên:
+
+Thanh Menu bên trái (Quản lý nghiệp vụ):
+
+Quản lý Sinh viên: Xem danh sách sinh viên (users) theo lớp và kiểm duyệt ảnh khuôn mặt hồ sơ (profile_image_url).   
+SQL
++ 1
+
+Ngân hàng câu hỏi (QuestionBank): Thêm, sửa, xóa môn học (subjects), câu hỏi (questions phân theo độ khó EASY, MEDIUM, HARD), đáp án (answers) và nút Import từ file Excel.   
+SQL
++ 1
+
+Quản lý Đề thi (CreateExam): Tạo đề thi (exams), cài đặt thời gian (duration_minutes), số câu (total_questions), điểm đạt (passing_score) và bật/tắt 2 tùy chọn xáo trộn câu hỏi (shuffle_questions) và xáo trộn đáp án (shuffle_answers).   
+SQL
++ 1
+
+Quản lý Ca thi (ExamSessions): Tạo mã phòng thi (session_code), hẹn giờ bắt đầu/kết thúc (start_time, end_time) và đóng/mở ca thi (is_active).   
+SQL
++ 1
+
+Thống kê & Báo cáo: Xem phổ điểm, bảng điểm tổng hợp (exam_attempts) và xuất báo cáo kết quả ca thi.   
+SQL
++ 1
+
+Khu vực Lưới thí sinh đang thi (Giữa màn hình):
+
+Hiển thị trạng thái làm bài thời gian thực (IN_PROGRESS, SUBMITTED, FORCE_CLOSED) của toàn bộ sinh viên trong ca thi thông qua kết nối WebSocket.   
+SQL
++ 1
+
+Khi sinh viên vi phạm quy chế vượt ngưỡng bộ đệm (ví dụ quá 3 lần cảnh báo liên tiếp), ô thông tin của sinh viên đó sẽ chớp đỏ tức thì để giảng viên chú ý.   
+DOCX
+
+Khu vực Nhật ký vi phạm (Proctoring Logs - Bên phải màn hình):
+
+Tự động cập nhật danh sách các bản ghi vi phạm từ bảng proctoring_logs theo thời gian thực.   
+SQL
++ 1
+
+Mỗi dòng log hiển thị rõ: Thời điểm vi phạm (timestamp), tên sinh viên, loại vi phạm (TAB_SWITCH - chuyển tab, EXIT_FULLSCREEN - thoát toàn màn hình, FACE_MISMATCH - không khớp khuôn mặt/thi hộ, NO_FACE_DETECTED - vắng mặt/che camera, MULTIPLE_FACES - có nhiều người trong khung hình), khoảng cách toán học Euclidean (euclidean_distance) và nút bấm để xem ảnh chụp bằng chứng từ webcam (evidence_image_path).   
+SQL
++ 1
+
+Gợi ý bước tiếp theo
+Bạn có muốn mình hỗ trợ thêm một trong các nội dung dưới đây để hoàn thiện phần thiết kế này không?
+
+Viết mã giao diện mẫu (HTML/TailwindCSS hoặc ReactJS Component) cho 2 trang Dashboard Sinh viên và Giáo viên ở trên để bạn chạy thử ngay trên trình duyệt.
+
+Thiết kế chi tiết các cửa sổ con (Modal/Form) khi Giáo viên bấm vào tạo Đề thi, tạo Ca thi hoặc Import câu hỏi từ Excel.
+
+Viết nội dung mô tả chi tiết cho mục 2.3.2 và 2.3.3 trong file báo cáo Word (TTCSN_N12.docx) dựa trên cấu trúc các màn hình này.
+
+tạo ảnh 2 màn hình đó cho tôi
+
+Dưới đây là hình ảnh hình dung chi tiết và đầy đủ cho hai màn hình dashboard chính của hệ thống[cite: 1, 2]:
+
+Trang Dashboard của Sinh viên (bên trái): Chứa thông tin cá nhân kèm trạng thái khuôn mặt AI đã đăng ký, thanh vào phòng thi nhanh bằng mã ca thi[cite: 1, 2], danh sách các ca thi hiện có (với nút "Xác thực & Vào thi")[cite: 1, 2], cùng bảng lịch sử kết quả thi[cite: 1, 2].
+
+Trang Dashboard của Giáo viên (bên phải): Chứa menu quản trị, số liệu thống kê nhanh[cite: 2], lưới giám sát thí sinh trực tiếp theo thời gian thực (hiển thị trạng thái/cảnh báo qua ảnh webcam)[cite: 2], và bảng Nhật ký vi phạm (Proctoring Logs) ghi nhận lỗi chi tiết từ hệ thống AI[cite: 1, 2].
+
+Bạn có cần chỉnh sửa hay bổ sung thêm tính năng nào trên giao diện này không?
+
+, do AI tạo
+có đúng với đủ so với cơ sở dữ liệu và báo cáo không đấy
+
+Về mặt chức năng nghiệp vụ và luồng dữ liệu, thiết kế của các màn hình trên đã đúng và đủ 100% so với cả kịch bản cơ sở dữ liệu (db_exam.sql) lẫn tài liệu báo cáo (TTCSN_N12.docx).   
+SQL
++ 1
+
+Dưới đây là bảng đối chiếu chi tiết từng phần và 2 lưu ý kỹ thuật quan trọng giữa file SQL và báo cáo để bạn kiểm chứng:
+
+1. Đối chiếu với Yêu cầu & Phân công trong Báo cáo (TTCSN_N12.docx)
+Trong báo cáo, Bảng 2.1 (Ma trận yêu cầu) và Bảng 2.14 (Phân công nhiệm vụ Frontend ReactJS) quy định rất rõ các màn hình của 2 thành viên phụ trách giao diện:   
+DOCX
+
+Phân hệ	Yêu cầu trong Báo cáo (Bảng 2.1 & Bảng 2.14)	Đã thể hiện trên Thiết kế & Ảnh minh họa
+Sinh viên (Trịnh Đình Mạnh phụ trách) 
+DOCX
+
+• FR-ST-01: Đăng nhập & cập nhật ảnh khuôn mặt hồ sơ mẫu. 
+DOCX
+
+
+• Component ExamList: Xem danh sách ca thi. 
+DOCX
+
+
+• Component FaceVerify (FR-ST-02): Xác thực khuôn mặt 1:1 qua webcam trước khi mở đề. 
+DOCX
+
+
+• Component ExamRoom (FR-ST-03, 04): Làm bài Fullscreen, đếm ngược, tự động lưu ngầm, khóa phím/chuột/chuyển tab. 
+DOCX
+
+
+• Component ExamResult (FR-ST-05): Xem điểm và lịch sử sau ca thi. 
+DOCX
+
+• Gộp gọn trên Dashboard Sinh viên: Khối 1 là Hồ sơ & cập nhật ảnh mẫu (FR-ST-01), Khối 2 & 3 là ExamList, Khối 4 là ExamResult. 
+DOCX
+
+
+• Khi bấm nút "Xác thực & Vào thi" trên Dashboard, hệ thống mở màn hình FaceVerify rồi chuyển sang màn hình ExamRoom (đã vẽ ở bức ảnh đầu tiên). 
+DOCX
+
+Giáo viên (Nhữ Quốc Trường phụ trách) 
+DOCX
+
+• FR-TC-01: Quản lý danh sách sinh viên và duyệt ảnh hồ sơ. 
+DOCX
+
+
+• Component QuestionBank (FR-TC-02): Quản lý câu hỏi (CRUD) & Import Excel. 
+DOCX
+
+
+• Component CreateExam (FR-TC-03): Tạo đề thi, cấu hình xáo trộn câu hỏi/đáp án. 
+DOCX
+
+
+• Component ExamSessions (FR-TC-03): Lập lịch ca thi. 
+DOCX
+
+
+• Component Dashboard (FR-TC-04, 05): Giám sát ca thi thời gian thực, chớp đỏ cảnh báo qua Socket.io, xem Proctoring Logs kèm ảnh bằng chứng và xuất báo cáo. 
+DOCX
+
+• Trên Dashboard Giáo viên: Thanh menu bên trái chứa đầy đủ các mục: Quản lý Sinh viên, Ngân hàng câu hỏi, Quản lý Đề thi, Quản lý Ca thi, Thống kê & Báo cáo. 
+DOCX
+
+
+• Màn hình chính hiển thị trực tiếp lưới thí sinh đang thi (chớp đỏ khi vi phạm) và cột Nhật ký vi phạm (Proctoring Logs) ở bên phải kèm nút xem ảnh bằng chứng. 
+DOCX
+
+2. Đối chiếu với 10 bảng trong Cơ sở dữ liệu (db_exam.sql)
+Không có bất kỳ bảng hay cột dữ liệu nào trong file db_exam.sql bị bỏ sót trên giao diện:   
+SQL
+
+roles & users: Hiển thị ở góc trên cùng (Họ tên full_name, vai trò role_id) và ở Khối 1 trên Dashboard Sinh viên (username, email, ảnh profile_image_url, trạng thái vector face_embedding).   
+SQL
+
+subjects, questions, answers: Nằm trong mục menu Ngân hàng câu hỏi của Giáo viên (quản lý mã môn subject_code, tên môn subject_name, nội dung câu hỏi content, loại question_type, độ khó difficulty_level, đáp án answer_text và cờ is_correct) và hiển thị ra màn hình Phòng làm bài của Sinh viên.   
+SQL
+
+exams: Nằm trong mục Quản lý Đề thi của Giáo viên và hiển thị thông tin trên ExamList của Sinh viên (title, duration_minutes, total_questions, passing_score, shuffle_questions, shuffle_answers).   
+SQL
+
+exam_sessions: Nằm trong mục Quản lý Ca thi của Giáo viên và Khối 2 & 3 của Sinh viên (mã ca thi session_code, giờ mở start_time, giờ đóng end_time, trạng thái is_active).   
+SQL
+
+exam_attempts & attempt_details: Phục vụ màn hình Phòng làm bài (lưu ngầm đáp án selected_answer_id vào attempt_details) và bảng Lịch sử làm bài & Kết quả (start_time, submit_time, total_score, status).   
+SQL
+
+proctoring_logs: Hiển thị trực tiếp ở cột Nhật ký vi phạm trên Dashboard Giáo viên (violation_type, chỉ số euclidean_distance, đường dẫn ảnh evidence_image_path, thời gian timestamp).   
+SQL
+
+3. Hai điểm khéo léo giúp giao diện khớp chặt giữa File SQL và Báo cáo
+Khi đối chiếu chéo giữa file db_exam.sql và file báo cáo TTCSN_N12.docx, có 2 điểm khác biệt nhỏ về mặt thiết kế dữ liệu mà giao diện Dashboard này đã giải quyết giúp bạn:   
+SQL
++ 1
+
+Cách sinh viên vào ca thi (Bảng exam_sessions):
+
+Trong báo cáo có nhắc đến việc "xem danh sách các ca thi được chỉ định" và "quản lý danh sách sinh viên theo lớp môn học". Tuy nhiên, trong file db_exam.sql không có bảng Lớp học mà chỉ kết nối sinh viên với ca thi thông qua bảng exam_attempts (user_id, session_id) và cột mã ca thi session_code trong bảng exam_sessions.   
+DOCX
++ 1
+
+Do đó, trên Dashboard Sinh viên có thiết kế cả Khối 2 (Ô nhập mã ca thi session_code) lẫn Khối 3 (Danh sách ca thi đang mở is_active = TRUE) — giúp bạn giải thích hoàn toàn hợp lý với giảng viên hướng dẫn về cách cột session_code hoạt động trong CSDL.   
+SQL
++ 2
+
+Cách bốc câu hỏi vào đề thi (Bảng exams và attempt_details):
+
+Trong db_exam.sql không có bảng trung gian exam_questions nối giữa exams và questions. Lý do là bảng exams chỉ lưu cấu hình tổng số câu (total_questions) theo môn học (subject_id). Khi sinh viên bắt đầu ca thi, hệ thống mới lấy ngẫu nhiên câu hỏi từ bảng questions và tạo các dòng tương ứng trong bảng attempt_details. Thiết kế form tạo đề thi chỉ cần chọn môn học và nhập số lượng câu hỏi là khớp tuyệt đối với bảng exams.   
+SQL
++ 4
+
+4. Lưu ý nhỏ về hình ảnh minh họa do AI tạo
+Hai bức ảnh minh họa ở trên được sinh tự động bằng công cụ vẽ ảnh AI để bạn hình dung trực quan bố cục (mockup) nhanh nhất. Vì đặc thù của AI tạo ảnh, một số chữ tiếng Việt cỡ nhỏ trong ảnh bị sai nét chữ (ví dụ chữ "Đạt" bị vẽ thành "Bạt", "CẢNH BÁO" thành "CẢNH RÁO").
+
+Nếu bạn muốn có ảnh chụp màn hình sắc nét, chuẩn chính tả 100% để chèn thẳng vào Mục 3.1 (Các hình ảnh giao diện của phần mềm) trong cuốn báo cáo Word, mình có thể viết cho bạn một đoạn code HTML/TailwindCSS hoàn chỉnh của các màn hình này — bạn chỉ cần mở bằng trình duyệt Chrome và chụp màn hình lại là đẹp như phần mềm thật. Bạn có muốn mình xuất code HTML đó luôn không?   
+DOCX
+
+được rồi hãy bắt đầu với trang sinh viên trước hãy làm cho nó đẹp hơn
+
+File HTML giao diện Phân hệ Sinh viên của bạn đã sẵn sàng:
+
+Biểu tượng HTML
+giao_dien_sinh_vien
+ HTML 
+Mình đã thiết kế lại toàn bộ Phân hệ Sinh viên (giao_dien_sinh_vien.html) theo phong cách giao diện phẳng hiện đại (TailwindCSS, bộ font chuẩn Inter & JetBrains Mono), sắc nét và không còn bất kỳ lỗi chính tả tiếng Việt nào để bạn có thể mở trực tiếp trên trình duyệt (Chrome/Edge) và chụp màn hình đưa thẳng vào Mục 3.1.1 và 3.1.3 của Báo cáo (TTCSN_N12.docx).   
+DOCX
+
+Điểm nâng cấp nổi bật trong bản thiết kế Trang Sinh viên này
+Trong 1 tệp giao_dien_sinh_vien.html duy nhất, mình đã tích hợp thanh chuyển đổi nhanh 4 màn hình cốt lõi của Sinh viên (bạn có thể bấm phím H trên bàn phím để ẩn thanh công cụ đen phía trên trước khi chụp ảnh màn hình):
+
+Màn hình 1 — Trang Dashboard Sinh viên (ExamList + Hồ sơ AI + ExamResult):
+
+Header & Banner đồng bộ giờ Server: Hiển thị thương hiệu HaUI SmartExam, trạng thái kết nối tới Main Web Service (Node.js) và AI Microservice (Python FastAPI) cùng đồng hồ thời gian thực đồng bộ từ máy chủ (Server-side timestamp).   
+DOCX
+
+Khối 1 - Hồ sơ & Định danh AI (Cột trái - Bảng users): Hiển thị ảnh chân dung gốc (profile_image_url) với hiệu ứng tia quét laser xanh lá và khung nhận diện khuôn mặt, thông tin sinh viên (username, full_name, email) và trạng thái đã trích xuất vector đặc trưng 128 chiều (face_embedding, ngưỡng 
+d≤0.6). Đi kèm thẻ kiểm tra quyền truy cập Webcam và Fullscreen API.   
+SQL
++ 2
+
+Khối 2 - Vào phòng thi nhanh (Cột phải trên - Bảng exam_sessions): Ô nhập trực tiếp mã ca thi (session_code: IT6121_GK_01) và nút truy cập nhanh.   
+SQL
++ 1
+
+Khối 3 - Danh sách ca thi hiện có (ExamList - Bảng exams, subjects, exam_sessions): Phân biệt rõ ca thi ĐANG MỞ (is_active = TRUE, viền xanh nổi bật, hiển thị rõ thời lượng duration_minutes, số câu total_questions, điểm đạt passing_score và trạng thái bật xáo trộn đề/đáp án shuffle_questions, shuffle_answers) và ca thi CHƯA MỞ (nút khóa).   
+SQL
++ 1
+
+Khối 4 - Lịch sử làm bài & Kết quả (ExamResult - Bảng exam_attempts): Bảng điểm rõ ràng với thời gian nộp bài (submit_time), huy hiệu trạng thái SUBMITTED và tổng điểm total_score trên thang 10.   
+SQL
++ 1
+
+Màn hình 2 — Đăng ký & Cập nhật dữ liệu khuôn mặt mẫu (Phục vụ Mục 3.1.1 Báo cáo):
+
+Hiển thị khung chụp webcam chính diện kèm lưới điểm đặc trưng khuôn mặt (Face Mesh) và chuỗi kết quả vector 128 chiều (face_embedding) trích xuất từ thư viện face_recognition (dlib) lưu vào bảng users.   
+SQL
++ 1
+
+Màn hình 3 — Cổng Xác thực khuôn mặt 1:1 trước giờ thi (FaceVerify - Yêu cầu FR-ST-02):
+
+Đặt song song Ảnh hồ sơ gốc (Vector 
+u) và Ảnh Webcam trực tiếp (Vector 
+v) để đối soát 1:1.   
+DOCX
+
+Hiển thị bảng thông số kiểm tra điều kiện mở đề: Số lượng khuôn mặt (faces_count = 1), khoảng cách Euclidean (d(u, v) = 0.34 <= 0.60), bộ đệm thử lại (Lần 1 / 3) và nút "Bắt đầu Làm bài (Kích hoạt Toàn màn hình)".   
+DOCX
+
+Màn hình 4 — Phòng làm bài thi trắc nghiệm (ExamRoom - Yêu cầu FR-ST-03, 04, 05):
+
+Thanh trạng thái khóa trình duyệt (Client Lockdown) báo rõ: Bắt buộc Toàn màn hình, đã khóa chuột phải, Copy/Paste, Alt+Tab, F12 và thời điểm tự động lưu ngầm (Auto-save vào bảng attempt_details).   
+SQL
++ 1
+
+Khu vực câu hỏi (questions.content), độ khó (difficulty_level), các đáp án A, B, C, D (answers) và bảng điều hướng 40 câu hỏi kèm đồng hồ đếm ngược.   
+SQL
++ 1
+
+Góc phải trên tích hợp ô Webcam AI Proctoring lấy mẫu định kỳ 15–30s/lần.   
+DOCX
+
+Nút "Bật/Tắt Cảnh báo Vi phạm" trên thanh công cụ giúp bạn mở ngay hộp thoại cảnh báo đỏ (TAB_SWITCH / EXIT_FULLSCREEN) để chụp ảnh minh họa cho trường hợp sinh viên vi phạm quy chế.   
+SQL
++ 1
+
+Hướng dẫn mở và chụp ảnh đưa vào Báo cáo
+Tải tệp giao_dien_sinh_vien.html ở trên về máy tính và mở bằng Google Chrome hoặc Microsoft Edge.
+
+Bấm vào các nút 1, 2, 3, 4 trên thanh công cụ màu đen ở trên cùng để chuyển qua lại giữa các màn hình.
+
+Nhấn phím H trên bàn phím để ẩn thanh công cụ chuyển màn hình đi, sau đó nhấn Win + Shift + S để chụp lại giao diện hoàn chỉnh.
+
+Bạn xem giao diện Trang Sinh viên như vậy đã ưng ý chưa, hay muốn chỉnh sửa màu sắc/bố cục chỗ nào trước khi chúng ta chuyển sang làm đẹp Trang Giáo viên (Dashboard giám sát & Quản trị)?
+
+
+
+
+
+Gemini là một AI và có thể mắc sai sót.
+
+Deciding on information display format
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Thi Trắc nghiệm Trực tuyến Chống Gian lận - Phân hệ Sinh viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        @keyframes scanline {
+            0% { top: 10%; opacity: 0.8; }
+            50% { top: 85%; opacity: 1; }
+            100% { top: 10%; opacity: 0.8; }
+        }
+        .scan-bar {
+            position: absolute;
+            left: 12%;
+            right: 12%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #10b981, #34d399, #10b981, transparent);
+            box-shadow: 0 0 12px #10b981;
+            animation: scanline 2.8s ease-in-out infinite;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- THANH CÔNG CỤ CHUYỂN MÀN HÌNH (Hỗ trợ chụp ảnh báo cáo Chương 3) -->
+    <div id="demo-toolbar" class="bg-slate-900 text-white px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 z-50">
+        <div class="flex items-center gap-2">
+            <span class="bg-indigo-600 text-white px-2 py-0.5 rounded font-semibold uppercase tracking-wider">Chế độ Xem & Chụp ảnh Báo cáo</span>
+            <span class="text-slate-400 hidden sm:inline">Chọn màn hình bên dưới (Nhấn phím <kbd class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-600 text-slate-200">H</kbd> để ẩn/hiện thanh này khi chụp màn hình):</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5">
+            <button onclick="switchScreen('dashboard')" id="btn-dashboard" class="screen-btn bg-blue-600 text-white px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-table-columns"></i> 1. Dashboard Sinh viên
+            </button>
+            <button onclick="switchScreen('face-register')" id="btn-face-register" class="screen-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-id-card-clip"></i> 2. Đăng ký Khuôn mặt (128-D)
+            </button>
+            <button onclick="switchScreen('face-verify')" id="btn-face-verify" class="screen-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-user-check"></i> 3. Xác thực 1:1 trước thi (FaceVerify)
+            </button>
+            <button onclick="switchScreen('exam-room')" id="btn-exam-room" class="screen-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-laptop-code"></i> 4. Phòng làm bài (ExamRoom)
+            </button>
+            <button onclick="toggleViolationModal()" class="bg-rose-600/90 hover:bg-rose-600 text-white px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 ml-1">
+                <i class="fa-solid fa-triangle-exclamation"></i> Bật/Tắt Cảnh báo Vi phạm
+            </button>
+        </div>
+    </div>
+
+    <!-- HEADER CHÍNH CỦA HỆ THỐNG -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-indigo-800 flex items-center justify-center text-white shadow-md shadow-blue-900/10">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-slate-900 text-base tracking-tight">HaUI SmartExam</span>
+                        <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold px-2 py-0.5 rounded-full">AI Proctoring</span>
+                    </div>
+                    <p class="text-xs text-slate-500">Hệ thống Thi trắc nghiệm Trực tuyến Chống gian lận - ĐH Công nghiệp Hà Nội</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-medium text-emerald-800">Kết nối Server & AI Service ổn định</span>
+                </div>
+
+                <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
+
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-semibold text-slate-800 leading-none">Bùi Minh Nhật</p>
+                        <p class="text-xs text-slate-500 mt-1 mono">MSV: 20261IT6121</p>
+                    </div>
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-blue-600 hidden">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+                            MN
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" title="Đã xác thực sinh trắc học"></span>
+                    </div>
+                    <button class="text-slate-400 hover:text-rose-600 p-2 rounded-lg hover:bg-slate-100 transition" title="Đăng xuất">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- MÀN HÌNH 1: STUDENT DASHBOARD (ExamList + Hồ sơ AI + ExamResult)          -->
+    <!-- ========================================================================= -->
+    <main id="screen-dashboard" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- Banner thông báo nhanh -->
+        <div class="mb-6 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+            <div class="absolute right-0 top-0 opacity-10 pointer-events-none">
+                <i class="fa-solid fa-microchip text-[160px] -mt-6 -mr-6"></i>
+            </div>
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="inline-flex items-center gap-1.5 bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-medium px-2.5 py-1 rounded-full mb-2">
+                        <i class="fa-solid fa-circle-info"></i> Quy chế phòng thi trực tuyến
+                    </span>
+                    <h1 class="text-xl sm:text-2xl font-bold">Chào mừng Bùi Minh Nhật đến với Cổng Khảo thí Trực tuyến!</h1>
+                    <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl">
+                        Vui lòng kiểm tra thiết bị Webcam và dữ liệu khuôn mặt mẫu trước khi vào ca thi. Hệ thống tự động bật chế độ toàn màn hình (<span class="mono text-blue-200">Fullscreen</span>) và đối soát khuôn mặt định kỳ trong suốt thời gian làm bài.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl px-4 py-2.5 text-center">
+                        <p class="text-[11px] text-slate-300 uppercase tracking-wider">Giờ hệ thống (Server)</p>
+                        <p id="server-clock" class="text-lg font-bold mono text-emerald-300">08:15:30</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- CỘT TRÁI (4 CỘT): KHỐI 1 - HỒ SƠ SINH VIÊN & DỮ LIỆU KHUÔN MẶT AI (Bảng users) -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-id-badge text-blue-600"></i>
+                            <h2 class="font-bold text-sm text-slate-800 uppercase tracking-wide">1. Hồ sơ & Định danh AI</h2>
+                        </div>
+                        <span class="text-[11px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md border border-emerald-200">
+                            <i class="fa-solid fa-check-circle mr-1"></i>Đã đồng bộ
+                        </span>
+                    </div>
+
+                    <div class="p-5">
+                        <!-- Khung ảnh chân dung mẫu (profile_image_url) -->
+                        <div class="relative w-36 h-44 mx-auto rounded-xl overflow-hidden border-2 border-emerald-500 shadow-md bg-slate-900 group">
+                            <!-- Ảnh chân dung sinh viên minh họa -->
+                            <svg viewBox="0 0 200 240" class="w-full h-full bg-gradient-to-b from-slate-700 to-slate-800">
+                                <!-- Background grid -->
+                                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                                </pattern>
+                                <rect width="200" height="240" fill="url(#grid)" />
+                                <!-- Silhouette / Stylized Student Portrait -->
+                                <circle cx="100" cy="88" r="38" fill="#fbd38d"/>
+                                <path d="M62 78 C62 45, 138 45, 138 78 C138 65, 125 55, 100 55 C75 55, 62 65, 62 78 Z" fill="#1e293b"/>
+                                <!-- Eyes, Nose, Mouth -->
+                                <circle cx="85" cy="85" r="3.5" fill="#1e293b"/>
+                                <circle cx="115" cy="85" r="3.5" fill="#1e293b"/>
+                                <path d="M82 76 Q85 73 90 76" stroke="#1e293b" stroke-width="2" fill="none"/>
+                                <path d="M110 76 Q115 73 118 76" stroke="#1e293b" stroke-width="2" fill="none"/>
+                                <path d="M100 85 L98 98 L103 98" stroke="#d69e2e" stroke-width="2" fill="none"/>
+                                <path d="M90 108 Q100 115 110 108" stroke="#b7791f" stroke-width="2.5" fill="none"/>
+                                <!-- Shirt & Collar -->
+                                <path d="M40 240 C40 165, 70 150, 100 150 C130 150, 160 165, 160 240 Z" fill="#ffffff"/>
+                                <path d="M75 152 L100 185 L125 152" fill="#1e3a8a"/>
+                                <!-- AI Bounding Box & Landmarks -->
+                                <rect x="52" y="42" width="96" height="94" rx="6" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="6,3"/>
+                                <circle cx="85" cy="85" r="1.5" fill="#10b981"/>
+                                <circle cx="115" cy="85" r="1.5" fill="#10b981"/>
+                                <circle cx="100" cy="98" r="1.5" fill="#10b981"/>
+                                <circle cx="90" cy="108" r="1.5" fill="#10b981"/>
+                                <circle cx="110" cy="108" r="1.5" fill="#10b981"/>
+                            </svg>
+                            <div class="scan-bar"></div>
+                            <div class="absolute bottom-0 inset-x-0 bg-slate-900/80 backdrop-blur-xs px-2 py-1 text-center">
+                                <span class="text-[10px] font-semibold text-emerald-400 mono">VECTOR 128-D READY</span>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin chi tiết từ bảng users -->
+                        <div class="mt-4 space-y-2.5 text-sm">
+                            <div class="flex justify-between py-1.5 border-b border-slate-100">
+                                <span class="text-slate-500">Họ và tên:</span>
+                                <span class="font-semibold text-slate-800">Bùi Minh Nhật</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-100">
+                                <span class="text-slate-500">Mã sinh viên:</span>
+                                <span class="font-semibold text-slate-800 mono">20261IT6121</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-100">
+                                <span class="text-slate-500">Lớp hành chính:</span>
+                                <span class="font-medium text-slate-700">20261IT6121001</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-100">
+                                <span class="text-slate-500">Email:</span>
+                                <span class="font-medium text-slate-700 text-xs">nhatbm@haui.edu.vn</span>
+                            </div>
+                            <div class="pt-1">
+                                <div class="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-semibold text-emerald-900">Trạng thái Sinh trắc học</span>
+                                        <span class="text-[11px] bg-emerald-600 text-white px-1.5 py-0.5 rounded font-mono">d_thresh &le; 0.6</span>
+                                    </div>
+                                    <p class="text-xs text-emerald-700 mt-1">
+                                        Đã trích xuất đặc trưng khuôn mặt <span class="mono font-semibold">face_embedding (128 chiều)</span> và được Giảng viên phê duyệt.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="switchScreen('face-register')" class="mt-4 w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center justify-center gap-2 border border-slate-200/80">
+                            <i class="fa-solid fa-camera-rotate text-blue-600"></i> Cập nhật ảnh khuôn mặt mẫu
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Thẻ kiểm tra nhanh thiết bị Client -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+                    <h3 class="font-bold text-xs text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-laptop-medical text-indigo-600"></i> Kiểm tra Môi trường Client
+                    </h3>
+                    <div class="space-y-2.5 text-xs">
+                        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                            <span class="flex items-center gap-2 text-slate-700 font-medium">
+                                <i class="fa-solid fa-video text-emerald-600"></i> Thiết bị Webcam HD
+                            </span>
+                            <span class="text-emerald-700 font-semibold">Đã cấp quyền</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                            <span class="flex items-center gap-2 text-slate-700 font-medium">
+                                <i class="fa-solid fa-expand text-emerald-600"></i> Fullscreen & Visibility API
+                            </span>
+                            <span class="text-emerald-700 font-semibold">Hỗ trợ tốt</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI (8 CỘT): KHỐI 2 (VÀO PHÒNG THI NHANH), KHỐI 3 (EXAMLIST), KHỐI 4 (EXAMRESULT) -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- KHỐI 2: VÀO PHÒNG THI NHANH BẰNG MÃ CA THI (session_code) -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="font-bold text-sm text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                                <i class="fa-solid fa-bolt text-amber-500"></i> 2. Vào phòng thi nhanh theo Mã ca thi
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Nhập mã ca thi (<span class="mono">session_code</span>) do giảng viên cung cấp để truy cập trực tiếp</p>
+                        </div>
+                        <div class="flex items-center gap-2 sm:w-auto w-full">
+                            <div class="relative flex-1 sm:w-56">
+                                <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" value="IT6121_GK_01" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="Nhập mã ca thi...">
+                            </div>
+                            <button onclick="switchScreen('face-verify')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-sm shadow-blue-600/20 transition flex items-center gap-2 shrink-0">
+                                <span>Vào phòng thi</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KHỐI 3: DANH SÁCH CA THI HIỆN CÓ (Component ExamList - Bảng exam_sessions + exams + subjects) -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-check text-blue-600"></i>
+                            <h2 class="font-bold text-sm text-slate-800 uppercase tracking-wide">3. Danh sách Ca thi Hiện có (ExamList)</h2>
+                        </div>
+                        <span class="text-xs text-slate-500 font-medium">Học kỳ 1 - Năm học 2026</span>
+                    </div>
+
+                    <div class="p-5 space-y-4">
+                        <!-- Ca thi 1: ĐANG MỞ (is_active = TRUE) -->
+                        <div class="rounded-xl border-2 border-blue-500/80 bg-blue-50/30 p-4 sm:p-5 relative transition hover:shadow-md">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="space-y-2">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-300">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span> ĐANG MỞ CA THI
+                                        </span>
+                                        <span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-md mono">Mã ca: IT6121_GK_01</span>
+                                        <span class="text-xs font-medium text-slate-500">Môn: <strong class="text-slate-700">Thực tập cơ sở ngành (IT6121)</strong></span>
+                                    </div>
+                                    <h3 class="text-base sm:text-lg font-bold text-slate-900">Bài kiểm tra đánh giá Giữa kỳ - Đợt 1</h3>
+                                    
+                                    <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-slate-600 pt-1">
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-regular fa-clock text-blue-600"></i> Thời lượng: <strong class="text-slate-800">45 phút</strong>
+                                        </span>
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-solid fa-list-ol text-blue-600"></i> Tổng số câu: <strong class="text-slate-800">40 câu trắc nghiệm</strong>
+                                        </span>
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-solid fa-bullseye text-blue-600"></i> Điểm đạt: <strong class="text-slate-800">4.00 / 10</strong>
+                                        </span>
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-solid fa-shuffle text-indigo-600"></i> Xáo trộn đề & đáp án: <strong class="text-indigo-700">Bật</strong>
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-slate-500 pt-0.5">
+                                        <i class="fa-regular fa-calendar mr-1"></i> Khung giờ mở ca thi: <span class="mono font-medium text-slate-700">08:00 - 09:00 (25/10/2026)</span>
+                                    </div>
+                                </div>
+
+                                <div class="shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-200">
+                                    <button onclick="switchScreen('face-verify')" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md shadow-orange-500/20 transition flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-camera-viewfinder text-base"></i>
+                                        <span>Xác thực & Vào thi</span>
+                                    </button>
+                                    <span class="text-[11px] text-slate-500">Yêu cầu xác thực khuôn mặt 1:1</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ca thi 2: CHƯA ĐẾN GIỜ MỞ -->
+                        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="space-y-1.5">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="inline-flex items-center gap-1 bg-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                            <i class="fa-regular fa-hourglass-half"></i> CHƯA MỞ
+                                        </span>
+                                        <span class="text-xs font-semibold bg-slate-200/80 text-slate-700 px-2.5 py-0.5 rounded-md mono">Mã ca: IT6002_CK_02</span>
+                                        <span class="text-xs font-medium text-slate-500">Môn: <strong class="text-slate-700">Hệ quản trị Cơ sở dữ liệu (IT6002)</strong></span>
+                                    </div>
+                                    <h3 class="text-base font-bold text-slate-800">Kiểm tra Thường xuyên số 2 - Thiết kế CSDL chuẩn 3NF</h3>
+                                    <div class="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-slate-500">
+                                        <span><i class="fa-regular fa-clock mr-1"></i>Thời lượng: <strong>30 phút</strong></span>
+                                        <span><i class="fa-solid fa-list-ol mr-1"></i>Tổng số câu: <strong>25 câu</strong></span>
+                                        <span><i class="fa-regular fa-calendar mr-1"></i>Giờ mở: <span class="mono font-medium">14:00 - 15:00 (28/10/2026)</span></span>
+                                    </div>
+                                </div>
+                                <div class="shrink-0">
+                                    <button disabled class="bg-slate-200 text-slate-500 font-semibold text-xs px-4 py-2.5 rounded-xl cursor-not-allowed flex items-center gap-1.5">
+                                        <i class="fa-solid fa-lock"></i> Chưa đến giờ mở đề
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KHỐI 4: LỊCH SỬ LÀM BÀI & KẾT QUẢ THI (Component ExamResult - Bảng exam_attempts) -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-ranking-star text-blue-600"></i>
+                            <h2 class="font-bold text-sm text-slate-800 uppercase tracking-wide">4. Lịch sử Làm bài & Kết quả (ExamResult)</h2>
+                        </div>
+                        <span class="text-xs text-slate-500">Đã hoàn thành: <strong>02 bài thi</strong></span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase bg-slate-50/50">
+                                    <th class="py-3 px-4">Kỳ thi / Môn học</th>
+                                    <th class="py-3 px-4">Mã ca thi</th>
+                                    <th class="py-3 px-4">Thời gian nộp bài</th>
+                                    <th class="py-3 px-4">Trạng thái (status)</th>
+                                    <th class="py-3 px-4 text-right">Tổng điểm</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                                <tr class="hover:bg-slate-50/80 transition">
+                                    <td class="py-3.5 px-4">
+                                        <p class="font-bold text-slate-800">Kiểm tra Thường xuyên 1</p>
+                                        <p class="text-xs text-slate-500">Thực tập cơ sở ngành (IT6121)</p>
+                                    </td>
+                                    <td class="py-3.5 px-4 mono text-xs font-semibold text-slate-600">IT6121_TX1</td>
+                                    <td class="py-3.5 px-4 text-xs text-slate-600 mono">10/10/2026 08:42:15</td>
+                                    <td class="py-3.5 px-4">
+                                        <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                            <i class="fa-solid fa-check text-[10px]"></i> SUBMITTED (Đã nộp)
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right">
+                                        <span class="font-extrabold text-emerald-700 text-base mono">8.50</span>
+                                        <span class="text-xs text-slate-400">/ 10</span>
+                                        <span class="ml-1.5 text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-semibold">ĐẠT</span>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80 transition">
+                                    <td class="py-3.5 px-4">
+                                        <p class="font-bold text-slate-800">Bài kiểm tra Đầu kỳ</p>
+                                        <p class="text-xs text-slate-500">An toàn và Bảo mật thông tin (IT6015)</p>
+                                    </td>
+                                    <td class="py-3.5 px-4 mono text-xs font-semibold text-slate-600">IT6015_DK1</td>
+                                    <td class="py-3.5 px-4 text-xs text-slate-600 mono">02/10/2026 10:15:00</td>
+                                    <td class="py-3.5 px-4">
+                                        <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                            <i class="fa-solid fa-check text-[10px]"></i> SUBMITTED (Đã nộp)
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right">
+                                        <span class="font-extrabold text-emerald-700 text-base mono">9.00</span>
+                                        <span class="text-xs text-slate-400">/ 10</span>
+                                        <span class="ml-1.5 text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-semibold">ĐẠT</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- MÀN HÌNH 2: ĐĂNG KÝ / CẬP NHẬT DỮ LIỆU KHUÔN MẶT MẪU (Mục 3.1.1 Báo cáo)  -->
+    <!-- ========================================================================= -->
+    <main id="screen-face-register" class="hidden flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-slate-900 to-blue-900 px-6 py-4 text-white flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] uppercase tracking-wider text-blue-300 font-semibold">Hồ sơ Sinh trắc học (Bảng Users)</span>
+                    <h2 class="text-lg font-bold">Đăng ký & Trích xuất Dữ liệu Khuôn mặt Mẫu (128-D Face Embedding)</h2>
+                </div>
+                <button onclick="switchScreen('dashboard')" class="text-slate-300 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-lg">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Quay lại Dashboard
+                </button>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                <div class="md:col-span-6 flex flex-col items-center">
+                    <div class="w-64 h-64 rounded-2xl bg-slate-900 border-2 border-emerald-500 relative overflow-hidden shadow-md flex items-center justify-center">
+                        <svg viewBox="0 0 220 220" class="w-full h-full">
+                            <circle cx="110" cy="88" r="38" fill="#fbd38d"/>
+                            <path d="M72 78 C72 45, 148 45, 148 78 C148 65, 135 55, 110 55 C85 55, 72 65, 72 78 Z" fill="#1e293b"/>
+                            <circle cx="95" cy="85" r="3.5" fill="#1e293b"/>
+                            <circle cx="125" cy="85" r="3.5" fill="#1e293b"/>
+                            <path d="M100 108 Q110 115 120 108" stroke="#b7791f" stroke-width="2.5" fill="none"/>
+                            <path d="M45 220 C45 160, 75 145, 110 145 C145 145, 175 160, 175 220 Z" fill="#ffffff"/>
+                            <!-- Face Mesh 128-D Overlay -->
+                            <rect x="60" y="40" width="100" height="95" rx="8" fill="none" stroke="#10b981" stroke-width="2"/>
+                            <line x1="95" y1="85" x2="125" y2="85" stroke="#34d399" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="95" y1="85" x2="110" y2="98" stroke="#34d399" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="125" y1="85" x2="110" y2="98" stroke="#34d399" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="110" y1="98" x2="100" y2="108" stroke="#34d399" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="110" y1="98" x2="120" y2="108" stroke="#34d399" stroke-width="1" stroke-dasharray="2,2"/>
+                        </svg>
+                        <div class="scan-bar"></div>
+                        <div class="absolute top-2.5 left-2.5 bg-emerald-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded mono">
+                            1 KHUÔN MẶT HỢP LỆ
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-3 text-center">Giữ khuôn mặt chính diện, đủ ánh sáng, không đeo khẩu trang hoặc kính râm.</p>
+                </div>
+
+                <div class="md:col-span-6 space-y-4">
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2">
+                        <h3 class="font-bold text-sm text-slate-800">Thông số Trích xuất AI (Python FastAPI / dlib)</h3>
+                        <div class="text-xs space-y-1.5">
+                            <p class="flex justify-between"><span class="text-slate-500">Đường dẫn ảnh (`profile_image_url`):</span> <span class="mono font-medium text-slate-800">/uploads/profiles/20261IT6121.jpg</span></p>
+                            <p class="flex justify-between"><span class="text-slate-500">Số lượng khuôn mặt phát hiện:</span> <span class="mono font-bold text-emerald-600">1 (Hợp lệ)</span></p>
+                            <p class="text-slate-500">Vector đặc trưng 128 chiều (`face_embedding`):</p>
+                            <div class="bg-slate-900 text-emerald-400 p-2.5 rounded-lg mono text-[11px] overflow-x-auto">
+                                [-0.0942, 0.1284, 0.0451, -0.0619, 0.0883, -0.1120, 0.0319, ... +121 chiều]
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-camera"></i> Chụp lại từ Webcam
+                        </button>
+                        <button onclick="switchScreen('dashboard')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu Hồ sơ Sinh trắc
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- MÀN HÌNH 3: XÁC THỰC KHUÔN MẶT 1:1 TRƯỚC GIỜ THI (Component FaceVerify)    -->
+    <!-- ========================================================================= -->
+    <main id="screen-face-verify" class="hidden flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
+            <div class="bg-slate-900 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold">Cổng Xác thực Sinh trắc học 1:1 Trước Giờ Thi (FaceVerify)</h2>
+                        <p class="text-xs text-slate-400">Ca thi: <strong class="text-white mono">IT6121_GK_01</strong> &bull; Môn: Thực tập cơ sở ngành</p>
+                    </div>
+                </div>
+                <span class="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full mono">
+                    Trạng thái: VERIFIED (d = 0.34 &le; 0.60)
+                </span>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <!-- So sánh 1:1 giữa Ảnh hồ sơ và Ảnh Webcam trực tiếp -->
+                <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Ảnh hồ sơ gốc -->
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ảnh Hồ sơ Gốc (Users)</span>
+                        <div class="w-40 h-44 mx-auto mt-2 rounded-lg overflow-hidden border border-slate-300 bg-slate-800">
+                            <svg viewBox="0 0 200 220" class="w-full h-full">
+                                <circle cx="100" cy="85" r="36" fill="#fbd38d"/>
+                                <path d="M64 75 C64 44, 136 44, 136 75 C136 62, 123 52, 100 52 C77 52, 64 62, 64 75 Z" fill="#1e293b"/>
+                                <circle cx="86" cy="82" r="3.5" fill="#1e293b"/>
+                                <circle cx="114" cy="82" r="3.5" fill="#1e293b"/>
+                                <path d="M90 104 Q100 111 110 104" stroke="#b7791f" stroke-width="2.5" fill="none"/>
+                                <path d="M45 220 C45 160, 75 145, 100 145 C125 145, 155 160, 155 220 Z" fill="#ffffff"/>
+                            </svg>
+                        </div>
+                        <p class="text-xs font-semibold text-slate-700 mt-2">Bùi Minh Nhật (20261IT6121)</p>
+                        <p class="text-[11px] text-emerald-600 mono">Vector u (128-D đã lưu)</p>
+                    </div>
+
+                    <!-- Khung hình Webcam trực tiếp -->
+                    <div class="bg-slate-900 rounded-xl p-3 border-2 border-emerald-500 text-center text-white relative">
+                        <div class="flex items-center justify-between text-[11px] font-bold text-emerald-400 uppercase tracking-wider">
+                            <span><i class="fa-solid fa-circle text-[8px] text-rose-500 animate-ping mr-1"></i>Webcam Trực tiếp</span>
+                            <span class="mono">FPS: 30</span>
+                        </div>
+                        <div class="w-40 h-44 mx-auto mt-2 rounded-lg overflow-hidden border border-emerald-500/50 bg-slate-800 relative">
+                            <svg viewBox="0 0 200 220" class="w-full h-full">
+                                <circle cx="100" cy="85" r="36" fill="#fbd38d"/>
+                                <path d="M64 75 C64 44, 136 44, 136 75 C136 62, 123 52, 100 52 C77 52, 64 62, 64 75 Z" fill="#1e293b"/>
+                                <circle cx="86" cy="82" r="3.5" fill="#1e293b"/>
+                                <circle cx="114" cy="82" r="3.5" fill="#1e293b"/>
+                                <path d="M90 104 Q100 111 110 104" stroke="#b7791f" stroke-width="2.5" fill="none"/>
+                                <path d="M45 220 C45 160, 75 145, 100 145 C125 145, 155 160, 155 220 Z" fill="#2563eb"/>
+                                <rect x="55" y="40" width="90" height="88" rx="6" fill="none" stroke="#10b981" stroke-width="2.5"/>
+                            </svg>
+                            <div class="scan-bar"></div>
+                        </div>
+                        <p class="text-xs font-semibold text-emerald-300 mt-2 mono">d(u,v) = 0.34 (Khớp 96.4%)</p>
+                        <p class="text-[11px] text-slate-400 mono">Số khuôn mặt: 01</p>
+                    </div>
+                </div>
+
+                <!-- Kết quả kiểm tra điều kiện mở đề -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+                        <h3 class="font-bold text-sm text-slate-800">Kết quả Đối soát AI Microservice:</h3>
+                        <ul class="space-y-2 text-xs">
+                            <li class="flex items-center justify-between p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900">
+                                <span><i class="fa-solid fa-check-circle text-emerald-600 mr-1.5"></i>Số lượng người trong khung hình:</span>
+                                <strong class="mono">faces_count = 1</strong>
+                            </li>
+                            <li class="flex items-center justify-between p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900">
+                                <span><i class="fa-solid fa-check-circle text-emerald-600 mr-1.5"></i>Khoảng cách Euclidean:</span>
+                                <strong class="mono">0.34 &le; 0.60 (Hợp lệ)</strong>
+                            </li>
+                            <li class="flex items-center justify-between p-2 rounded-lg bg-blue-50 border border-blue-200 text-blue-900">
+                                <span><i class="fa-solid fa-shield-halved text-blue-600 mr-1.5"></i>Bộ đệm thử lại (Retry Policy):</span>
+                                <strong class="mono">Lần 1 / 3</strong>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button onclick="switchScreen('exam-room')" class="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-expand"></i>
+                        <span>Bắt đầu Làm bài (Kích hoạt Toàn màn hình)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- MÀN HÌNH 4: PHÒNG LÀM BÀI THI TRẮC NGHIỆM (Component ExamRoom)            -->
+    <!-- ========================================================================= -->
+    <main id="screen-exam-room" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        
+        <!-- Thanh trạng thái Khóa môi trường thi (Client Lockdown Status Bar) -->
+        <div class="mb-5 bg-slate-900 text-white rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-sm border border-slate-700">
+            <div class="flex flex-wrap items-center gap-4 text-xs">
+                <span class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                    <i class="fa-solid fa-lock"></i> Chế độ Toàn màn hình: BẮT BUỘC
+                </span>
+                <span class="text-slate-600">|</span>
+                <span class="flex items-center gap-1.5 text-slate-300">
+                    <i class="fa-solid fa-ban text-rose-400"></i> Đã khóa: Chuột phải, Copy/Paste, Alt+Tab, F12 (DevTools)
+                </span>
+                <span class="text-slate-600">|</span>
+                <span class="flex items-center gap-1.5 text-blue-300 mono">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Tự động lưu ngầm (Auto-save): 08:18:10
+                </span>
+            </div>
+            <div class="text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 px-2.5 py-1 rounded-md mono">
+                Số lần cảnh báo vi phạm: 0 / 3
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- CỘT TRÁI (8 CỘT): NỘI DUNG CÂU HỎI & LỰA CHỌN ĐÁP ÁN -->
+            <div class="lg:col-span-8 flex flex-col justify-between bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                        <div class="flex items-center gap-2.5">
+                            <span class="bg-blue-600 text-white font-bold text-sm px-3 py-1 rounded-lg">Câu hỏi 12 / 40</span>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md font-medium">Loại: Một đáp án (SINGLE_CHOICE)</span>
+                            <span class="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-md font-medium">Độ khó: Trung bình (MEDIUM)</span>
+                        </div>
+                        <button class="text-xs font-semibold text-amber-600 hover:bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 transition flex items-center gap-1.5">
+                            <i class="fa-regular fa-flag"></i> Đánh dấu xem lại
+                        </button>
+                    </div>
+
+                    <!-- Nội dung câu hỏi (Bảng questions.content) -->
+                    <div class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed mb-6">
+                        Trong hệ thống giám sát thi trực tuyến sử dụng thư viện <code class="bg-slate-100 px-1.5 py-0.5 rounded text-blue-700 mono text-sm">face_recognition</code> (dlib), hai vector đặc trưng khuôn mặt 128 chiều <span class="mono">u</span> (ảnh hồ sơ) và <span class="mono">v</span> (ảnh chụp webcam) được xác nhận là cùng một thí sinh khi khoảng cách Euclidean <span class="mono">d(u, v)</span> thỏa mãn điều kiện nào sau đây?
+                    </div>
+
+                    <!-- Danh sách phương án trả lời đã xáo trộn (Bảng answers) -->
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3.5 p-4 rounded-xl border-2 border-blue-600 bg-blue-50/40 cursor-pointer transition">
+                            <input type="radio" name="q12" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">A</span>
+                            <span class="text-sm sm:text-base font-semibold text-slate-900">Khoảng cách Euclidean <span class="mono">d(u, v) &le; 0.6</span> và chỉ phát hiện đúng 1 khuôn mặt trong khung hình.</span>
+                        </label>
+
+                        <label class="flex items-center gap-3.5 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="q12" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">B</span>
+                            <span class="text-sm sm:text-base text-slate-700">Khoảng cách Euclidean <span class="mono">d(u, v) &gt; 0.85</span> bất kể số lượng khuôn mặt xuất hiện.</span>
+                        </label>
+
+                        <label class="flex items-center gap-3.5 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="q12" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">C</span>
+                            <span class="text-sm sm:text-base text-slate-700">Vector đặc trưng được lưu trực tiếp dưới dạng tệp nhị phân BLOB trong bảng <span class="mono">Proctoring_Logs</span>.</span>
+                        </label>
+
+                        <label class="flex items-center gap-3.5 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="q12" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">D</span>
+                            <span class="text-sm sm:text-base text-slate-700">Hệ thống chỉ đối soát khuôn mặt một lần duy nhất khi đăng nhập tài khoản.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Điều hướng câu hỏi -->
+                <div class="flex items-center justify-between border-t border-slate-200 pt-5 mt-8">
+                    <button class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-xs sm:text-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-left text-xs"></i> Câu trước
+                    </button>
+                    <span class="text-xs text-emerald-600 font-medium">
+                        <i class="fa-solid fa-check-double mr-1"></i> Đã lưu đáp án A vào bảng <span class="mono">attempt_details</span>
+                    </span>
+                    <button class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm transition flex items-center gap-2">
+                        Câu tiếp theo <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI (4 CỘT): WEBCAM GIÁM SÁT AI + ĐỒNG HỒ ĐẾM NGƯỢC + BẢNG CÂU HỎI -->
+            <div class="lg:col-span-4 space-y-5">
+                
+                <!-- Ô Webcam Giám sát AI định kỳ (useWebcamCapture 15-30s) -->
+                <div class="bg-slate-900 rounded-2xl p-4 text-white border border-slate-800 shadow-md">
+                    <div class="flex items-center justify-between text-xs mb-2.5">
+                        <span class="flex items-center gap-1.5 font-semibold text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> AI Proctoring Camera
+                        </span>
+                        <span class="text-[11px] text-slate-400 mono">Chu kỳ: 15-30s/lần</span>
+                    </div>
+                    <div class="h-40 rounded-xl bg-slate-800 border-2 border-emerald-500 relative overflow-hidden flex items-center justify-center">
+                        <svg viewBox="0 0 240 160" class="w-full h-full">
+                            <circle cx="120" cy="62" r="28" fill="#fbd38d"/>
+                            <path d="M92 54 C92 30, 148 30, 148 54 C148 44, 138 36, 120 36 C102 36, 92 44, 92 54 Z" fill="#1e293b"/>
+                            <circle cx="110" cy="60" r="2.5" fill="#1e293b"/>
+                            <circle cx="130" cy="60" r="2.5" fill="#1e293b"/>
+                            <path d="M112 76 Q120 82 128 76" stroke="#b7791f" stroke-width="2" fill="none"/>
+                            <path d="M70 160 C70 118, 95 108, 120 108 C145 108, 170 118, 170 160 Z" fill="#2563eb"/>
+                            <rect x="82" y="26" width="76" height="72" rx="6" fill="none" stroke="#10b981" stroke-width="2"/>
+                        </svg>
+                        <div class="scan-bar"></div>
+                        <div class="absolute bottom-2 inset-x-2 bg-slate-950/80 backdrop-blur-xs px-2.5 py-1 rounded text-[11px] flex justify-between mono">
+                            <span class="text-emerald-400">HỢP LỆ (1 NGƯỜI)</span>
+                            <span class="text-slate-300">d = 0.36</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Đồng hồ đếm ngược & Bảng điều hướng 40 câu hỏi -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                    <div class="text-center pb-4 border-b border-slate-100">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Thời gian làm bài còn lại</span>
+                        <div class="text-3xl font-extrabold text-blue-700 mono mt-1">38 : 42</div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs font-semibold text-slate-600 mb-2.5">
+                            <span>Danh sách câu hỏi (40 câu)</span>
+                            <span class="text-blue-600">Đã làm: 12/40</span>
+                        </div>
+                        <div class="grid grid-cols-5 gap-2 text-xs font-bold mono">
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">01</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">02</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">03</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">04</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">05</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">06</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">07</button>
+                            <button class="h-8 rounded-lg bg-amber-500 text-white">08</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">09</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">10</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">11</button>
+                            <button class="h-8 rounded-lg bg-blue-600 text-white ring-2 ring-blue-300">12</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">13</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">14</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">15</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">16</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">17</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">18</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">19</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">20</button>
+                        </div>
+                    </div>
+
+                    <button onclick="switchScreen('dashboard')" class="mt-5 w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> NỘP BÀI THI SỚM
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- POPUP CẢNH BÁO VI PHẠM QUY CHẾ THI (Minh họa FR-ST-05 & Proctoring_Logs)  -->
+    <!-- ========================================================================= -->
+    <div id="violation-modal" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full border-2 border-rose-500 shadow-2xl overflow-hidden animate-bounce">
+            <div class="bg-rose-600 px-5 py-3.5 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2 font-bold text-sm uppercase tracking-wider">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i> Cảnh báo Vi phạm Quy chế Thi!
+                </div>
+                <span class="bg-white/20 text-white text-xs font-mono px-2 py-0.5 rounded">Lần 2 / 3</span>
+            </div>
+            <div class="p-5 space-y-3 text-sm">
+                <p class="font-bold text-slate-900">Hệ thống phát hiện thao tác bất thường từ trình duyệt hoặc Webcam:</p>
+                <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs space-y-1 text-rose-900 mono">
+                    <p><strong>Mã lỗi (violation_type):</strong> TAB_SWITCH / EXIT_FULLSCREEN</p>
+                    <p><strong>Thời điểm (timestamp):</strong> 25/10/2026 08:21:04</p>
+                    <p><strong>Xử lý:</strong> Đã gửi cảnh báo thời gian thực tới Giảng viên coi thi.</p>
+                </div>
+                <p class="text-xs text-slate-600">
+                    Lưu ý: Nếu vi phạm vượt quá ngưỡng bộ đệm (<strong>03 lần liên tiếp</strong>), hệ thống sẽ tự động ghi nhận vào nhật ký vi phạm (<span class="mono">Proctoring_Logs</span>) và khóa bài thi.
+                </p>
+                <button onclick="toggleViolationModal()" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition">
+                    Tôi đã hiểu & Quay lại chế độ Toàn màn hình
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchScreen(screenId) {
+            const screens = ['dashboard', 'face-register', 'face-verify', 'exam-room'];
+            screens.forEach(s => {
+                document.getElementById('screen-' + s).classList.add('hidden');
+                const btn = document.getElementById('btn-' + s);
+                if (btn) {
+                    btn.className = 'screen-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5';
+                }
+            });
+            document.getElementById('screen-' + screenId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + screenId);
+            if (activeBtn) {
+                activeBtn.className = 'screen-btn bg-blue-600 text-white px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5';
+            }
+        }
+
+        function toggleViolationModal() {
+            const modal = document.getElementById('violation-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Nhấn phím H để ẩn/hiện thanh công cụ demo khi cần chụp màn hình sạch
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'h' || e.key === 'H') {
+                if (document.activeElement.tagName !== 'INPUT') {
+                    document.getElementById('demo-toolbar').classList.toggle('hidden');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Thi Trắc nghiệm Trực tuyến Chống Gian lận - Phân hệ Sinh viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        @keyframes scanline {
+            0% { top: 10%; opacity: 0.8; }
+            50% { top: 85%; opacity: 1; }
+            100% { top: 10%; opacity: 0.8; }
+        }
+        .scan-bar {
+            position: absolute;
+            left: 12%;
+            right: 12%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #10b981, #34d399, #10b981, transparent);
+            box-shadow: 0 0 12px #10b981;
+            animation: scanline 2.8s ease-in-out infinite;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- THANH CÔNG CỤ CHUYỂN MÀN HÌNH (Hỗ trợ chụp ảnh báo cáo Chương 3) -->
+    <div id="demo-toolbar" class="bg-slate-900 text-white px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 z-50">
+        <div class="flex items-center gap-2">
+            <span class="bg-indigo-600 text-white px-2 py-0.5 rounded font-semibold uppercase tracking-wider">Chế độ Xem & Chụp ảnh Báo cáo</span>
+            <span class="text-slate-400 hidden sm:inline">Chọn màn hình bên dưới (Nhấn phím <kbd class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-600 text-slate-200">H</kbd> để ẩn/hiện thanh này khi chụp màn hình):</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5">
+            <button onclick="switchScreen('dashboard')" id="btn-dashboard" class="screen-btn bg-blue-600 text-white px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-table-columns"></i> 1. Dashboard Sinh viên
+            </button>
+            <button onclick="switchScreen('face-register')" id="btn-face-register" class="screen-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-id-card-clip"></i> 2. Đăng ký Khuôn mặt (128-D)
+            </button>
+            <button onclick="switchScreen('face-verify')" id="btn-face-verify" class="screen-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-user-check"></i> 3. Xác thực 1:1 trước thi (FaceVerify)
+            </button>
+            <button onclick="switchScreen('exam-room')" id="btn-exam-room" class="screen-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5">
+                <i class="fa-solid fa-laptop-code"></i> 4. Phòng làm bài (ExamRoom)
+            </button>
+            <button onclick="toggleViolationModal()" class="bg-rose-600/90 hover:bg-rose-600 text-white px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 ml-1">
+                <i class="fa-solid fa-triangle-exclamation"></i> Bật/Tắt Cảnh báo Vi phạm
+            </button>
+        </div>
+    </div>
+
+    <!-- HEADER CHÍNH CỦA HỆ THỐNG -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-indigo-800 flex items-center justify-center text-white shadow-md shadow-blue-900/10">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-slate-900 text-base tracking-tight">HaUI SmartExam</span>
+                        <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold px-2 py-0.5 rounded-full">AI Proctoring</span>
+                    </div>
+                    <p class="text-xs text-slate-500">Hệ thống Thi trắc nghiệm Trực tuyến Chống gian lận - ĐH Công nghiệp Hà Nội</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-medium text-emerald-800">Kết nối Server & AI Service ổn định</span>
+                </div>
+
+                <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
+
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-semibold text-slate-800 leading-none">Bùi Minh Nhật</p>
+                        <p class="text-xs text-slate-500 mt-1 mono">MSV: 20261IT6121</p>
+                    </div>
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-blue-600 hidden">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-sm">
+                            MN
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" title="Đã xác thực sinh trắc học"></span>
+                    </div>
+                    <button class="text-slate-400 hover:text-rose-600 p-2 rounded-lg hover:bg-slate-100 transition" title="Đăng xuất">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- MÀN HÌNH 1: STUDENT DASHBOARD (ExamList + Hồ sơ AI + ExamResult)          -->
+    <!-- ========================================================================= -->
+    <main id="screen-dashboard" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- Banner thông báo nhanh -->
+        <div class="mb-6 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+            <div class="absolute right-0 top-0 opacity-10 pointer-events-none">
+                <i class="fa-solid fa-microchip text-[160px] -mt-6 -mr-6"></i>
+            </div>
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="inline-flex items-center gap-1.5 bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-medium px-2.5 py-1 rounded-full mb-2">
+                        <i class="fa-solid fa-circle-info"></i> Quy chế phòng thi trực tuyến
+                    </span>
+                    <h1 class="text-xl sm:text-2xl font-bold">Chào mừng Bùi Minh Nhật đến với Cổng Khảo thí Trực tuyến!</h1>
+                    <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl">
+                        Vui lòng kiểm tra thiết bị Webcam và dữ liệu khuôn mặt mẫu trước khi vào ca thi. Hệ thống tự động bật chế độ toàn màn hình (<span class="mono text-blue-200">Fullscreen</span>) và đối soát khuôn mặt định kỳ trong suốt thời gian làm bài.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl px-4 py-2.5 text-center">
+                        <p class="text-[11px] text-slate-300 uppercase tracking-wider">Giờ hệ thống (Server)</p>
+                        <p id="server-clock" class="text-lg font-bold mono text-emerald-300">08:15:30</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- CỘT TRÁI (4 CỘT): KHỐI 1 - HỒ SƠ SINH VIÊN & DỮ LIỆU KHUÔN MẶT AI (Bảng users) -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-id-badge text-blue-600"></i>
+                            <h2 class="font-bold text-sm text-slate-800 uppercase tracking-wide">1. Hồ sơ & Định danh AI</h2>
+                        </div>
+                        <span class="text-[11px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md border border-emerald-200">
+                            <i class="fa-solid fa-check-circle mr-1"></i>Đã đồng bộ
+                        </span>
+                    </div>
+
+                    <div class="p-5">
+                        <!-- Khung ảnh chân dung mẫu (profile_image_url) -->
+                        <div class="relative w-36 h-44 mx-auto rounded-xl overflow-hidden border-2 border-emerald-500 shadow-md bg-slate-900 group">
+                            <!-- Ảnh chân dung sinh viên minh họa -->
+                            <svg viewBox="0 0 200 240" class="w-full h-full bg-gradient-to-b from-slate-700 to-slate-800">
+                                <!-- Background grid -->
+                                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                                </pattern>
+                                <rect width="200" height="240" fill="url(#grid)" />
+                                <!-- Silhouette / Stylized Student Portrait -->
+                                <circle cx="100" cy="88" r="38" fill="#fbd38d"/>
+                                <path d="M62 78 C62 45, 138 45, 138 78 C138 65, 125 55, 100 55 C75 55, 62 65, 62 78 Z" fill="#1e293b"/>
+                                <!-- Eyes, Nose, Mouth -->
+                                <circle cx="85" cy="85" r="3.5" fill="#1e293b"/>
+                                <circle cx="115" cy="85" r="3.5" fill="#1e293b"/>
+                                <path d="M82 76 Q85 73 90 76" stroke="#1e293b" stroke-width="2" fill="none"/>
+                                <path d="M110 76 Q115 73 118 76" stroke="#1e293b" stroke-width="2" fill="none"/>
+                                <path d="M100 85 L98 98 L103 98" stroke="#d69e2e" stroke-width="2" fill="none"/>
+                                <path d="M90 108 Q100 115 110 108" stroke="#b7791f" stroke-width="2.5" fill="none"/>
+                                <!-- Shirt & Collar -->
+                                <path d="M40 240 C40 165, 70 150, 100 150 C130 150, 160 165, 160 240 Z" fill="#ffffff"/>
+                                <path d="M75 152 L100 185 L125 152" fill="#1e3a8a"/>
+                                <!-- AI Bounding Box & Landmarks -->
+                                <rect x="52" y="42" width="96" height="94" rx="6" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="6,3"/>
+                                <circle cx="85" cy="85" r="1.5" fill="#10b981"/>
+                                <circle cx="115" cy="85" r="1.5" fill="#10b981"/>
+                                <circle cx="100" cy="98" r="1.5" fill="#10b981"/>
+                                <circle cx="90" cy="108" r="1.5" fill="#10b981"/>
+                                <circle cx="110" cy="108" r="1.5" fill="#10b981"/>
+                            </svg>
+                            <div class="scan-bar"></div>
+                            <div class="absolute bottom-0 inset-x-0 bg-slate-900/80 backdrop-blur-xs px-2 py-1 text-center">
+                                <span class="text-[10px] font-semibold text-emerald-400 mono">VECTOR 128-D READY</span>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin chi tiết từ bảng users -->
+                        <div class="mt-4 space-y-2.5 text-sm">
+                            <div class="flex justify-between py-1.5 border-b border-slate-100">
+                                <span class="text-slate-500">Họ và tên:</span>
+                                <span class="font-semibold text-slate-800">Bùi Minh Nhật</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-100">
+                                <span class="text-slate-500">Mã sinh viên:</span>
+                                <span class="font-semibold text-slate-800 mono">20261IT6121</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-100">
+                                <span class="text-slate-500">Lớp hành chính:</span>
+                                <span class="font-medium text-slate-700">20261IT6121001</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-100">
+                                <span class="text-slate-500">Email:</span>
+                                <span class="font-medium text-slate-700 text-xs">nhatbm@haui.edu.vn</span>
+                            </div>
+                            <div class="pt-1">
+                                <div class="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-semibold text-emerald-900">Trạng thái Sinh trắc học</span>
+                                        <span class="text-[11px] bg-emerald-600 text-white px-1.5 py-0.5 rounded font-mono">d_thresh &le; 0.6</span>
+                                    </div>
+                                    <p class="text-xs text-emerald-700 mt-1">
+                                        Đã trích xuất đặc trưng khuôn mặt <span class="mono font-semibold">face_embedding (128 chiều)</span> và được Giảng viên phê duyệt.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="switchScreen('face-register')" class="mt-4 w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center justify-center gap-2 border border-slate-200/80">
+                            <i class="fa-solid fa-camera-rotate text-blue-600"></i> Cập nhật ảnh khuôn mặt mẫu
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Thẻ kiểm tra nhanh thiết bị Client -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+                    <h3 class="font-bold text-xs text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-laptop-medical text-indigo-600"></i> Kiểm tra Môi trường Client
+                    </h3>
+                    <div class="space-y-2.5 text-xs">
+                        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                            <span class="flex items-center gap-2 text-slate-700 font-medium">
+                                <i class="fa-solid fa-video text-emerald-600"></i> Thiết bị Webcam HD
+                            </span>
+                            <span class="text-emerald-700 font-semibold">Đã cấp quyền</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                            <span class="flex items-center gap-2 text-slate-700 font-medium">
+                                <i class="fa-solid fa-expand text-emerald-600"></i> Fullscreen & Visibility API
+                            </span>
+                            <span class="text-emerald-700 font-semibold">Hỗ trợ tốt</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI (8 CỘT): KHỐI 2 (VÀO PHÒNG THI NHANH), KHỐI 3 (EXAMLIST), KHỐI 4 (EXAMRESULT) -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- KHỐI 2: VÀO PHÒNG THI NHANH BẰNG MÃ CA THI (session_code) -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="font-bold text-sm text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                                <i class="fa-solid fa-bolt text-amber-500"></i> 2. Vào phòng thi nhanh theo Mã ca thi
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Nhập mã ca thi (<span class="mono">session_code</span>) do giảng viên cung cấp để truy cập trực tiếp</p>
+                        </div>
+                        <div class="flex items-center gap-2 sm:w-auto w-full">
+                            <div class="relative flex-1 sm:w-56">
+                                <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" value="IT6121_GK_01" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="Nhập mã ca thi...">
+                            </div>
+                            <button onclick="switchScreen('face-verify')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-sm shadow-blue-600/20 transition flex items-center gap-2 shrink-0">
+                                <span>Vào phòng thi</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KHỐI 3: DANH SÁCH CA THI HIỆN CÓ (Component ExamList - Bảng exam_sessions + exams + subjects) -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-check text-blue-600"></i>
+                            <h2 class="font-bold text-sm text-slate-800 uppercase tracking-wide">3. Danh sách Ca thi Hiện có (ExamList)</h2>
+                        </div>
+                        <span class="text-xs text-slate-500 font-medium">Học kỳ 1 - Năm học 2026</span>
+                    </div>
+
+                    <div class="p-5 space-y-4">
+                        <!-- Ca thi 1: ĐANG MỞ (is_active = TRUE) -->
+                        <div class="rounded-xl border-2 border-blue-500/80 bg-blue-50/30 p-4 sm:p-5 relative transition hover:shadow-md">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="space-y-2">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-300">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span> ĐANG MỞ CA THI
+                                        </span>
+                                        <span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-md mono">Mã ca: IT6121_GK_01</span>
+                                        <span class="text-xs font-medium text-slate-500">Môn: <strong class="text-slate-700">Thực tập cơ sở ngành (IT6121)</strong></span>
+                                    </div>
+                                    <h3 class="text-base sm:text-lg font-bold text-slate-900">Bài kiểm tra đánh giá Giữa kỳ - Đợt 1</h3>
+                                    
+                                    <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-slate-600 pt-1">
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-regular fa-clock text-blue-600"></i> Thời lượng: <strong class="text-slate-800">45 phút</strong>
+                                        </span>
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-solid fa-list-ol text-blue-600"></i> Tổng số câu: <strong class="text-slate-800">40 câu trắc nghiệm</strong>
+                                        </span>
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-solid fa-bullseye text-blue-600"></i> Điểm đạt: <strong class="text-slate-800">4.00 / 10</strong>
+                                        </span>
+                                        <span class="flex items-center gap-1.5">
+                                            <i class="fa-solid fa-shuffle text-indigo-600"></i> Xáo trộn đề & đáp án: <strong class="text-indigo-700">Bật</strong>
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-slate-500 pt-0.5">
+                                        <i class="fa-regular fa-calendar mr-1"></i> Khung giờ mở ca thi: <span class="mono font-medium text-slate-700">08:00 - 09:00 (25/10/2026)</span>
+                                    </div>
+                                </div>
+
+                                <div class="shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-200">
+                                    <button onclick="switchScreen('face-verify')" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md shadow-orange-500/20 transition flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-camera-viewfinder text-base"></i>
+                                        <span>Xác thực & Vào thi</span>
+                                    </button>
+                                    <span class="text-[11px] text-slate-500">Yêu cầu xác thực khuôn mặt 1:1</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ca thi 2: CHƯA ĐẾN GIỜ MỞ -->
+                        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="space-y-1.5">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="inline-flex items-center gap-1 bg-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                            <i class="fa-regular fa-hourglass-half"></i> CHƯA MỞ
+                                        </span>
+                                        <span class="text-xs font-semibold bg-slate-200/80 text-slate-700 px-2.5 py-0.5 rounded-md mono">Mã ca: IT6002_CK_02</span>
+                                        <span class="text-xs font-medium text-slate-500">Môn: <strong class="text-slate-700">Hệ quản trị Cơ sở dữ liệu (IT6002)</strong></span>
+                                    </div>
+                                    <h3 class="text-base font-bold text-slate-800">Kiểm tra Thường xuyên số 2 - Thiết kế CSDL chuẩn 3NF</h3>
+                                    <div class="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-slate-500">
+                                        <span><i class="fa-regular fa-clock mr-1"></i>Thời lượng: <strong>30 phút</strong></span>
+                                        <span><i class="fa-solid fa-list-ol mr-1"></i>Tổng số câu: <strong>25 câu</strong></span>
+                                        <span><i class="fa-regular fa-calendar mr-1"></i>Giờ mở: <span class="mono font-medium">14:00 - 15:00 (28/10/2026)</span></span>
+                                    </div>
+                                </div>
+                                <div class="shrink-0">
+                                    <button disabled class="bg-slate-200 text-slate-500 font-semibold text-xs px-4 py-2.5 rounded-xl cursor-not-allowed flex items-center gap-1.5">
+                                        <i class="fa-solid fa-lock"></i> Chưa đến giờ mở đề
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KHỐI 4: LỊCH SỬ LÀM BÀI & KẾT QUẢ THI (Component ExamResult - Bảng exam_attempts) -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-ranking-star text-blue-600"></i>
+                            <h2 class="font-bold text-sm text-slate-800 uppercase tracking-wide">4. Lịch sử Làm bài & Kết quả (ExamResult)</h2>
+                        </div>
+                        <span class="text-xs text-slate-500">Đã hoàn thành: <strong>02 bài thi</strong></span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase bg-slate-50/50">
+                                    <th class="py-3 px-4">Kỳ thi / Môn học</th>
+                                    <th class="py-3 px-4">Mã ca thi</th>
+                                    <th class="py-3 px-4">Thời gian nộp bài</th>
+                                    <th class="py-3 px-4">Trạng thái (status)</th>
+                                    <th class="py-3 px-4 text-right">Tổng điểm</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                                <tr class="hover:bg-slate-50/80 transition">
+                                    <td class="py-3.5 px-4">
+                                        <p class="font-bold text-slate-800">Kiểm tra Thường xuyên 1</p>
+                                        <p class="text-xs text-slate-500">Thực tập cơ sở ngành (IT6121)</p>
+                                    </td>
+                                    <td class="py-3.5 px-4 mono text-xs font-semibold text-slate-600">IT6121_TX1</td>
+                                    <td class="py-3.5 px-4 text-xs text-slate-600 mono">10/10/2026 08:42:15</td>
+                                    <td class="py-3.5 px-4">
+                                        <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                            <i class="fa-solid fa-check text-[10px]"></i> SUBMITTED (Đã nộp)
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right">
+                                        <span class="font-extrabold text-emerald-700 text-base mono">8.50</span>
+                                        <span class="text-xs text-slate-400">/ 10</span>
+                                        <span class="ml-1.5 text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-semibold">ĐẠT</span>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80 transition">
+                                    <td class="py-3.5 px-4">
+                                        <p class="font-bold text-slate-800">Bài kiểm tra Đầu kỳ</p>
+                                        <p class="text-xs text-slate-500">An toàn và Bảo mật thông tin (IT6015)</p>
+                                    </td>
+                                    <td class="py-3.5 px-4 mono text-xs font-semibold text-slate-600">IT6015_DK1</td>
+                                    <td class="py-3.5 px-4 text-xs text-slate-600 mono">02/10/2026 10:15:00</td>
+                                    <td class="py-3.5 px-4">
+                                        <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                            <i class="fa-solid fa-check text-[10px]"></i> SUBMITTED (Đã nộp)
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right">
+                                        <span class="font-extrabold text-emerald-700 text-base mono">9.00</span>
+                                        <span class="text-xs text-slate-400">/ 10</span>
+                                        <span class="ml-1.5 text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-semibold">ĐẠT</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- MÀN HÌNH 2: ĐĂNG KÝ / CẬP NHẬT DỮ LIỆU KHUÔN MẶT MẪU (Mục 3.1.1 Báo cáo)  -->
+    <!-- ========================================================================= -->
+    <main id="screen-face-register" class="hidden flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-slate-900 to-blue-900 px-6 py-4 text-white flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] uppercase tracking-wider text-blue-300 font-semibold">Hồ sơ Sinh trắc học (Bảng Users)</span>
+                    <h2 class="text-lg font-bold">Đăng ký & Trích xuất Dữ liệu Khuôn mặt Mẫu (128-D Face Embedding)</h2>
+                </div>
+                <button onclick="switchScreen('dashboard')" class="text-slate-300 hover:text-white text-xs bg-white/10 px-3 py-1.5 rounded-lg">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Quay lại Dashboard
+                </button>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                <div class="md:col-span-6 flex flex-col items-center">
+                    <div class="w-64 h-64 rounded-2xl bg-slate-900 border-2 border-emerald-500 relative overflow-hidden shadow-md flex items-center justify-center">
+                        <svg viewBox="0 0 220 220" class="w-full h-full">
+                            <circle cx="110" cy="88" r="38" fill="#fbd38d"/>
+                            <path d="M72 78 C72 45, 148 45, 148 78 C148 65, 135 55, 110 55 C85 55, 72 65, 72 78 Z" fill="#1e293b"/>
+                            <circle cx="95" cy="85" r="3.5" fill="#1e293b"/>
+                            <circle cx="125" cy="85" r="3.5" fill="#1e293b"/>
+                            <path d="M100 108 Q110 115 120 108" stroke="#b7791f" stroke-width="2.5" fill="none"/>
+                            <path d="M45 220 C45 160, 75 145, 110 145 C145 145, 175 160, 175 220 Z" fill="#ffffff"/>
+                            <!-- Face Mesh 128-D Overlay -->
+                            <rect x="60" y="40" width="100" height="95" rx="8" fill="none" stroke="#10b981" stroke-width="2"/>
+                            <line x1="95" y1="85" x2="125" y2="85" stroke="#34d399" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="95" y1="85" x2="110" y2="98" stroke="#34d399" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="125" y1="85" x2="110" y2="98" stroke="#34d399" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="110" y1="98" x2="100" y2="108" stroke="#34d399" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="110" y1="98" x2="120" y2="108" stroke="#34d399" stroke-width="1" stroke-dasharray="2,2"/>
+                        </svg>
+                        <div class="scan-bar"></div>
+                        <div class="absolute top-2.5 left-2.5 bg-emerald-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded mono">
+                            1 KHUÔN MẶT HỢP LỆ
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-3 text-center">Giữ khuôn mặt chính diện, đủ ánh sáng, không đeo khẩu trang hoặc kính râm.</p>
+                </div>
+
+                <div class="md:col-span-6 space-y-4">
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2">
+                        <h3 class="font-bold text-sm text-slate-800">Thông số Trích xuất AI (Python FastAPI / dlib)</h3>
+                        <div class="text-xs space-y-1.5">
+                            <p class="flex justify-between"><span class="text-slate-500">Đường dẫn ảnh (`profile_image_url`):</span> <span class="mono font-medium text-slate-800">/uploads/profiles/20261IT6121.jpg</span></p>
+                            <p class="flex justify-between"><span class="text-slate-500">Số lượng khuôn mặt phát hiện:</span> <span class="mono font-bold text-emerald-600">1 (Hợp lệ)</span></p>
+                            <p class="text-slate-500">Vector đặc trưng 128 chiều (`face_embedding`):</p>
+                            <div class="bg-slate-900 text-emerald-400 p-2.5 rounded-lg mono text-[11px] overflow-x-auto">
+                                [-0.0942, 0.1284, 0.0451, -0.0619, 0.0883, -0.1120, 0.0319, ... +121 chiều]
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-camera"></i> Chụp lại từ Webcam
+                        </button>
+                        <button onclick="switchScreen('dashboard')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu Hồ sơ Sinh trắc
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- MÀN HÌNH 3: XÁC THỰC KHUÔN MẶT 1:1 TRƯỚC GIỜ THI (Component FaceVerify)    -->
+    <!-- ========================================================================= -->
+    <main id="screen-face-verify" class="hidden flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
+            <div class="bg-slate-900 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold">Cổng Xác thực Sinh trắc học 1:1 Trước Giờ Thi (FaceVerify)</h2>
+                        <p class="text-xs text-slate-400">Ca thi: <strong class="text-white mono">IT6121_GK_01</strong> &bull; Môn: Thực tập cơ sở ngành</p>
+                    </div>
+                </div>
+                <span class="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full mono">
+                    Trạng thái: VERIFIED (d = 0.34 &le; 0.60)
+                </span>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <!-- So sánh 1:1 giữa Ảnh hồ sơ và Ảnh Webcam trực tiếp -->
+                <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Ảnh hồ sơ gốc -->
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ảnh Hồ sơ Gốc (Users)</span>
+                        <div class="w-40 h-44 mx-auto mt-2 rounded-lg overflow-hidden border border-slate-300 bg-slate-800">
+                            <svg viewBox="0 0 200 220" class="w-full h-full">
+                                <circle cx="100" cy="85" r="36" fill="#fbd38d"/>
+                                <path d="M64 75 C64 44, 136 44, 136 75 C136 62, 123 52, 100 52 C77 52, 64 62, 64 75 Z" fill="#1e293b"/>
+                                <circle cx="86" cy="82" r="3.5" fill="#1e293b"/>
+                                <circle cx="114" cy="82" r="3.5" fill="#1e293b"/>
+                                <path d="M90 104 Q100 111 110 104" stroke="#b7791f" stroke-width="2.5" fill="none"/>
+                                <path d="M45 220 C45 160, 75 145, 100 145 C125 145, 155 160, 155 220 Z" fill="#ffffff"/>
+                            </svg>
+                        </div>
+                        <p class="text-xs font-semibold text-slate-700 mt-2">Bùi Minh Nhật (20261IT6121)</p>
+                        <p class="text-[11px] text-emerald-600 mono">Vector u (128-D đã lưu)</p>
+                    </div>
+
+                    <!-- Khung hình Webcam trực tiếp -->
+                    <div class="bg-slate-900 rounded-xl p-3 border-2 border-emerald-500 text-center text-white relative">
+                        <div class="flex items-center justify-between text-[11px] font-bold text-emerald-400 uppercase tracking-wider">
+                            <span><i class="fa-solid fa-circle text-[8px] text-rose-500 animate-ping mr-1"></i>Webcam Trực tiếp</span>
+                            <span class="mono">FPS: 30</span>
+                        </div>
+                        <div class="w-40 h-44 mx-auto mt-2 rounded-lg overflow-hidden border border-emerald-500/50 bg-slate-800 relative">
+                            <svg viewBox="0 0 200 220" class="w-full h-full">
+                                <circle cx="100" cy="85" r="36" fill="#fbd38d"/>
+                                <path d="M64 75 C64 44, 136 44, 136 75 C136 62, 123 52, 100 52 C77 52, 64 62, 64 75 Z" fill="#1e293b"/>
+                                <circle cx="86" cy="82" r="3.5" fill="#1e293b"/>
+                                <circle cx="114" cy="82" r="3.5" fill="#1e293b"/>
+                                <path d="M90 104 Q100 111 110 104" stroke="#b7791f" stroke-width="2.5" fill="none"/>
+                                <path d="M45 220 C45 160, 75 145, 100 145 C125 145, 155 160, 155 220 Z" fill="#2563eb"/>
+                                <rect x="55" y="40" width="90" height="88" rx="6" fill="none" stroke="#10b981" stroke-width="2.5"/>
+                            </svg>
+                            <div class="scan-bar"></div>
+                        </div>
+                        <p class="text-xs font-semibold text-emerald-300 mt-2 mono">d(u,v) = 0.34 (Khớp 96.4%)</p>
+                        <p class="text-[11px] text-slate-400 mono">Số khuôn mặt: 01</p>
+                    </div>
+                </div>
+
+                <!-- Kết quả kiểm tra điều kiện mở đề -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+                        <h3 class="font-bold text-sm text-slate-800">Kết quả Đối soát AI Microservice:</h3>
+                        <ul class="space-y-2 text-xs">
+                            <li class="flex items-center justify-between p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900">
+                                <span><i class="fa-solid fa-check-circle text-emerald-600 mr-1.5"></i>Số lượng người trong khung hình:</span>
+                                <strong class="mono">faces_count = 1</strong>
+                            </li>
+                            <li class="flex items-center justify-between p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900">
+                                <span><i class="fa-solid fa-check-circle text-emerald-600 mr-1.5"></i>Khoảng cách Euclidean:</span>
+                                <strong class="mono">0.34 &le; 0.60 (Hợp lệ)</strong>
+                            </li>
+                            <li class="flex items-center justify-between p-2 rounded-lg bg-blue-50 border border-blue-200 text-blue-900">
+                                <span><i class="fa-solid fa-shield-halved text-blue-600 mr-1.5"></i>Bộ đệm thử lại (Retry Policy):</span>
+                                <strong class="mono">Lần 1 / 3</strong>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button onclick="switchScreen('exam-room')" class="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-expand"></i>
+                        <span>Bắt đầu Làm bài (Kích hoạt Toàn màn hình)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- MÀN HÌNH 4: PHÒNG LÀM BÀI THI TRẮC NGHIỆM (Component ExamRoom)            -->
+    <!-- ========================================================================= -->
+    <main id="screen-exam-room" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        
+        <!-- Thanh trạng thái Khóa môi trường thi (Client Lockdown Status Bar) -->
+        <div class="mb-5 bg-slate-900 text-white rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-sm border border-slate-700">
+            <div class="flex flex-wrap items-center gap-4 text-xs">
+                <span class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                    <i class="fa-solid fa-lock"></i> Chế độ Toàn màn hình: BẮT BUỘC
+                </span>
+                <span class="text-slate-600">|</span>
+                <span class="flex items-center gap-1.5 text-slate-300">
+                    <i class="fa-solid fa-ban text-rose-400"></i> Đã khóa: Chuột phải, Copy/Paste, Alt+Tab, F12 (DevTools)
+                </span>
+                <span class="text-slate-600">|</span>
+                <span class="flex items-center gap-1.5 text-blue-300 mono">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Tự động lưu ngầm (Auto-save): 08:18:10
+                </span>
+            </div>
+            <div class="text-xs font-semibold bg-rose-500/20 border border-rose-500/40 text-rose-300 px-2.5 py-1 rounded-md mono">
+                Số lần cảnh báo vi phạm: 0 / 3
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- CỘT TRÁI (8 CỘT): NỘI DUNG CÂU HỎI & LỰA CHỌN ĐÁP ÁN -->
+            <div class="lg:col-span-8 flex flex-col justify-between bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                        <div class="flex items-center gap-2.5">
+                            <span class="bg-blue-600 text-white font-bold text-sm px-3 py-1 rounded-lg">Câu hỏi 12 / 40</span>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md font-medium">Loại: Một đáp án (SINGLE_CHOICE)</span>
+                            <span class="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-md font-medium">Độ khó: Trung bình (MEDIUM)</span>
+                        </div>
+                        <button class="text-xs font-semibold text-amber-600 hover:bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 transition flex items-center gap-1.5">
+                            <i class="fa-regular fa-flag"></i> Đánh dấu xem lại
+                        </button>
+                    </div>
+
+                    <!-- Nội dung câu hỏi (Bảng questions.content) -->
+                    <div class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed mb-6">
+                        Trong hệ thống giám sát thi trực tuyến sử dụng thư viện <code class="bg-slate-100 px-1.5 py-0.5 rounded text-blue-700 mono text-sm">face_recognition</code> (dlib), hai vector đặc trưng khuôn mặt 128 chiều <span class="mono">u</span> (ảnh hồ sơ) và <span class="mono">v</span> (ảnh chụp webcam) được xác nhận là cùng một thí sinh khi khoảng cách Euclidean <span class="mono">d(u, v)</span> thỏa mãn điều kiện nào sau đây?
+                    </div>
+
+                    <!-- Danh sách phương án trả lời đã xáo trộn (Bảng answers) -->
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3.5 p-4 rounded-xl border-2 border-blue-600 bg-blue-50/40 cursor-pointer transition">
+                            <input type="radio" name="q12" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">A</span>
+                            <span class="text-sm sm:text-base font-semibold text-slate-900">Khoảng cách Euclidean <span class="mono">d(u, v) &le; 0.6</span> và chỉ phát hiện đúng 1 khuôn mặt trong khung hình.</span>
+                        </label>
+
+                        <label class="flex items-center gap-3.5 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="q12" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">B</span>
+                            <span class="text-sm sm:text-base text-slate-700">Khoảng cách Euclidean <span class="mono">d(u, v) &gt; 0.85</span> bất kể số lượng khuôn mặt xuất hiện.</span>
+                        </label>
+
+                        <label class="flex items-center gap-3.5 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="q12" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">C</span>
+                            <span class="text-sm sm:text-base text-slate-700">Vector đặc trưng được lưu trực tiếp dưới dạng tệp nhị phân BLOB trong bảng <span class="mono">Proctoring_Logs</span>.</span>
+                        </label>
+
+                        <label class="flex items-center gap-3.5 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="q12" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">D</span>
+                            <span class="text-sm sm:text-base text-slate-700">Hệ thống chỉ đối soát khuôn mặt một lần duy nhất khi đăng nhập tài khoản.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Điều hướng câu hỏi -->
+                <div class="flex items-center justify-between border-t border-slate-200 pt-5 mt-8">
+                    <button class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-xs sm:text-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-chevron-left text-xs"></i> Câu trước
+                    </button>
+                    <span class="text-xs text-emerald-600 font-medium">
+                        <i class="fa-solid fa-check-double mr-1"></i> Đã lưu đáp án A vào bảng <span class="mono">attempt_details</span>
+                    </span>
+                    <button class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm transition flex items-center gap-2">
+                        Câu tiếp theo <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI (4 CỘT): WEBCAM GIÁM SÁT AI + ĐỒNG HỒ ĐẾM NGƯỢC + BẢNG CÂU HỎI -->
+            <div class="lg:col-span-4 space-y-5">
+                
+                <!-- Ô Webcam Giám sát AI định kỳ (useWebcamCapture 15-30s) -->
+                <div class="bg-slate-900 rounded-2xl p-4 text-white border border-slate-800 shadow-md">
+                    <div class="flex items-center justify-between text-xs mb-2.5">
+                        <span class="flex items-center gap-1.5 font-semibold text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> AI Proctoring Camera
+                        </span>
+                        <span class="text-[11px] text-slate-400 mono">Chu kỳ: 15-30s/lần</span>
+                    </div>
+                    <div class="h-40 rounded-xl bg-slate-800 border-2 border-emerald-500 relative overflow-hidden flex items-center justify-center">
+                        <svg viewBox="0 0 240 160" class="w-full h-full">
+                            <circle cx="120" cy="62" r="28" fill="#fbd38d"/>
+                            <path d="M92 54 C92 30, 148 30, 148 54 C148 44, 138 36, 120 36 C102 36, 92 44, 92 54 Z" fill="#1e293b"/>
+                            <circle cx="110" cy="60" r="2.5" fill="#1e293b"/>
+                            <circle cx="130" cy="60" r="2.5" fill="#1e293b"/>
+                            <path d="M112 76 Q120 82 128 76" stroke="#b7791f" stroke-width="2" fill="none"/>
+                            <path d="M70 160 C70 118, 95 108, 120 108 C145 108, 170 118, 170 160 Z" fill="#2563eb"/>
+                            <rect x="82" y="26" width="76" height="72" rx="6" fill="none" stroke="#10b981" stroke-width="2"/>
+                        </svg>
+                        <div class="scan-bar"></div>
+                        <div class="absolute bottom-2 inset-x-2 bg-slate-950/80 backdrop-blur-xs px-2.5 py-1 rounded text-[11px] flex justify-between mono">
+                            <span class="text-emerald-400">HỢP LỆ (1 NGƯỜI)</span>
+                            <span class="text-slate-300">d = 0.36</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Đồng hồ đếm ngược & Bảng điều hướng 40 câu hỏi -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                    <div class="text-center pb-4 border-b border-slate-100">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Thời gian làm bài còn lại</span>
+                        <div class="text-3xl font-extrabold text-blue-700 mono mt-1">38 : 42</div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-xs font-semibold text-slate-600 mb-2.5">
+                            <span>Danh sách câu hỏi (40 câu)</span>
+                            <span class="text-blue-600">Đã làm: 12/40</span>
+                        </div>
+                        <div class="grid grid-cols-5 gap-2 text-xs font-bold mono">
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">01</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">02</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">03</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">04</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">05</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">06</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">07</button>
+                            <button class="h-8 rounded-lg bg-amber-500 text-white">08</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">09</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">10</button>
+                            <button class="h-8 rounded-lg bg-emerald-600 text-white">11</button>
+                            <button class="h-8 rounded-lg bg-blue-600 text-white ring-2 ring-blue-300">12</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">13</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">14</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">15</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">16</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">17</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">18</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">19</button>
+                            <button class="h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">20</button>
+                        </div>
+                    </div>
+
+                    <button onclick="switchScreen('dashboard')" class="mt-5 w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> NỘP BÀI THI SỚM
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- POPUP CẢNH BÁO VI PHẠM QUY CHẾ THI (Minh họa FR-ST-05 & Proctoring_Logs)  -->
+    <!-- ========================================================================= -->
+    <div id="violation-modal" class="hidden fixed inset-0 bg-slate-950/75 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full border-2 border-rose-500 shadow-2xl overflow-hidden animate-bounce">
+            <div class="bg-rose-600 px-5 py-3.5 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2 font-bold text-sm uppercase tracking-wider">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i> Cảnh báo Vi phạm Quy chế Thi!
+                </div>
+                <span class="bg-white/20 text-white text-xs font-mono px-2 py-0.5 rounded">Lần 2 / 3</span>
+            </div>
+            <div class="p-5 space-y-3 text-sm">
+                <p class="font-bold text-slate-900">Hệ thống phát hiện thao tác bất thường từ trình duyệt hoặc Webcam:</p>
+                <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs space-y-1 text-rose-900 mono">
+                    <p><strong>Mã lỗi (violation_type):</strong> TAB_SWITCH / EXIT_FULLSCREEN</p>
+                    <p><strong>Thời điểm (timestamp):</strong> 25/10/2026 08:21:04</p>
+                    <p><strong>Xử lý:</strong> Đã gửi cảnh báo thời gian thực tới Giảng viên coi thi.</p>
+                </div>
+                <p class="text-xs text-slate-600">
+                    Lưu ý: Nếu vi phạm vượt quá ngưỡng bộ đệm (<strong>03 lần liên tiếp</strong>), hệ thống sẽ tự động ghi nhận vào nhật ký vi phạm (<span class="mono">Proctoring_Logs</span>) và khóa bài thi.
+                </p>
+                <button onclick="toggleViolationModal()" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition">
+                    Tôi đã hiểu & Quay lại chế độ Toàn màn hình
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchScreen(screenId) {
+            const screens = ['dashboard', 'face-register', 'face-verify', 'exam-room'];
+            screens.forEach(s => {
+                document.getElementById('screen-' + s).classList.add('hidden');
+                const btn = document.getElementById('btn-' + s);
+                if (btn) {
+                    btn.className = 'screen-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5';
+                }
+            });
+            document.getElementById('screen-' + screenId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + screenId);
+            if (activeBtn) {
+                activeBtn.className = 'screen-btn bg-blue-600 text-white px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5';
+            }
+        }
+
+        function toggleViolationModal() {
+            const modal = document.getElementById('violation-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Nhấn phím H để ẩn/hiện thanh công cụ demo khi cần chụp màn hình sạch
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'h' || e.key === 'H') {
+                if (document.activeElement.tagName !== 'INPUT') {
+                    document.getElementById('demo-toolbar').classList.toggle('hidden');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+giao_dien_sinh_vien.html
+giao_dien_sinh_vien.html
+giao_dien_sinh_vien.html
+Đang tải giao_dien_sinh_vien.html.Đang hiển thị giao_dien_sinh_vien.html.Đang hiển thị giao_dien_sinh_vien.html.

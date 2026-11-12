@@ -39,9 +39,151 @@ const fallbackStore = {
     shuffle_answers: 1,
     is_active: 1
   },
+  subjects: [
+    {
+      id: 1,
+      subject_code: 'IT4010',
+      subject_name: 'An toàn và Bảo mật Hệ thống Thông tin',
+      description: 'Khảo thí kiến thức bảo mật mạng, mật mã học và giám sát gian lận thi cử',
+      total_questions: 3,
+      created_at: '2026-10-01'
+    },
+    {
+      id: 2,
+      subject_code: 'IT6012',
+      subject_name: 'Công nghệ Web & Frameworks',
+      description: 'Lập trình ứng dụng web full-stack, RESTful API và kiến trúc Single Page App',
+      total_questions: 1,
+      created_at: '2026-10-05'
+    },
+    {
+      id: 3,
+      subject_code: 'IT6025',
+      subject_name: 'Hệ quản trị Cơ sở dữ liệu',
+      description: 'Thiết kế CSDL quan hệ, tối ưu câu lệnh SQL, transaction và bảo toàn toàn vẹn dữ liệu',
+      total_questions: 1,
+      created_at: '2026-10-10'
+    }
+  ],
+  exams: [
+    {
+      id: 1,
+      exam_code: 'EX_SEC_MID_2026',
+      title: 'Đề thi Giữa kỳ: An toàn thông tin & Khảo thí AI',
+      subject_id: 1,
+      subject_code: 'IT4010',
+      subject_name: 'An toàn và Bảo mật Hệ thống Thông tin',
+      duration_minutes: 30,
+      total_questions: 20,
+      passing_score: 5.0,
+      shuffle_questions: true,
+      shuffle_answers: true,
+      easy_count: 8,
+      medium_count: 8,
+      hard_count: 4,
+      variants_count: 4,
+      status: 'ACTIVE',
+      created_at: '2026-11-01'
+    },
+    {
+      id: 2,
+      exam_code: 'EX_WEB_FINAL_2026',
+      title: 'Đề thi Kết thúc học phần: Lập trình Web Fullstack',
+      subject_id: 2,
+      subject_code: 'IT6012',
+      subject_name: 'Công nghệ Web & Frameworks',
+      duration_minutes: 60,
+      total_questions: 40,
+      passing_score: 5.0,
+      shuffle_questions: true,
+      shuffle_answers: true,
+      easy_count: 15,
+      medium_count: 15,
+      hard_count: 10,
+      variants_count: 4,
+      status: 'ACTIVE',
+      created_at: '2026-11-05'
+    },
+    {
+      id: 3,
+      exam_code: 'EX_DB_PERIODIC_2026',
+      title: 'Đề kiểm tra Định kỳ: Hệ quản trị Cơ sở dữ liệu',
+      subject_id: 3,
+      subject_code: 'IT6025',
+      subject_name: 'Hệ quản trị Cơ sở dữ liệu',
+      duration_minutes: 45,
+      total_questions: 30,
+      passing_score: 5.0,
+      shuffle_questions: true,
+      shuffle_answers: false,
+      easy_count: 12,
+      medium_count: 12,
+      hard_count: 6,
+      variants_count: 2,
+      status: 'DRAFT',
+      created_at: '2026-11-08'
+    }
+  ],
+  sessions: [
+    {
+      id: 1,
+      session_code: 'EXAM88',
+      title: 'Kiểm tra giữa kỳ: An toàn thông tin & Khảo thí AI',
+      subject_code: 'IT4010',
+      subject_name: 'An toàn và Bảo mật Hệ thống Thông tin',
+      exam_date: '12/11/2026',
+      time_range: '08:00 - 08:30',
+      duration_minutes: 30,
+      total_questions: 5,
+      passing_score: 5.0,
+      status: 'OPEN',
+      status_label: 'Đang mở / Đang thi',
+      total_students: 8,
+      in_progress_count: 1,
+      submitted_count: 1
+    },
+    {
+      id: 2,
+      session_code: 'IT6012_WEB',
+      title: 'Thi kết thúc học phần: Lập trình Web nâng cao',
+      subject_code: 'IT6012',
+      subject_name: 'Công nghệ Web & Frameworks',
+      exam_date: '15/11/2026',
+      time_range: '09:00 - 10:30',
+      duration_minutes: 90,
+      total_questions: 40,
+      passing_score: 5.0,
+      status: 'UPCOMING',
+      status_label: 'Sắp diễn ra',
+      total_students: 45,
+      in_progress_count: 0,
+      submitted_count: 0
+    },
+    {
+      id: 3,
+      session_code: 'IT6025_CSDL',
+      title: 'Khảo thí đánh giá định kỳ: Hệ quản trị Cơ sở dữ liệu',
+      subject_code: 'IT6025',
+      subject_name: 'Cơ sở dữ liệu nâng cao',
+      exam_date: '08/11/2026',
+      time_range: '14:00 - 15:00',
+      duration_minutes: 60,
+      total_questions: 30,
+      passing_score: 5.0,
+      status: 'COMPLETED',
+      status_label: 'Đã hoàn thành',
+      total_students: 42,
+      in_progress_count: 0,
+      submitted_count: 42
+    }
+  ],
   questions: [
     {
       id: 1,
+      question_code: 'Q_AI_01',
+      subject_id: 1,
+      subject_code: 'IT4010',
+      subject_name: 'An toàn và Bảo mật Hệ thống Thông tin',
       content: 'Trong hệ thống giám sát thi trực tuyến ExamGuard, độ đo khoảng cách nào được lưu trong bảng proctoring_logs để so khớp vector đặc trưng khuôn mặt (face_embedding)?',
       difficulty_level: 'EASY',
       answers: [
@@ -53,6 +195,10 @@ const fallbackStore = {
     },
     {
       id: 2,
+      question_code: 'Q_SEC_02',
+      subject_id: 1,
+      subject_code: 'IT4010',
+      subject_name: 'An toàn và Bảo mật Hệ thống Thông tin',
       content: 'Cơ chế nào trên trình duyệt giúp phát hiện thí sinh chuyển sang tab khác hoặc thu nhỏ cửa sổ làm bài?',
       difficulty_level: 'EASY',
       answers: [
@@ -64,6 +210,10 @@ const fallbackStore = {
     },
     {
       id: 3,
+      question_code: 'Q_API_03',
+      subject_id: 2,
+      subject_code: 'IT6012',
+      subject_name: 'Công nghệ Web & Frameworks',
       content: 'Vì sao tuyệt đối không được gửi trường is_correct của bảng answers về phía trình duyệt của thí sinh khi đang làm bài?',
       difficulty_level: 'MEDIUM',
       answers: [
@@ -75,6 +225,10 @@ const fallbackStore = {
     },
     {
       id: 4,
+      question_code: 'Q_FACE_04',
+      subject_id: 1,
+      subject_code: 'IT4010',
+      subject_name: 'An toàn và Bảo mật Hệ thống Thông tin',
       content: 'Khi phát hiện 2 khuôn mặt trong khung hình camera (MULTIPLE_FACES), luồng xử lý chuẩn của hệ thống là gì?',
       difficulty_level: 'MEDIUM',
       answers: [
@@ -86,6 +240,10 @@ const fallbackStore = {
     },
     {
       id: 5,
+      question_code: 'Q_DB_05',
+      subject_id: 3,
+      subject_code: 'IT6025',
+      subject_name: 'Hệ quản trị Cơ sở dữ liệu',
       content: 'Ràng buộc UNIQUE (user_id, session_id) trong bảng exam_attempts có tác dụng gì?',
       difficulty_level: 'HARD',
       answers: [
@@ -96,8 +254,48 @@ const fallbackStore = {
       ]
     }
   ],
-  attempts: [],
-  attemptDetails: {},
+  attempts: [
+    {
+      id: 101,
+      user_id: 3,
+      session_id: 3,
+      session_code: 'IT6025_CSDL',
+      exam_title: 'Khảo thí đánh giá định kỳ: Hệ quản trị Cơ sở dữ liệu',
+      subject_name: 'Cơ sở dữ liệu nâng cao',
+      subject_code: 'IT6025',
+      start_time: '2026-11-08T14:00:00Z',
+      submit_time: '2026-11-08T14:45:00Z',
+      total_score: 9.0,
+      total_questions: 5,
+      correct_count: 5,
+      status: 'SUBMITTED',
+      status_label: 'Đã hoàn thành',
+      passed: true,
+      violation_count: 0
+    },
+    {
+      id: 102,
+      user_id: 3,
+      session_id: 2,
+      session_code: 'IT6012_WEB',
+      exam_title: 'Kiểm tra Chuyên đề: Kiến trúc SPA & RESTful API',
+      subject_name: 'Công nghệ Web & Frameworks',
+      subject_code: 'IT6012',
+      start_time: '2026-11-01T08:30:00Z',
+      submit_time: '2026-11-01T09:20:00Z',
+      total_score: 8.5,
+      total_questions: 5,
+      correct_count: 4,
+      status: 'SUBMITTED',
+      status_label: 'Đã hoàn thành',
+      passed: true,
+      violation_count: 1
+    }
+  ],
+  attemptDetails: {
+    101: { 1: 1, 2: 5, 3: 9, 4: 13, 5: 17 },
+    102: { 1: 1, 2: 5, 3: 9, 4: 13, 5: 18 }
+  },
   proctoringLogs: [
     {
       id: 101,
@@ -108,6 +306,23 @@ const fallbackStore = {
       euclidean_distance: 0.68,
       evidence_image_path: '/uploads/evidence_two_faces_demo.jpg',
       timestamp: new Date().toISOString()
+    }
+  ],
+  checkinRequests: [
+    {
+      id: 1,
+      student_id: 3,
+      student_code: 'SV2026001',
+      full_name: 'Minh Nhật',
+      session_code: 'EXAM88',
+      session_title: 'Kiểm tra giữa kỳ: An toàn thông tin & Khảo thí AI',
+      snapshot_url: '/uploads/evidence_default.jpg',
+      mic_ready: true,
+      camera_ready: true,
+      face_count: 1,
+      euclidean_distance: 0.25,
+      status: 'PENDING',
+      created_at: new Date().toISOString()
     }
   ]
 };

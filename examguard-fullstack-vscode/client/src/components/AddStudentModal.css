@@ -1,0 +1,271 @@
+/* AddStudentModal.css - Clean, Crisp & Minimal Corner Radius */
+.asm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: asmFadeIn 0.15s ease-out;
+}
+
+@keyframes asmFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.asm-modal {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(226, 232, 240, 0.9);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.asm-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+  position: relative;
+}
+
+.asm-header-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #dcfce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.asm-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.asm-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.asm-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.asm-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  color: #94a3b8;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.asm-close-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Alerts */
+.asm-alert {
+  margin: 14px 20px 0 20px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.asm-alert-error {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #b91c1c;
+}
+
+.asm-alert-success {
+  background: #ecfdf5;
+  border: 1px solid #d1fae5;
+  color: #047857;
+}
+
+/* Form */
+.asm-form {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.asm-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 500px) {
+  .asm-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.asm-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.asm-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.asm-required {
+  color: #dc2626;
+}
+
+.asm-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.asm-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+  transition: border-color 0.15s ease;
+}
+
+.asm-input-wrap .asm-input {
+  padding-right: 36px;
+}
+
+.asm-input:focus {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.12);
+}
+
+.asm-eye-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+.asm-eye-btn:hover {
+  color: #334155;
+}
+
+.asm-hint {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+/* Actions */
+.asm-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.asm-btn-cancel {
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.asm-btn-cancel:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.asm-btn-submit {
+  padding: 7px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #1e40af;
+  background: #1d4ed8;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease;
+}
+
+.asm-btn-submit:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.asm-btn-submit:disabled,
+.asm-btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.asm-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: asmSpin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes asmSpin {
+  to { transform: rotate(360deg); }
+}

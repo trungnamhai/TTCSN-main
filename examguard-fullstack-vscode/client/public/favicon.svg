@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">SAFE EXAM</title>
+  <desc id="desc">Biểu tượng khiên xanh với dấu tích trắng và vòng quỹ đạo cyan, đại diện cho khảo thí an toàn.</desc>
+
+  <defs>
+    <linearGradient id="shieldGradient" x1="90" y1="45" x2="420" y2="470" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38BDF8"/>
+      <stop offset="0.48" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#172B86"/>
+    </linearGradient>
+    <linearGradient id="innerGradient" x1="150" y1="100" x2="360" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B2B91"/>
+      <stop offset="1" stop-color="#0879E8"/>
+    </linearGradient>
+    <linearGradient id="orbitGradient" x1="58" y1="330" x2="455" y2="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="0.55" stop-color="#7DD3FC"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="checkGradient" x1="190" y1="200" x2="330" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#DDF6FF"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#0B2B65" flood-opacity=".22"/>
+    </filter>
+  </defs>
+
+  <!-- Shield body -->
+  <g filter="url(#shadow)">
+    <path d="M256 30 425 91v132c0 119-67 205-169 259C154 428 87 342 87 223V91L256 30Z"
+          fill="url(#shieldGradient)"/>
+    <path d="M256 58 397 109v114c0 99-53 172-141 221-88-49-141-122-141-221V109L256 58Z"
+          fill="url(#innerGradient)" stroke="#8EDBFF" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M256 59v385c88-49 141-122 141-221V109L256 58Z"
+          fill="#35BDF4" opacity=".10"/>
+    <path d="M256 75 380 120v102c0 85-44 150-124 196-80-46-124-111-124-196V120L256 75Z"
+          fill="none" stroke="#FFFFFF" stroke-opacity=".16" stroke-width="3"/>
+  </g>
+
+  <!-- Check mark -->
+  <path d="m177 251 57 58 112-119"
+        fill="none" stroke="url(#checkGradient)" stroke-width="29"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Orbit sweep, kept within the square canvas -->
+  <path d="M54 331c83 76 271 93 397 7 24-16 40-34 48-51"
+        fill="none" stroke="url(#orbitGradient)" stroke-width="19"
+        stroke-linecap="round"/>
+  <path d="M57 330c-8-21-2-43 16-62"
+        fill="none" stroke="#67E8F9" stroke-width="11"
+        stroke-linecap="round" opacity=".9"/>
+
+  <!-- Small verification glint -->
+  <circle cx="405" cy="104" r="15" fill="#0F245F"/>
+  <circle cx="405" cy="104" r="7" fill="#A5F3FC"/>
+</svg>
