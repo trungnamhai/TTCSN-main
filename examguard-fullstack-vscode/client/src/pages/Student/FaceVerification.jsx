@@ -10,6 +10,7 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
   const audioContextRef = useRef(null);
   const animFrameRef = useRef(null);
   const pollTimerRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Trạng thái thiết bị phần cứng
   const [cameraReady, setCameraReady] = useState(false);
@@ -42,15 +43,56 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
         throw new Error('SECURE_CONTEXT_REQUIRED');
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
-        audio: true
-      });
+      let stream = null;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1920, min: 1280 },
+            height: { ideal: 1080, min: 720 },
+            facingMode: 'user',
+            frameRate: { ideal: 60, min: 30 }
+          },
+          audio: true
+        });
+      } catch (mediaErr) {
+        // Fallback: nếu mic bị từ chối hoặc lỗi đa thiết bị trên điện thoại, chỉ mở camera Full HD
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: 'user',
+              width: { ideal: 1920, min: 1280 },
+              height: { ideal: 1080, min: 720 },
+              frameRate: { ideal: 60, min: 30 }
+            },
+            audio: false
+          });
+        } catch {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: 'user',
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            },
+            audio: false
+          });
+        }
+      }
 
       streamRef.current = stream;
 
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+        const video = videoRef.current;
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('webkit-playsinline', 'true');
+        video.setAttribute('x5-playsinline', 'true');
+        video.setAttribute('muted', '');
+        video.muted = true;
+        video.playsInline = true;
+        video.srcObject = stream;
+        video.onloadedmetadata = () => {
+          video.play().catch(() => {});
+        };
+        video.play().catch(() => {});
       }
       setCameraReady(true);
 
@@ -125,6 +167,13 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
     const photoBase64 = captureFrameFromVideo(videoRef.current);
     if (!photoBase64) return;
 
+    // Tạm dừng video để đóng băng ảnh tĩnh rõ ràng như chụp ảnh
+    try {
+      if (videoRef.current) videoRef.current.pause();
+    } catch {
+      // ignore
+    }
+
     setCapturedPhoto(photoBase64);
     setCheckinStage('PREPARING');
 
@@ -156,6 +205,57 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
     }
   };
 
+  // 2b. Chụp ảnh tĩnh bằng Camera điện thoại (Native camera shutter)
+  const handleFileCapture = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const photoBase64 = event.target.result;
+      setCapturedPhoto(photoBase64);
+      setCheckinStage('PREPARING');
+
+      // Tạm dừng video camera nếu đang chạy
+      try {
+        if (videoRef.current) videoRef.current.pause();
+      } catch {
+        // ignore
+      }
+
+      const img = new Image();
+      img.onload = async () => {
+        const analysis = await analyzeRealFrame(img);
+        if (analysis.status === 'VIOLATION') {
+          setVerifyResult({
+            status: 'VIOLATION',
+            verified: false,
+            face_count: analysis.faceCount,
+            violation_type: analysis.violationType,
+            message: analysis.message,
+            boxes: analysis.boxes || []
+          });
+        } else {
+          if (analysis.faceSignature) {
+            sessionStorage.setItem('examguard_ref_signature', JSON.stringify(analysis.faceSignature));
+            sessionStorage.setItem('examguard_ref_snapshot', photoBase64);
+          }
+          setVerifyResult({
+            status: 'OK',
+            verified: true,
+            face_count: 1,
+            euclidean_distance: analysis.euclideanDistance || 0.22,
+            faceSignature: analysis.faceSignature || null,
+            message: '✓ Nhận diện 1 khuôn mặt thí sinh hợp lệ. Sẵn sàng gửi yêu cầu check-in!',
+            boxes: analysis.boxes || []
+          });
+        }
+      };
+      img.src = photoBase64;
+    };
+    reader.readAsDataURL(file);
+  };
+
   // 3. Chụp lại ảnh
   const handleRetakePhoto = () => {
     setCapturedPhoto(null);
@@ -164,6 +264,16 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
     setRejectReason('');
     setAutoRedirectSec(null);
     setDeviceError('');
+    try {
+      if (videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
+    } catch {
+      // ignore
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   // 4. Gửi yêu cầu Check-in thật tới Giám thị
@@ -472,7 +582,12 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
                       ref={videoRef}
                       autoPlay
                       playsInline
+                      webkit-playsinline="true"
+                      x5-playsinline="true"
                       muted
+                      disablePictureInPicture
+                      controls={false}
+                      style={{ pointerEvents: 'none' }}
                       className={`eg-live-stream-video ${cameraReady ? 'is-active' : ''}`}
                     />
                     {!cameraReady && (
@@ -515,20 +630,40 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
               </div>
 
               {/* Nút hành động chụp ảnh */}
-              <div className="eg-photo-actions-wrap">
+              <div className="eg-photo-actions-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="user"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleFileCapture}
+                />
                 {!capturedPhoto ? (
-                  <button
-                    type="button"
-                    className="eg-primary-btn eg-btn-snap"
-                    onClick={handleSnapPhoto}
-                    disabled={!cameraReady}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="3" />
-                      <path d="M4 8V6a2 2 0 0 1 2-2h3l2-2h6l2 2h3a2 2 0 0 1 2 2v2M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6" />
-                    </svg>
-                    Chụp ảnh xác thực khuôn mặt
-                  </button>
+                  <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      className="eg-primary-btn eg-btn-snap"
+                      onClick={handleSnapPhoto}
+                      disabled={!cameraReady}
+                      style={{ flex: 1, minWidth: '180px' }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M4 8V6a2 2 0 0 1 2-2h3l2-2h6l2 2h3a2 2 0 0 1 2 2v2M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6" />
+                      </svg>
+                      Chụp ảnh từ Camera
+                    </button>
+                    <button
+                      type="button"
+                      className="eg-btn-cancel"
+                      onClick={() => fileInputRef.current?.click()}
+                      style={{ padding: '0 16px', fontSize: '13px' }}
+                      title="Mở camera điện thoại hoặc tải ảnh chân dung"
+                    >
+                      📱 Mở Camera điện thoại
+                    </button>
+                  </div>
                 ) : (
                   <button type="button" className="eg-btn-cancel" onClick={handleRetakePhoto}>
                     ↻ Chụp lại ảnh khác

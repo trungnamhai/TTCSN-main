@@ -7,16 +7,61 @@ const pool = require('../config/db');
 const fallbackStore = {
   users: [
     {
-      id: 3,
-      role_id: 3,
-      role_name: 'STUDENT',
-      username: 'SV2026001',
-      full_name: 'Minh Nhật',
-      email: 'sv2026001@student.edu.vn',
-      face_embedding: '[0.124, -0.082, 0.311, 0.045, -0.192, 0.278, 0.091, -0.144]'
+      id: 1,
+      role_id: 2,
+      role_name: 'TEACHER',
+      username: 'anhpt',
+      full_name: 'Thế Anh',
+      email: 'anhpt@haui.edu.vn',
+      face_embedding: null
     },
     {
       id: 2,
+      role_id: 3,
+      role_name: 'STUDENT',
+      username: '2024603201',
+      full_name: 'Bùi Minh Nhật',
+      email: 'nhatbm.2024603201@haui.edu.vn',
+      face_embedding: '[0.124, -0.082, 0.311, 0.045, -0.192, 0.278, 0.091, -0.144]'
+    },
+    {
+      id: 3,
+      role_id: 3,
+      role_name: 'STUDENT',
+      username: '2024604243',
+      full_name: 'Trần Văn Trung',
+      email: 'trungtv.2024604243@haui.edu.vn',
+      face_embedding: '[0.124, -0.082, 0.311, 0.045, -0.192, 0.278, 0.091, -0.144]'
+    },
+    {
+      id: 4,
+      role_id: 3,
+      role_name: 'STUDENT',
+      username: '2024604304',
+      full_name: 'Trần Hoàng Nam',
+      email: 'namth.2024604304@haui.edu.vn',
+      face_embedding: null
+    },
+    {
+      id: 5,
+      role_id: 3,
+      role_name: 'STUDENT',
+      username: '2024603775',
+      full_name: 'Trịnh Đình Mạnh',
+      email: 'manhtd.2024603775@haui.edu.vn',
+      face_embedding: null
+    },
+    {
+      id: 6,
+      role_id: 3,
+      role_name: 'STUDENT',
+      username: '2024603200',
+      full_name: 'Nhữ Quốc Trường',
+      email: 'truongnq.2024603200@haui.edu.vn',
+      face_embedding: null
+    },
+    {
+      id: 7,
       role_id: 2,
       role_name: 'TEACHER',
       username: 'GV001',
@@ -311,9 +356,9 @@ const fallbackStore = {
   checkinRequests: [
     {
       id: 1,
-      student_id: 3,
-      student_code: 'SV2026001',
-      full_name: 'Minh Nhật',
+      student_id: 2,
+      student_code: '2024603201',
+      full_name: 'Bùi Minh Nhật',
       session_code: 'EXAM88',
       session_title: 'Kiểm tra giữa kỳ: An toàn thông tin & Khảo thí AI',
       snapshot_url: '/uploads/evidence_default.jpg',
@@ -321,7 +366,20 @@ const fallbackStore = {
       camera_ready: true,
       face_count: 1,
       euclidean_distance: 0.25,
+      status: 'APPROVED',
+      created_at: new Date().toISOString()
+    }
+  ],
+  supportRequests: [
+    {
+      id: 1,
+      student_code: '2024604243',
+      full_name: 'Trần Văn Trung',
+      session_code: 'EXAM203',
+      category: 'REENTRY_REQUEST',
+      message: 'Em bị rớt mạng chập chờn, xin thầy/cô hỗ trợ duyệt cho em tiếp tục làm bài thi.',
       status: 'PENDING',
+      reply_message: null,
       created_at: new Date().toISOString()
     }
   ]

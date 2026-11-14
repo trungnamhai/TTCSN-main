@@ -1514,3 +1514,296 @@ exports.approveAllCheckinRequests = async (req, res) => {
     return res.status(500).json({ message: 'Không thể duyệt tất cả check-in: ' + err.message });
   }
 };
+
+exports.getSupportRequests = async (req, res) => {
+  try {
+    const list = fallbackStore.supportRequests || [];
+    return res.json(list);
+  } catch (err) {
+    return res.status(500).json({ message: 'Lỗi tải danh sách yêu cầu hỗ trợ: ' + err.message });
+  }
+};
+
+exports.decideSupportRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status = 'APPROVED', replyMessage = '' } = req.body;
+
+    const list = fallbackStore.supportRequests || [];
+    const item = list.find((r) => r.id === Number(id));
+
+    if (!item) {
+      return res.status(404).json({ message: 'Không tìm thấy yêu cầu hỗ trợ.' });
+    }
+
+    item.status = status;
+    item.reply_message = replyMessage || (status === 'APPROVED' ? 'Giám thị đã đồng ý duyệt cho bạn vào lại phòng thi. Chúc bạn làm bài tốt!' : 'Giám thị đã phản hồi yêu cầu của bạn.');
+    item.decided_at = new Date().toISOString();
+
+    try {
+      const io = req.app.get('io');
+      if (io) {
+        io.emit('student:support_decision', {
+          requestId: item.id,
+          studentCode: item.student_code,
+          sessionCode: item.session_code,
+          status: item.status,
+          replyMessage: item.reply_message
+        });
+      }
+    } catch (sErr) {
+      console.warn('Lỗi emit socket support decision:', sErr.message);
+    }
+
+    return res.json({
+      success: true,
+      message: `Đã ${status === 'APPROVED' ? 'duyệt' : 'từ chối'} yêu cầu hỗ trợ của thí sinh ${item.full_name}!`,
+      request: item
+    });
+  } catch (err) {
+    return res.status(500).json({ message: 'Lỗi xử lý yêu cầu hỗ trợ: ' + err.message });
+  }
+};
+
+// ==========================================
+// DUYỆT THI LẠI KHI THÍ SINH GẶP SỰ CỐ MẠNG
+// ==========================================
+exports.allowResumeExam = async (req, res) => {
+  try {
+    const { studentCode } = req.params;
+    const { sessionCode, note = '' } = req.body || {};
+
+    let user = null;
+    try {
+      const [uRows] = await pool.query(
+        `SELECT id, username, full_name FROM users WHERE username = ? LIMIT 1`,
+        [studentCode]
+      );
+      if (uRows && uRows.length > 0) user = uRows[0];
+    } catch {
+      // ignore
+    }
+
+    if (!user) {
+      user = (fallbackStore.users || []).find((u) => u.username === studentCode);
+    }
+
+    const fullName = user?.full_name || studentCode;
+
+    // 1. Cập nhật trạng thái lượt thi trong MySQL nếu có
+    try {
+      if (user?.id) {
+        await pool.query(
+          `UPDATE exam_attempts
+           SET status = 'IN_PROGRESS'
+           WHERE user_id = ?
+           ORDER BY id DESC LIMIT 1`,
+          [user.id]
+        );
+      }
+    } catch (dbErr) {
+      console.warn('Lỗi cập nhật CSDL allowResume:', dbErr.message);
+    }
+
+    // 2. Cập nhật trong fallbackStore
+    const att = (fallbackStore.attempts || []).find(
+      (a) => (user?.id && a.user_id === user.id) || a.student_code === studentCode
+    );
+    if (att) {
+      att.status = 'IN_PROGRESS';
+      att.status_label = 'Đang làm bài (Đã duyệt sự cố mạng)';
+      att.terminated_by_teacher = false;
+    }
+
+    // 3. Tự động duyệt các yêu cầu hỗ trợ / xin vào lại đang chờ của thí sinh này
+    if (Array.isArray(fallbackStore.supportRequests)) {
+      fallbackStore.supportRequests.forEach((r) => {
+        if (r.student_code === studentCode && r.status === 'PENDING') {
+          r.status = 'APPROVED';
+          r.reply_message = note || 'Giám thị đã duyệt quyền cho phép bạn tiếp tục làm bài thi sau sự cố mạng. Toàn bộ đáp án đã được khôi phục!';
+          r.decided_at = new Date().toISOString();
+        }
+      });
+    }
+
+    // 4. Ghi nhận log giám thị
+    const logItem = {
+      id: Date.now(),
+      student_code: studentCode,
+      full_name: fullName,
+      violation_type: 'NETWORK_RESUME_APPROVED',
+      euclidean_distance: null,
+      evidence_image_path: 'Giám thị duyệt cho phép thi lại sau sự cố mạng',
+      timestamp: new Date().toISOString()
+    };
+    if (!fallbackStore.proctoringLogs) fallbackStore.proctoringLogs = [];
+    fallbackStore.proctoringLogs.unshift(logItem);
+
+    // 5. Phát Socket tới Thí sinh ngay lập tức
+    try {
+      const io = req.app.get('io');
+      if (io) {
+        io.emit('student:resume_exam_permission', {
+          studentCode,
+          sessionCode: sessionCode || 'EXAM88',
+          fullName,
+          message: note || 'Giám thị đã duyệt cho phép bạn tiếp tục làm bài thi sau sự cố mạng! Toàn bộ bài làm của bạn đã được bảo lưu an toàn.',
+          timestamp: new Date().toISOString()
+        });
+        io.emit('student:support_decision', {
+          studentCode,
+          sessionCode: sessionCode || 'EXAM88',
+          status: 'APPROVED',
+          replyMessage: note || 'Giám thị đã duyệt quyền cho phép tiếp tục thi lại sau sự cố mạng.'
+        });
+        io.emit('proctoring:violation_alert', logItem);
+      }
+    } catch (sErr) {
+      console.warn('Lỗi emit socket allowResume:', sErr.message);
+    }
+
+    return res.json({
+      success: true,
+      message: `Đã duyệt cho phép thí sinh ${fullName} (${studentCode}) tiếp tục thi lại sau sự cố mạng!`,
+      studentCode,
+      fullName
+    });
+  } catch (err) {
+    console.error('Lỗi khi duyệt thi lại:', err);
+    return res.status(500).json({ message: 'Không thể duyệt thi lại: ' + err.message });
+  }
+};
+
+// ==========================================
+// CƯỠNG CHẾ THU BÀI KHI VI PHẠM NẶNG
+// ==========================================
+exports.forceSubmitExam = async (req, res) => {
+  try {
+    const { studentCode } = req.params;
+    const {
+      sessionCode,
+      reason = 'Vi phạm nghiêm trọng quy chế phòng thi',
+      violationType = 'FORCE_TERMINATED'
+    } = req.body || {};
+
+    let user = null;
+    try {
+      const [uRows] = await pool.query(
+        `SELECT id, username, full_name FROM users WHERE username = ? LIMIT 1`,
+        [studentCode]
+      );
+      if (uRows && uRows.length > 0) user = uRows[0];
+    } catch {
+      // ignore
+    }
+
+    if (!user) {
+      user = (fallbackStore.users || []).find((u) => u.username === studentCode);
+    }
+
+    const fullName = user?.full_name || studentCode;
+
+    // Tính điểm dựa trên số câu hỏi đã kịp làm
+    let score = 0;
+    const totalQuestions = fallbackStore.questions?.length || 5;
+    let correctCount = 0;
+
+    // Trong MySQL
+    try {
+      if (user?.id) {
+        const [attRows] = await pool.query(
+          `SELECT id FROM exam_attempts WHERE user_id = ? ORDER BY id DESC LIMIT 1`,
+          [user.id]
+        );
+        if (attRows && attRows.length > 0) {
+          const attemptId = attRows[0].id;
+          const [correctRows] = await pool.query(
+            `SELECT ad.question_id, ad.selected_answer_id, a.is_correct
+             FROM attempt_details ad
+             LEFT JOIN answers a ON ad.selected_answer_id = a.id
+             WHERE ad.attempt_id = ?`,
+            [attemptId]
+          );
+          correctCount = (correctRows || []).filter((r) => r.is_correct === 1 || r.is_correct === true).length;
+          score = Number(((correctCount / totalQuestions) * 10).toFixed(2));
+
+          await pool.query(
+            `UPDATE exam_attempts
+             SET submit_time = CURRENT_TIMESTAMP, total_score = ?, status = 'SUBMITTED'
+             WHERE id = ?`,
+            [score, attemptId]
+          );
+        }
+      }
+    } catch (dbErr) {
+      console.warn('Lỗi cập nhật CSDL forceSubmit:', dbErr.message);
+    }
+
+    // Trong fallbackStore
+    const att = (fallbackStore.attempts || []).find(
+      (a) => (user?.id && a.user_id === user.id) || a.student_code === studentCode
+    );
+    if (att) {
+      const savedAnswers = (fallbackStore.attemptDetails && fallbackStore.attemptDetails[att.id]) || {};
+      (fallbackStore.questions || []).forEach((q) => {
+        const chosenId = Number(savedAnswers[q.id]);
+        const correctAns = q.answers?.find((a) => a.is_correct);
+        if (correctAns && chosenId === correctAns.id) {
+          correctCount += 1;
+        }
+      });
+      score = Number(((correctCount / totalQuestions) * 10).toFixed(2));
+      att.status = 'SUBMITTED';
+      att.status_label = 'Đã bị cưỡng chế thu bài';
+      att.submit_time = new Date().toISOString();
+      att.total_score = score;
+      att.terminated_by_teacher = true;
+      att.termination_reason = reason;
+    }
+
+    // Ghi nhận vi phạm vào proctoring_logs
+    const logItem = {
+      id: Date.now(),
+      student_code: studentCode,
+      full_name: fullName,
+      violation_type: 'FORCE_TERMINATED',
+      euclidean_distance: null,
+      evidence_image_path: reason,
+      timestamp: new Date().toISOString()
+    };
+    if (!fallbackStore.proctoringLogs) fallbackStore.proctoringLogs = [];
+    fallbackStore.proctoringLogs.unshift(logItem);
+
+    // Phát socket cưỡng chế thu bài tới Thí sinh ngay lập tức
+    try {
+      const io = req.app.get('io');
+      if (io) {
+        io.emit('student:force_submitted', {
+          studentCode,
+          sessionCode: sessionCode || 'EXAM88',
+          fullName,
+          reason,
+          totalScore: score,
+          correctCount,
+          totalQuestions,
+          timestamp: new Date().toISOString()
+        });
+        io.emit('proctoring:violation_alert', logItem);
+      }
+    } catch (sErr) {
+      console.warn('Lỗi emit socket forceSubmit:', sErr.message);
+    }
+
+    return res.json({
+      success: true,
+      message: `Đã xác nhận cưỡng chế thu bài thi của thí sinh ${fullName} (${studentCode}) do vi phạm nặng!`,
+      studentCode,
+      fullName,
+      reason,
+      totalScore: score
+    });
+  } catch (err) {
+    console.error('Lỗi khi cưỡng chế thu bài:', err);
+    return res.status(500).json({ message: 'Không thể cưỡng chế thu bài: ' + err.message });
+  }
+};

@@ -11,5 +11,7 @@ router.get('/check-in/status', verifyToken, examController.getCheckinStatus);
 router.post('/start', verifyToken, examController.startExamAttempt);
 router.post('/save-answer', verifyToken, examController.saveAnswer);
 router.post('/submit', verifyToken, examController.submitExam);
+router.post('/support-request', verifyToken, examController.submitSupportRequest);
+router.get('/support-requests', verifyToken, examController.getStudentSupportRequests);
 
 module.exports = router;

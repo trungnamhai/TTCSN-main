@@ -43,4 +43,14 @@ router.get('/checkin-requests', teacherController.getCheckinRequests);
 router.post('/checkin-requests/approve-all', teacherController.approveAllCheckinRequests);
 router.post('/checkin-requests/:id/decision', teacherController.decideCheckinRequest);
 
+// Quản lý yêu cầu hỗ trợ kỹ thuật / xin vào lại phòng thi
+router.get('/support-requests', teacherController.getSupportRequests);
+router.post('/support-requests/:id/decision', teacherController.decideSupportRequest);
+
+// Duyệt cho phép tiếp tục thi lại khi thí sinh gặp sự cố mạng
+router.post('/students/:studentCode/allow-resume', teacherController.allowResumeExam);
+
+// Xác nhận thu bài hoặc cưỡng chế nộp bài khi vi phạm nặng
+router.post('/students/:studentCode/force-submit', teacherController.forceSubmitExam);
+
 module.exports = router;

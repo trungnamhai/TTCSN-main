@@ -18,7 +18,12 @@ import './ProctoringDashboard.css';
 export default function ProctoringDashboard({ token, teacher, onLogout }) {
   // Navigation active tab: 'proctoring' | 'sessions' | 'exams' | 'questions' | 'subjects'
   const [activeTab, setActiveTab] = useState('proctoring');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 960) {
+      return true;
+    }
+    return false;
+  });
 
   // Proctoring & Students state
   const [dashboard, setDashboard] = useState({
@@ -75,6 +80,11 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
   const [checkinFilter, setCheckinFilter] = useState('ALL'); // 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'
   const [viewingSnapshot, setViewingSnapshot] = useState(null);
 
+  // Support & Re-entry Requests state
+  const [supportRequests, setSupportRequests] = useState([]);
+  const [loadingSupport, setLoadingSupport] = useState(false);
+  const [supportFilter, setSupportFilter] = useState('ALL'); // 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'
+
   // Live Camera Proctoring state
   const [liveFeeds, setLiveFeeds] = useState({});
   const [selectedLiveCam, setSelectedLiveCam] = useState(null);
@@ -84,6 +94,12 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
   const [showAddStudent, setShowAddStudent] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [deletingStudent, setDeletingStudent] = useState(null);
+
+  // Modals for Force Submit (Thu bài) & Resume Network (Duyệt thi lại sự cố mạng)
+  const [forceSubmittingStudent, setForceSubmittingStudent] = useState(null);
+  const [forceReasonOption, setForceReasonOption] = useState('FACE_MISMATCH');
+  const [customForceReason, setCustomForceReason] = useState('');
+  const [submittingForce, setSubmittingForce] = useState(false);
 
   // Search & filter for Students Roster
   const [studentSearchQuery, setStudentSearchQuery] = useState('');
@@ -242,8 +258,137 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
     }
   };
 
+  // Tải danh sách yêu cầu hỗ trợ kỹ thuật & xin vào lại
+  const fetchSupportRequests = async () => {
+    setLoadingSupport(true);
+    try {
+      const data = await apiRequest('/teacher/support-requests', { token });
+      setSupportRequests(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.warn('Lỗi tải danh sách yêu cầu hỗ trợ:', err.message);
+    } finally {
+      setLoadingSupport(false);
+    }
+  };
+
+  // Xử lý phê duyệt / phản hồi yêu cầu hỗ trợ
+  const handleDecideSupport = async (id, status, defaultReply = '') => {
+    const promptLabel = status === 'APPROVED'
+      ? 'Lời nhắn gửi thí sinh khi duyệt vào lại phòng thi (tùy chọn):'
+      : 'Lý do từ chối hoặc phản hồi kỹ thuật gửi thí sinh:';
+    const initialText = defaultReply || (status === 'APPROVED'
+      ? 'Giám thị đã duyệt cho bạn tiếp tục làm bài thi. Chúc bạn làm bài tốt!'
+      : 'Giám thị đã ghi nhận yêu cầu của bạn.');
+    const replyMessage = window.prompt(promptLabel, initialText);
+    if (replyMessage === null) return;
+
+    try {
+      const res = await apiRequest(`/teacher/support-requests/${id}/decision`, {
+        method: 'POST',
+        token,
+        body: { status, replyMessage }
+      });
+      setStatusMsg(res.message || 'Đã cập nhật trạng thái yêu cầu hỗ trợ.');
+      setSupportRequests((prev) =>
+        prev.map((r) =>
+          r.id === id ? { ...r, status, reply_message: replyMessage, decided_at: new Date().toISOString() } : r
+        )
+      );
+    } catch (err) {
+      setErrorMsg(err.message || 'Lỗi khi xử lý yêu cầu hỗ trợ');
+    }
+  };
+
+  // Duyệt cho phép tiếp tục thi lại khi thí sinh gặp sự cố mạng
+  const handleAllowResume = async (studentCode, sessionCode, studentName) => {
+    if (!window.confirm(`Xác nhận duyệt cho phép thí sinh ${studentName || studentCode} (${studentCode}) tiếp tục làm bài thi sau sự cố mạng?\n\nToàn bộ đáp án đã tự động lưu trước đó của thí sinh sẽ được giữ nguyên.`)) {
+      return;
+    }
+
+    try {
+      const res = await apiRequest(`/teacher/students/${studentCode}/allow-resume`, {
+        method: 'POST',
+        token,
+        body: { sessionCode, note: 'Giám thị đã duyệt quyền tiếp tục thi sau sự cố mạng.' }
+      });
+      setStatusMsg(res.message || `Đã duyệt cho phép thí sinh ${studentCode} tiếp tục thi lại!`);
+      // Cập nhật trạng thái thí sinh trong bảng
+      setDashboard((prev) => ({
+        ...prev,
+        students: prev.students.map((s) =>
+          s.student_code === studentCode ? { ...s, exam_status: 'IN_PROGRESS' } : s
+        )
+      }));
+      fetchSupportRequests();
+    } catch (err) {
+      setErrorMsg(err.message || 'Lỗi khi duyệt cho phép thi lại');
+    }
+  };
+
+  // Cưỡng chế thu bài khi thí sinh vi phạm nặng
+  const handleExecuteForceSubmit = async () => {
+    if (!forceSubmittingStudent) return;
+    setSubmittingForce(true);
+    setErrorMsg('');
+
+    const reasonMap = {
+      FACE_MISMATCH: 'Gian lận thi cử: Phát hiện khuôn mặt không phù hợp với ảnh check-in ban đầu (Nghi vấn thi hộ)',
+      MULTIPLE_FACES: 'Phát hiện nhiều người cùng xuất hiện trong phòng thi để hỗ trợ làm bài',
+      TAB_SWITCH_EXCESSIVE: 'Cố tình thoát toàn màn hình và chuyển tab nhiều lần vi phạm quy chế',
+      DISOBEY_RULES: 'Không tuân thủ hiệu lệnh phòng thi và quy chế khảo thí của Giám thị',
+      OTHER: customForceReason.trim() || 'Vi phạm nghiêm trọng quy chế phòng thi'
+    };
+
+    const finalReason = forceReasonOption === 'OTHER' ? (customForceReason.trim() || 'Vi phạm quy chế phòng thi') : reasonMap[forceReasonOption];
+
+    try {
+      const res = await apiRequest(`/teacher/students/${forceSubmittingStudent.studentCode}/force-submit`, {
+        method: 'POST',
+        token,
+        body: {
+          sessionCode: forceSubmittingStudent.sessionCode || 'EXAM88',
+          reason: finalReason
+        }
+      });
+
+      setStatusMsg(res.message || `Đã cưỡng chế thu bài thi của thí sinh ${forceSubmittingStudent.studentCode}!`);
+
+      // Cập nhật trạng thái thí sinh
+      setDashboard((prev) => ({
+        ...prev,
+        students: prev.students.map((s) =>
+          s.student_code === forceSubmittingStudent.studentCode ? { ...s, exam_status: 'SUBMITTED' } : s
+        ),
+        attempts: prev.attempts.map((a) =>
+          a.student_code === forceSubmittingStudent.studentCode ? { ...a, status: 'SUBMITTED', total_score: res.totalScore } : a
+        )
+      }));
+
+      // Cập nhật thẻ Live Feed
+      setLiveFeeds((prev) => {
+        if (!prev[forceSubmittingStudent.studentCode]) return prev;
+        return {
+          ...prev,
+          [forceSubmittingStudent.studentCode]: {
+            ...prev[forceSubmittingStudent.studentCode],
+            faceStatus: 'VIOLATION',
+            message: 'Đã cưỡng chế thu bài'
+          }
+        };
+      });
+
+      setForceSubmittingStudent(null);
+      setSelectedLiveCam(null);
+    } catch (err) {
+      setErrorMsg(err.message || 'Lỗi khi cưỡng chế thu bài');
+    } finally {
+      setSubmittingForce(false);
+    }
+  };
+
   useEffect(() => {
     fetchOverview();
+    fetchSupportRequests();
     fetchAssignedSessions();
     fetchSubjectsList();
     fetchExamsList();
@@ -294,6 +439,16 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
 
     socket.on('teacher:new_checkin_request', handleNewCheckin);
 
+    const handleNewSupport = (newReq) => {
+      setSupportRequests((prev) => {
+        const filtered = prev.filter((r) => r.id !== newReq.id);
+        return [newReq, ...filtered];
+      });
+      setStatusMsg(`Thí sinh ${newReq.full_name || newReq.student_code} vừa gửi yêu cầu hỗ trợ ca thi ${newReq.session_code || ''}!`);
+    };
+
+    socket.on('teacher:new_support_request', handleNewSupport);
+
     const handleStudentPresence = ({ username, isOnline }) => {
       setDashboard((prev) => ({
         ...prev,
@@ -311,6 +466,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
       socket.off('proctoring:violation_alert');
       socket.off('proctoring:live_heartbeat', handleHeartbeat);
       socket.off('teacher:new_checkin_request', handleNewCheckin);
+      socket.off('teacher:new_support_request', handleNewSupport);
       socket.off('teacher:student_presence', handleStudentPresence);
     };
   }, [token]);
@@ -573,6 +729,14 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
     return checkinRequests.filter((r) => r.status === checkinFilter);
   }, [checkinRequests, checkinFilter]);
 
+  // Support & Re-entry counts & filter
+  const pendingSupportCount = supportRequests.filter((r) => r.status === 'PENDING').length;
+
+  const filteredSupportRequests = useMemo(() => {
+    if (supportFilter === 'ALL') return supportRequests;
+    return supportRequests.filter((r) => r.status === supportFilter);
+  }, [supportRequests, supportFilter]);
+
   // Subjects tab summary
   const subjectQuestionTotal = subjects.reduce((sum, s) => sum + (Number(s.total_questions) || 0), 0);
   const subjectEmptyCount = subjects.filter((s) => !s.total_questions).length;
@@ -600,6 +764,19 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
           <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
           <circle cx="8.5" cy="7" r="4" />
           <polyline points="17 11 19 13 23 9" />
+        </>
+      )
+    },
+    {
+      key: 'support',
+      label: 'Hỗ trợ & Vào lại',
+      count: pendingSupportCount,
+      highlight: pendingSupportCount > 0,
+      icon: (
+        <>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          <path d="M12 8v4" />
+          <path d="M12 16h.01" />
         </>
       )
     },
@@ -646,6 +823,15 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
 
   return (
     <div className="eg-dashboard eg-shell">
+      {/* Mobile Drawer Backdrop */}
+      {!sidebarCollapsed && (
+        <div
+          className="eg-sidebar-backdrop"
+          onClick={() => setSidebarCollapsed(true)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* ===== Thanh điều hướng bên trái ===== */}
       <aside className={`eg-sidebar ${sidebarCollapsed ? 'is-collapsed' : ''}`}>
         <div className="eg-brand">
@@ -663,12 +849,12 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
           )}
           <button
             type="button"
-            className="eg-btn-collapse-sidebar"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            title={sidebarCollapsed ? "Mở rộng menu chức năng" : "Thu gọn menu chức năng"}
-            aria-label="Đóng mở menu chức năng"
+            className="eg-btn-close-drawer-mobile"
+            onClick={() => setSidebarCollapsed(true)}
+            title="Đóng menu"
+            aria-label="Đóng menu trên điện thoại"
           >
-            {sidebarCollapsed ? '»' : '«'}
+            ✕
           </button>
         </div>
 
@@ -679,7 +865,12 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
               type="button"
               className={`eg-nav-btn ${activeTab === item.key ? 'is-active' : ''}`}
               aria-current={activeTab === item.key ? 'page' : undefined}
-              onClick={() => setActiveTab(item.key)}
+              onClick={() => {
+                setActiveTab(item.key);
+                if (typeof window !== 'undefined' && window.innerWidth <= 960) {
+                  setSidebarCollapsed(true);
+                }
+              }}
               title={sidebarCollapsed ? `${item.label} (${item.count})` : undefined}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
@@ -691,12 +882,46 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
           ))}
         </nav>
 
-        <button type="button" onClick={onLogout} className="eg-dashboard-logout" title={sidebarCollapsed ? "Đăng xuất" : undefined}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
-            <path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9" />
-          </svg>
-          {!sidebarCollapsed && <span>Đăng xuất</span>}
-        </button>
+        <div className="eg-sidebar-bottom-actions">
+          <button
+            type="button"
+            className="eg-sidebar-toggle-row"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            title={sidebarCollapsed ? "Mở rộng thanh menu" : "Thu gọn thanh menu"}
+            aria-label="Đóng mở thanh menu"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              {sidebarCollapsed ? (
+                <>
+                  <polyline points="13 17 18 12 13 7" />
+                  <polyline points="6 17 11 12 6 7" />
+                </>
+              ) : (
+                <>
+                  <polyline points="11 17 6 12 11 7" />
+                  <polyline points="18 17 13 12 18 7" />
+                </>
+              )}
+            </svg>
+            {!sidebarCollapsed && <span>Thu gọn thanh menu</span>}
+          </button>
+
+          <button type="button" onClick={onLogout} className="eg-dashboard-logout" title={sidebarCollapsed ? "Đăng xuất" : undefined}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
+              <path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9" />
+            </svg>
+            {!sidebarCollapsed && <span>Đăng xuất</span>}
+          </button>
+
+          <button
+            type="button"
+            className="eg-sidebar-close-mobile-row"
+            onClick={() => setSidebarCollapsed(true)}
+            title="Đóng menu trên điện thoại"
+          >
+            ✕ Đóng menu
+          </button>
+        </div>
       </aside>
 
       {/* ===== Khu vực nội dung ===== */}
@@ -704,20 +929,6 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
         {/* Top Header */}
         <header className="eg-dashboard-header">
           <div className="eg-dashboard-welcome-wrap">
-            <button
-              type="button"
-              className="eg-btn-menu-toggle"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              title={sidebarCollapsed ? "Mở menu chức năng" : "Đóng menu chức năng"}
-              aria-label="Đóng mở menu chức năng"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-              <span>{sidebarCollapsed ? "Mở menu" : "Đóng menu"}</span>
-            </button>
             <div className="eg-dashboard-welcome">
               <span className="eg-dashboard-eyebrow">KHU VỰC GIẢNG VIÊN</span>
               <h1 className="eg-dashboard-title">Bảng điều khiển Giảng viên</h1>
@@ -774,6 +985,23 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
           </div>
         </section>
 
+        {/* Thanh chuyển tab trực tiếp trên điện thoại (Không cần bấm menu 3 gạch) */}
+        <div className="eg-mobile-nav-tabs">
+          {navItems.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              className={`eg-mobile-tab-btn ${activeTab === item.key ? 'is-active' : ''}`}
+              onClick={() => setActiveTab(item.key)}
+            >
+              <span className="eg-mobile-tab-label">{item.label}</span>
+              {typeof item.count === 'number' && item.count > 0 && (
+                <span className="eg-mobile-tab-count">({item.count})</span>
+              )}
+            </button>
+          ))}
+        </div>
+
         {/* Global alert notifications */}
         {statusMsg && (
           <div className="eg-dashboard-alert-banner is-success" role="status">
@@ -814,28 +1042,33 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
 
           {/* Stats Bar */}
           <section className="eg-dashboard-stats" aria-label="Thống kê ca thi">
-            <div className="eg-dashboard-stat">
+            <div className="eg-dashboard-stat eg-stat-total">
               <span className="eg-dashboard-stat-label">Tổng thí sinh</span>
               <strong>{dashboard.students.length}</strong>
             </div>
-            <div className="eg-dashboard-stat">
-              <span className="eg-dashboard-stat-label">Đang online</span>
-              <strong>{onlineCount}</strong>
+            <div className="eg-dashboard-stat eg-stat-online">
+              <span className="eg-dashboard-stat-label">
+                <span className="eg-live-pulse-dot" style={{ display: 'inline-block', marginRight: '6px' }} />
+                Đang online
+              </span>
+              <strong style={{ color: '#059669' }}>{onlineCount}</strong>
             </div>
-            <div className="eg-dashboard-stat">
+            <div className="eg-dashboard-stat eg-stat-offline">
               <span className="eg-dashboard-stat-label">Đang offline</span>
               <strong>{dashboard.students.length - onlineCount}</strong>
             </div>
-            <div className="eg-dashboard-stat">
+            <div className="eg-dashboard-stat eg-stat-examining">
               <span className="eg-dashboard-stat-label">Thí sinh đang thi</span>
-              <strong>{inProgressCount}</strong>
+              <strong style={{ color: '#0284c7' }}>{inProgressCount}</strong>
             </div>
-            <div className="eg-dashboard-stat">
+            <div className="eg-dashboard-stat eg-stat-submitted">
               <span className="eg-dashboard-stat-label">Bài đã nộp</span>
-              <strong>{submittedCount}</strong>
+              <strong style={{ color: '#7c3aed' }}>{submittedCount}</strong>
             </div>
-            <div className="eg-dashboard-stat eg-dashboard-stat-warning">
-              <span className="eg-dashboard-stat-label">Cảnh báo vi phạm</span>
+            <div className="eg-dashboard-stat eg-stat-violations eg-dashboard-stat-warning">
+              <span className="eg-dashboard-stat-label">
+                ⚠️ Cảnh báo vi phạm
+              </span>
               <strong>{dashboard.logs.length}</strong>
             </div>
           </section>
@@ -902,7 +1135,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                       <div className="eg-cam-top-badges">
                         <span className="eg-live-badge-red" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#fff', animation: 'pulse 1.2s infinite' }} />
-                          LIVE STREAM · 15 FPS
+                          LIVE STREAM · {feed.fps || 60} FPS
                         </span>
                         {feed.sessionCode && (
                           <span className="eg-session-tag-badge">{feed.sessionCode}</span>
@@ -927,14 +1160,42 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                         <strong>{feed.fullName || 'Thí sinh'}</strong>
                         <span className="eg-cam-user-code">{feed.studentCode}</span>
                       </div>
-                      <button
-                        type="button"
-                        className="eg-btn-cam-zoom"
-                        onClick={(e) => { e.stopPropagation(); setSelectedLiveCam(feed); }}
-                        title="Phóng to camera & xem chi tiết"
-                      >
-                        ⤢ Phóng to
-                      </button>
+                      <div className="eg-cam-card-actions">
+                        <button
+                          type="button"
+                          className="eg-btn-cam-action eg-btn-cam-resume"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAllowResume(feed.studentCode, feed.sessionCode, feed.fullName);
+                          }}
+                          title="Duyệt cho phép tiếp tục thi lại khi gặp sự cố mạng"
+                        >
+                          🔄 Duyệt thi lại
+                        </button>
+                        <button
+                          type="button"
+                          className="eg-btn-cam-action eg-btn-cam-force"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setForceSubmittingStudent({
+                              studentCode: feed.studentCode,
+                              fullName: feed.fullName,
+                              sessionCode: feed.sessionCode
+                            });
+                          }}
+                          title="Cưỡng chế nộp bài hoặc đình chỉ thi khi vi phạm nặng"
+                        >
+                          🛑 Thu bài
+                        </button>
+                        <button
+                          type="button"
+                          className="eg-btn-cam-zoom"
+                          onClick={(e) => { e.stopPropagation(); setSelectedLiveCam(feed); }}
+                          title="Phóng to camera & xem chi tiết"
+                        >
+                          ⤢ Phóng to
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -1068,6 +1329,28 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                           <td>{student.total_score ?? '—'}</td>
                           <td style={{ textAlign: 'center' }}>
                             <div className="eg-student-actions">
+                              <button
+                                type="button"
+                                className="eg-student-btn-resume"
+                                onClick={() => handleAllowResume(student.student_code, student.session_code, student.full_name)}
+                                title="Duyệt cho phép tiếp tục thi lại khi thí sinh gặp sự cố mạng"
+                              >
+                                🔄 Duyệt thi lại
+                              </button>
+                              <button
+                                type="button"
+                                className="eg-student-btn-force"
+                                onClick={() =>
+                                  setForceSubmittingStudent({
+                                    studentCode: student.student_code,
+                                    fullName: student.full_name,
+                                    sessionCode: student.session_code || 'EXAM88'
+                                  })
+                                }
+                                title="Cưỡng chế nộp bài hoặc đình chỉ thi khi vi phạm nặng"
+                              >
+                                🛑 Thu bài
+                              </button>
                               <button
                                 type="button"
                                 className="eg-student-btn-edit"
@@ -1333,6 +1616,266 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                                 Duyệt lại
                               </button>
                             </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </div>
+      )}
+
+      {/* =========================================================================
+          TAB: YÊU CẦU HỖ TRỢ KỸ THUẬT & XIN VÀO LẠI PHÒNG THI
+          ========================================================================= */}
+      {activeTab === 'support' && (
+        <div className="eg-tab-content">
+          <section className="eg-panel">
+            <div className="eg-dashboard-roster-header">
+              <div>
+                <h2 className="eg-dashboard-section-title">Yêu cầu Hỗ trợ Kỹ thuật & Xin vào lại phòng thi</h2>
+                <p className="eg-dashboard-roster-description">
+                  Tiếp nhận và xử lý sự cố thiết bị (Camera/Mic), ngắt kết nối mạng hoặc yêu cầu xin mở lại quyền thi của thí sinh trong thời gian thực.
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  className="eg-btn-cancel"
+                  onClick={fetchSupportRequests}
+                  disabled={loadingSupport}
+                >
+                  {loadingSupport ? 'Đang tải...' : '↻ Làm mới'}
+                </button>
+              </div>
+            </div>
+
+            {/* Filter pills */}
+            <div className="eg-checkin-filter-bar">
+              <button
+                type="button"
+                className={`eg-filter-pill ${supportFilter === 'ALL' ? 'active' : ''}`}
+                onClick={() => setSupportFilter('ALL')}
+              >
+                Tất cả ({supportRequests.length})
+              </button>
+              <button
+                type="button"
+                className={`eg-filter-pill ${supportFilter === 'PENDING' ? 'active is-warn' : ''}`}
+                onClick={() => setSupportFilter('PENDING')}
+              >
+                Chờ xử lý ({pendingSupportCount})
+              </button>
+              <button
+                type="button"
+                className={`eg-filter-pill ${supportFilter === 'APPROVED' ? 'active is-ok' : ''}`}
+                onClick={() => setSupportFilter('APPROVED')}
+              >
+                Đã duyệt ({supportRequests.filter((r) => r.status === 'APPROVED').length})
+              </button>
+              <button
+                type="button"
+                className={`eg-filter-pill ${supportFilter === 'REJECTED' ? 'active is-danger' : ''}`}
+                onClick={() => setSupportFilter('REJECTED')}
+              >
+                Từ chối ({supportRequests.filter((r) => r.status === 'REJECTED').length})
+              </button>
+            </div>
+
+            {/* Danh sách thẻ yêu cầu hỗ trợ */}
+            {filteredSupportRequests.length === 0 ? (
+              <p className="eg-dashboard-empty">Không có yêu cầu hỗ trợ hoặc xin vào lại nào trong danh mục này.</p>
+            ) : (
+              <div className="eg-checkin-cards-grid">
+                {filteredSupportRequests.map((req) => {
+                  const isPending = req.status === 'PENDING';
+                  const isApproved = req.status === 'APPROVED';
+                  const isRejected = req.status === 'REJECTED';
+
+                  const categoryMeta = {
+                    REENTRY_REQUEST: { label: 'Xin vào lại phòng thi', icon: '🔄', color: '#1a66e0' },
+                    TECHNICAL_SUPPORT: { label: 'Sự cố Camera & Mic', icon: '📹', color: '#ea580c' },
+                    QUESTION_ISSUE: { label: 'Lỗi câu hỏi / Đề thi', icon: '📝', color: '#8b5cf6' },
+                    OTHER: { label: 'Vấn đề kỹ thuật khác', icon: '💬', color: '#64748b' }
+                  }[req.category] || { label: 'Yêu cầu hỗ trợ', icon: '💬', color: '#1a66e0' };
+
+                  return (
+                    <div
+                      key={req.id}
+                      className={`eg-checkin-card ${isPending ? 'is-pending' : ''}`}
+                      style={{
+                        borderTop: isPending
+                          ? '3px solid #f59e0b'
+                          : isApproved
+                          ? '3px solid #16a34a'
+                          : '3px solid #dc2626'
+                      }}
+                    >
+                      <div className="eg-checkin-card-info" style={{ padding: '20px' }}>
+                        {/* Header của thẻ */}
+                        <div className="eg-checkin-card-head">
+                          <span
+                            className="eg-mini-badge"
+                            style={{
+                              background: '#f1f5f9',
+                              color: categoryMeta.color,
+                              fontWeight: 700,
+                              fontSize: '12px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span>{categoryMeta.icon}</span>
+                            <span>{categoryMeta.label}</span>
+                          </span>
+
+                          <span
+                            className={`eg-mini-badge ${
+                              isApproved ? 'is-easy' : isPending ? 'is-medium' : 'is-hard'
+                            }`}
+                          >
+                            {isApproved
+                              ? '✓ Đã phê duyệt'
+                              : isPending
+                              ? '⏳ Đang chờ duyệt'
+                              : '✕ Đã từ chối'}
+                          </span>
+                        </div>
+
+                        {/* Thông tin Thí sinh */}
+                        <div style={{ marginTop: '4px' }}>
+                          <h3 className="eg-checkin-student-name" style={{ fontSize: '16px' }}>
+                            {req.full_name || 'Thí sinh'}
+                          </h3>
+                          <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>
+                            Mã SV: <strong style={{ color: '#0f172a' }}>{req.student_code}</strong> · Ca thi: <strong style={{ color: '#0f172a' }}>{req.session_code || 'EXAM88'}</strong>
+                          </div>
+                        </div>
+
+                        {/* Nội dung tin nhắn thí sinh gửi */}
+                        <div
+                          style={{
+                            background: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '4px',
+                            padding: '12px 14px',
+                            fontSize: '13px',
+                            color: '#1e293b',
+                            lineHeight: 1.5,
+                            marginTop: '4px'
+                          }}
+                        >
+                          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#64748b', fontWeight: 600, marginBottom: '4px' }}>
+                            Nội dung yêu cầu từ thí sinh:
+                          </div>
+                          "{req.message || 'Xin giám thị hỗ trợ kỹ thuật / duyệt vào lại phòng thi.'}"
+                        </div>
+
+                        {/* Phản hồi của Giám thị (nếu có) */}
+                        {req.reply_message && (
+                          <div
+                            style={{
+                              background: isApproved ? '#f0fdf4' : '#fef2f2',
+                              border: `1px solid ${isApproved ? '#bbf7d0' : '#fecaca'}`,
+                              borderRadius: '4px',
+                              padding: '10px 12px',
+                              fontSize: '12.5px',
+                              color: isApproved ? '#166534' : '#991b1b',
+                              marginTop: '2px'
+                            }}
+                          >
+                            <strong>↳ Giám thị phản hồi:</strong> {req.reply_message}
+                          </div>
+                        )}
+
+                        <div style={{ fontSize: '11.5px', color: '#94a3b8', marginTop: '4px' }}>
+                          Thời gian gửi: {new Date(req.created_at).toLocaleString('vi-VN')}
+                        </div>
+
+                        {/* Thao tác của Giám thị */}
+                        <div className="eg-checkin-card-actions" style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
+                          {isPending && (
+                            <>
+                              <button
+                                type="button"
+                                className="eg-btn-approve-checkin"
+                                onClick={() =>
+                                  handleDecideSupport(
+                                    req.id,
+                                    'APPROVED',
+                                    'Giám thị đã duyệt cho bạn tiếp tục làm bài thi. Chúc bạn làm bài tốt!'
+                                  )
+                                }
+                              >
+                                ✓ Duyệt cho vào lại phòng thi
+                              </button>
+                              <button
+                                type="button"
+                                className="eg-btn-reject-checkin"
+                                onClick={() =>
+                                  handleDecideSupport(
+                                    req.id,
+                                    'REJECTED',
+                                    'Yêu cầu chưa được duyệt. Vui lòng liên hệ hội đồng thi.'
+                                  )
+                                }
+                              >
+                                ✕ Từ chối
+                              </button>
+                              <button
+                                type="button"
+                                className="eg-btn-reject-checkin"
+                                style={{ background: '#b91c1c', borderColor: '#991b1b', color: '#fff' }}
+                                onClick={() =>
+                                  setForceSubmittingStudent({
+                                    studentCode: req.student_code,
+                                    fullName: req.full_name,
+                                    sessionCode: req.session_code
+                                  })
+                                }
+                                title="Cưỡng chế thu bài khi phát hiện gian lận nghiêm trọng"
+                              >
+                                🛑 Cưỡng chế thu bài
+                              </button>
+                            </>
+                          )}
+
+                          {isApproved && (
+                            <button
+                              type="button"
+                              className="eg-btn-cancel"
+                              style={{ width: '100%', fontSize: '12.5px' }}
+                              onClick={() =>
+                                handleDecideSupport(
+                                  req.id,
+                                  'APPROVED',
+                                  req.reply_message || 'Giám thị nhắc nhở thí sinh chú ý thời gian làm bài.'
+                                )
+                              }
+                            >
+                              💬 Gửi thêm phản hồi / lời nhắn
+                            </button>
+                          )}
+
+                          {isRejected && (
+                            <button
+                              type="button"
+                              className="eg-btn-approve-checkin"
+                              style={{ width: '100%' }}
+                              onClick={() =>
+                                handleDecideSupport(
+                                  req.id,
+                                  'APPROVED',
+                                  'Giám thị đã xem xét lại và duyệt cho bạn vào lại phòng thi.'
+                                )
+                              }
+                            >
+                              ✓ Duyệt lại cho vào phòng thi
+                            </button>
                           )}
                         </div>
                       </div>
@@ -2272,9 +2815,180 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                 </div>
               </div>
             </div>
-            <div className="eg-modal-footer">
+            <div className="eg-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="eg-student-btn-resume"
+                  style={{ padding: '8px 14px', fontSize: '13px' }}
+                  onClick={() => handleAllowResume(selectedLiveCam.studentCode, selectedLiveCam.sessionCode, selectedLiveCam.fullName)}
+                >
+                  🔄 Duyệt tiếp tục thi (Sự cố mạng)
+                </button>
+                <button
+                  type="button"
+                  className="eg-student-btn-force"
+                  style={{ padding: '8px 14px', fontSize: '13px' }}
+                  onClick={() => {
+                    const target = { ...selectedLiveCam };
+                    setSelectedLiveCam(null);
+                    setForceSubmittingStudent(target);
+                  }}
+                >
+                  🛑 Cưỡng chế nộp bài (Vi phạm nặng)
+                </button>
+              </div>
               <button type="button" className="eg-primary-btn" onClick={() => setSelectedLiveCam(null)}>
                 Đóng cửa sổ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Cưỡng chế nộp bài (Thu bài) */}
+      {forceSubmittingStudent && (
+        <div className="eg-modal-overlay" onClick={() => !submittingForce && setForceSubmittingStudent(null)}>
+          <div className="eg-modal-card eg-force-submit-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '540px' }}>
+            <div className="eg-modal-header" style={{ borderBottom: '1px solid #fee2e2', background: '#fef2f2' }}>
+              <div>
+                <h2 className="eg-modal-title" style={{ color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  <span style={{ fontSize: '20px' }}>🛑</span> Xác nhận Cưỡng chế Thu bài thi
+                </h2>
+                <span style={{ fontSize: '12px', color: '#b91c1c' }}>
+                  Áp dụng khi thí sinh vi phạm nghiêm trọng quy chế phòng thi hoặc gian lận
+                </span>
+              </div>
+              <button
+                type="button"
+                className="eg-modal-close"
+                onClick={() => !submittingForce && setForceSubmittingStudent(null)}
+                disabled={submittingForce}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="eg-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', paddingTop: '16px' }}>
+              <div className="eg-force-target-card">
+                <div style={{ fontSize: '12.5px', color: '#475569' }}>Thí sinh bị xử lý:</div>
+                <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>
+                  {forceSubmittingStudent.fullName || 'Thí sinh'} ({forceSubmittingStudent.studentCode})
+                </div>
+                <div style={{ fontSize: '12px', color: '#64748b' }}>
+                  Ca thi: <strong>{forceSubmittingStudent.sessionCode || 'EXAM88'}</strong>
+                </div>
+              </div>
+
+              <div className="eg-dashboard-alert-banner is-error" style={{ margin: 0, fontSize: '12.5px' }}>
+                <strong>Lưu ý quan trọng:</strong> Hành động này sẽ lập tức dừng bài làm của thí sinh, khóa màn hình thi và tự động tính điểm dựa trên các đáp án thí sinh đã hoàn thành trước đó.
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#1e293b', marginBottom: '8px' }}>
+                  Chọn lý do cưỡng chế thu bài / đình chỉ thi:
+                </label>
+                <div className="eg-force-reasons-list">
+                  <label className={`eg-force-reason-option ${forceReasonOption === 'FACE_MISMATCH' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="forceReason"
+                      value="FACE_MISMATCH"
+                      checked={forceReasonOption === 'FACE_MISMATCH'}
+                      onChange={(e) => setForceReasonOption(e.target.value)}
+                    />
+                    <div>
+                      <strong>Nghi vấn thi hộ (Face mismatch)</strong>
+                      <p>Khuôn mặt trước camera không khớp với ảnh nhận diện check-in.</p>
+                    </div>
+                  </label>
+
+                  <label className={`eg-force-reason-option ${forceReasonOption === 'MULTIPLE_FACES' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="forceReason"
+                      value="MULTIPLE_FACES"
+                      checked={forceReasonOption === 'MULTIPLE_FACES'}
+                      onChange={(e) => setForceReasonOption(e.target.value)}
+                    />
+                    <div>
+                      <strong>Nhiều người trong phòng thi</strong>
+                      <p>Phát hiện có người thứ hai xuất hiện hỗ trợ làm bài.</p>
+                    </div>
+                  </label>
+
+                  <label className={`eg-force-reason-option ${forceReasonOption === 'TAB_SWITCH_EXCESSIVE' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="forceReason"
+                      value="TAB_SWITCH_EXCESSIVE"
+                      checked={forceReasonOption === 'TAB_SWITCH_EXCESSIVE'}
+                      onChange={(e) => setForceReasonOption(e.target.value)}
+                    />
+                    <div>
+                      <strong>Cố tình chuyển tab / Thoát toàn màn hình liên tục</strong>
+                      <p>Thí sinh phớt lờ cảnh báo của hệ thống và tiếp tục tra cứu ngoài màn hình thi.</p>
+                    </div>
+                  </label>
+
+                  <label className={`eg-force-reason-option ${forceReasonOption === 'DISOBEY_RULES' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="forceReason"
+                      value="DISOBEY_RULES"
+                      checked={forceReasonOption === 'DISOBEY_RULES'}
+                      onChange={(e) => setForceReasonOption(e.target.value)}
+                    />
+                    <div>
+                      <strong>Không tuân thủ hiệu lệnh phòng thi</strong>
+                      <p>Có hành vi chống đối, cố ý che khuất camera hoặc micro.</p>
+                    </div>
+                  </label>
+
+                  <label className={`eg-force-reason-option ${forceReasonOption === 'OTHER' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="forceReason"
+                      value="OTHER"
+                      checked={forceReasonOption === 'OTHER'}
+                      onChange={(e) => setForceReasonOption(e.target.value)}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <strong>Lý do vi phạm khác</strong>
+                      {forceReasonOption === 'OTHER' && (
+                        <textarea
+                          rows={2}
+                          className="eg-textarea"
+                          style={{ width: '100%', marginTop: '6px', fontSize: '13px' }}
+                          placeholder="Nhập chi tiết lý do cưỡng chế thu bài..."
+                          value={customForceReason}
+                          onChange={(e) => setCustomForceReason(e.target.value)}
+                          autoFocus
+                        />
+                      )}
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="eg-modal-footer" style={{ borderTop: '1px solid #f1f5f9', background: '#fafafa' }}>
+              <button
+                type="button"
+                className="eg-btn-cancel"
+                onClick={() => setForceSubmittingStudent(null)}
+                disabled={submittingForce}
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                className="eg-btn-delete"
+                style={{ background: '#dc2626', borderColor: '#b91c1c', color: '#fff', fontWeight: 600, padding: '9px 16px' }}
+                onClick={handleExecuteForceSubmit}
+                disabled={submittingForce || (forceReasonOption === 'OTHER' && !customForceReason.trim())}
+              >
+                {submittingForce ? 'Đang xử lý...' : '🛑 Xác nhận cưỡng chế nộp bài'}
               </button>
             </div>
           </div>

@@ -24,17 +24,33 @@ export function captureFrameFromVideo(videoElement) {
 }
 
 /**
- * Nén khung hình Camera trực tiếp thành Thumbnail tối ưu (320x240, 10-14KB)
- * Giúp luồng truyền qua WebSocket đạt tốc độ 1 FPS cực kỳ mượt mà, không bị giật lag
+ * Nén khung hình Camera trực tiếp thành hình ảnh độ nét cao Full HD Crisp Stream
+ * Tự động tính toán giữ nguyên 100% tỷ lệ khung hình thực tế của camera (không bị bóp méo hay lùn mặt)
  */
-export function captureLiveThumbnail(videoElement, targetW = 320, targetH = 240, quality = 0.55) {
+export function captureLiveThumbnail(videoElement, maxDim = 720, quality = 0.85) {
   if (!videoElement || videoElement.readyState < 2) return null;
+
+  const vw = videoElement.videoWidth || 640;
+  const vh = videoElement.videoHeight || 480;
+
+  // Giữ nguyên chính xác tỷ lệ gốc: tính targetW và targetH theo tỷ lệ vw/vh
+  let targetW, targetH;
+  if (vw >= vh) {
+    targetW = Math.min(vw, maxDim);
+    targetH = Math.round((targetW * vh) / vw);
+  } else {
+    targetH = Math.min(vh, maxDim);
+    targetW = Math.round((targetH * vw) / vh);
+  }
+
   if (!sharedLiveCanvas) {
     sharedLiveCanvas = document.createElement('canvas');
   }
   sharedLiveCanvas.width = targetW;
   sharedLiveCanvas.height = targetH;
   const ctx = sharedLiveCanvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(videoElement, 0, 0, targetW, targetH);
   return sharedLiveCanvas.toDataURL('image/jpeg', quality);
 }
@@ -161,6 +177,11 @@ export async function analyzeRealFrame(videoElement, referenceSignature = null) 
     };
   }
 
+  // Tự động khôi phục phát hình nếu trình duyệt tạm ngắt
+  if (videoElement.paused) {
+    videoElement.play().catch(() => {});
+  }
+
   const w = videoElement.videoWidth || 640;
   const h = videoElement.videoHeight || 480;
 
@@ -200,7 +221,7 @@ export async function analyzeRealFrame(videoElement, referenceSignature = null) 
         const liveSig = computeFaceSignature(canvas, boxes[0]);
         if (referenceSignature && liveSig) {
           const dist = compareFaceSignatures(liveSig, referenceSignature);
-          if (dist > 0.38) {
+          if (dist > 0.48) {
             return {
               faceCount: 1,
               status: 'VIOLATION',
@@ -218,7 +239,7 @@ export async function analyzeRealFrame(videoElement, referenceSignature = null) 
               violationType: null,
               verified: true,
               euclideanDistance: dist,
-              message: `✓ Đúng thí sinh đã check-in (Độ tương đồng: ${Math.round((1 - Math.min(1, dist / 0.65)) * 100)}%)`,
+              message: `✓ Đúng thí sinh đã check-in (Độ tương đồng: ${Math.round((1 - Math.min(1, dist / 0.70)) * 100)}%)`,
               boxes,
               liveSignature: liveSig
             };
@@ -361,66 +382,71 @@ export async function analyzeRealFrame(videoElement, referenceSignature = null) 
       }
     }
 
-    // 4. HỢP NHẤT CỤM ĐẦU + CỔ (HEAD + NECK MERGING) ĐỂ TRÁNH ĐẾM 1 NGƯỜI THÀNH 2
-    // Bỏ qua các cụm ở đáy màn hình (tay gõ phím / mép áo)
+    // 4. HỢP NHẤT CƠ THỂ VÀ PHÂN BIỆT ĐẦU NGƯỜI VỚI CÁNH TAY/BÀN TAY
+    // Lọc bỏ các cụm quá nhỏ ở đáy màn hình
     const candidates = rawBlobs.filter((b) => {
       const cy = (b.minY + b.maxY) / 2;
-      if (cy > scaleH * 0.82 && b.area < 450) return false;
+      if (cy > scaleH * 0.85 && b.area < 350) return false;
       return true;
     });
 
-    candidates.sort((a, b) => a.minY - b.minY);
+    if (candidates.length === 0) {
+      return {
+        faceCount: 0,
+        status: 'VIOLATION',
+        violationType: 'NO_FACE',
+        verified: false,
+        message: 'Không phát hiện khuôn mặt thí sinh trong khung hình! Vui lòng ngồi ngay ngắn trước camera.',
+        boxes: []
+      };
+    }
 
-    const mergedPersons = [];
-    const used = new Set();
+    // Sắp xếp các cụm màu da: cụm có diện tích lớn nhất luôn là Thí sinh chính
+    candidates.sort((a, b) => b.area - a.area);
 
-    for (let i = 0; i < candidates.length; i++) {
-      if (used.has(i)) continue;
-      let p = { ...candidates[i] };
-      used.add(i);
+    const primaryPerson = { ...candidates[0] };
+    const secondPersons = [];
 
-      for (let j = 0; j < candidates.length; j++) {
-        if (used.has(j)) continue;
-        const other = candidates[j];
-        const overlapX = Math.max(0, Math.min(p.maxX, other.maxX) - Math.max(p.minX, other.minX));
-        const minW = Math.min(p.bw, other.bw);
+    for (let i = 1; i < candidates.length; i++) {
+      const c = candidates[i];
 
-        // Cụm kia nằm ngay bên dưới (cổ/ngực dưới cằm) hoặc ngay bên trên
-        const isBelow = other.minY >= p.minY && other.minY <= p.maxY + 18;
-        const isAbove = p.minY >= other.minY && p.minY <= other.maxY + 18;
+      // Khoảng cách ngang giữa cạnh gần nhất của 2 cụm
+      const distLeft = Math.max(0, primaryPerson.minX - c.maxX);
+      const distRight = Math.max(0, c.minX - primaryPerson.maxX);
+      const horizGap = Math.max(distLeft, distRight);
 
-        if (overlapX / minW >= 0.38 && (isBelow || isAbove)) {
-          p.minX = Math.min(p.minX, other.minX);
-          p.maxX = Math.max(p.maxX, other.maxX);
-          p.minY = Math.min(p.minY, other.minY);
-          p.maxY = Math.max(p.maxY, other.maxY);
-          p.area += other.area;
-          p.bw = p.maxX - p.minX + 1;
-          p.bh = p.maxY - p.minY + 1;
-          used.add(j);
+      // Cụm nằm ở phần thân/cánh tay dưới (Y > 38% chiều cao khung hình)
+      const isLowerArmOrBody = c.minY > scaleH * 0.38;
+
+      // Tỷ lệ khung hình: Cánh tay thường thuôn dài (bh/bw > 2.0 hoặc bw/bh > 2.2)
+      const aspect = c.bh / Math.max(1, c.bw);
+      const isArmShape = aspect > 1.9 || aspect < 0.45;
+
+      // Nếu cụm này liền kề với thí sinh (tay cầm giấy, tay chống cằm, gãi đầu)
+      // hoặc nằm ở tầm vai/cánh tay -> Tự động gộp vào cụm của Thí sinh chính!
+      if (horizGap <= 42 || isLowerArmOrBody || isArmShape || c.area < 480) {
+        primaryPerson.minX = Math.min(primaryPerson.minX, c.minX);
+        primaryPerson.maxX = Math.max(primaryPerson.maxX, c.maxX);
+        primaryPerson.minY = Math.min(primaryPerson.minY, c.minY);
+        primaryPerson.maxY = Math.max(primaryPerson.maxY, c.maxY);
+        primaryPerson.area += c.area;
+      } else {
+        // Chỉ công nhận là người thứ hai ngồi cạnh/đứng sau nếu:
+        // 1. Vị trí đỉnh đầu nằm ở nửa trên (minY <= 42% chiều cao)
+        // 2. Kích thước đủ lớn như một đầu người (area >= 480 px)
+        // 3. Khoảng cách ngang cách biệt rõ ràng (horizGap > 42 px)
+        // 4. Tỷ lệ khung hình giống đầu người hình oval (0.65 <= aspect <= 1.85)
+        if (c.minY <= scaleH * 0.42 && c.area >= 480 && aspect >= 0.65 && aspect <= 1.85) {
+          secondPersons.push(c);
         }
       }
-
-      // Đạt tiêu chuẩn tối thiểu của một khuôn mặt / cơ thể người
-      if (p.area >= 360 && p.bw >= 16 && p.bh >= 20) {
-        mergedPersons.push(p);
-      }
     }
 
-    // Lọc các cụm bị trùng lặp tọa độ X (hai cụm phải có khoảng cách tâm ngang rõ ràng >= 22 px)
-    const distinctPersons = [];
-    for (const p of mergedPersons) {
-      const cx = (p.minX + p.maxX) / 2;
-      const isDup = distinctPersons.some((dp) => {
-        const dcx = (dp.minX + dp.maxX) / 2;
-        return Math.abs(cx - dcx) < 22;
-      });
-      if (!isDup) distinctPersons.push(p);
-    }
+    // Danh sách người được công nhận
+    const allPersons = [primaryPerson, ...secondPersons];
 
     // Quy đổi tọa độ sang khung hình thực tế
-    const detectedFaces = distinctPersons.map((p) => {
-      // Vùng khuôn mặt lấy khoảng 70% trên cùng của cụm người (loại trừ phần cổ áo)
+    const detectedFaces = allPersons.map((p) => {
       const headBh = Math.max(14, Math.round(p.bh * 0.70));
       return {
         x: Math.round((p.minX / scaleW) * w),
@@ -463,7 +489,7 @@ export async function analyzeRealFrame(videoElement, referenceSignature = null) 
     // Nếu có referenceSignature từ lúc check-in: Thực hiện so khớp định danh (FACE_MISMATCH)
     if (referenceSignature && liveSig) {
       const dist = compareFaceSignatures(liveSig, referenceSignature);
-      if (dist > 0.38) {
+      if (dist > 0.48) {
         return {
           faceCount: 1,
           status: 'VIOLATION',
@@ -481,7 +507,7 @@ export async function analyzeRealFrame(videoElement, referenceSignature = null) 
           violationType: null,
           verified: true,
           euclideanDistance: dist,
-          message: `✓ Đúng thí sinh đã check-in (Độ tương đồng: ${Math.round((1 - Math.min(1, dist / 0.65)) * 100)}%)`,
+          message: `✓ Đúng thí sinh đã check-in (Độ tương đồng: ${Math.round((1 - Math.min(1, dist / 0.70)) * 100)}%)`,
           boxes: [primaryBox],
           liveSignature: liveSig
         };

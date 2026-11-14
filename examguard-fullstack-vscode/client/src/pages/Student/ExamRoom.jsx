@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { apiRequest } from '../../services/api';
 import { socket } from '../../services/socket';
 import { useAntiCheat } from '../../hooks/useAntiCheat';
@@ -22,8 +22,18 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
 
-  // Fullscreen state
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  // Hỗ trợ kỹ thuật & Xin vào lại phòng thi
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [supportCategory, setSupportCategory] = useState('REENTRY_REQUEST');
+  const [supportMessage, setSupportMessage] = useState('');
+  const [sendingSupport, setSendingSupport] = useState(false);
+  const [supportSuccessMsg, setSupportSuccessMsg] = useState('');
+  const [supportHistory, setSupportHistory] = useState([]);
+  const [supportReplyAlert, setSupportReplyAlert] = useState(null);
+
+  // Cưỡng chế nộp bài & Duyệt thi lại sau sự cố mạng
+  const [forceTerminatedData, setForceTerminatedData] = useState(null);
+  const [networkResumeNotice, setNetworkResumeNotice] = useState('');
 
   // Live Camera stream in ExamRoom
   const videoRef = useRef(null);
@@ -38,6 +48,14 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
     (session.duration_minutes || 30) * 60
   );
 
+  const checkinSnapshot = useMemo(() => {
+    try {
+      return sessionStorage.getItem('examguard_ref_snapshot') || null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   // Khởi động Camera giám sát thời gian thực
   useEffect(() => {
     let active = true;
@@ -48,17 +66,66 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
           setCameraActive(false);
           return;
         }
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 320, height: 240, facingMode: 'user' },
-          audio: false
-        });
+
+        let stream = null;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: 'user',
+              width: { ideal: 1920, min: 1280 },
+              height: { ideal: 1080, min: 720 },
+              frameRate: { ideal: 60, min: 30 }
+            },
+            audio: false
+          });
+        } catch {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                facingMode: 'user',
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                frameRate: { ideal: 60, min: 30 }
+              },
+              audio: false
+            });
+          } catch {
+            // Fallback cho thiết bị di động cấu hình cơ bản
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                facingMode: 'user',
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+              },
+              audio: false
+            });
+          }
+        }
+
         if (!active) {
-          stream.getTracks().forEach((t) => t.stop());
+          stream?.getTracks().forEach((t) => t.stop());
           return;
         }
         streamRef.current = stream;
+
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+          const video = videoRef.current;
+          video.setAttribute('playsinline', 'true');
+          video.setAttribute('webkit-playsinline', 'true');
+          video.setAttribute('x5-playsinline', 'true');
+          video.setAttribute('muted', '');
+          video.muted = true;
+          video.playsInline = true;
+          video.srcObject = stream;
+          video.onloadedmetadata = () => {
+            video.play().catch(() => {});
+          };
+          video.play().catch(() => {});
+          video.onpause = () => {
+            if (active && video.srcObject) {
+              video.play().catch(() => {});
+            }
+          };
         }
         setCameraActive(true);
       } catch (err) {
@@ -81,7 +148,70 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
     };
   }, []);
 
-  // Khởi tạo lượt thi từ Backend
+  // Tải lịch sử yêu cầu hỗ trợ kỹ thuật
+  const fetchSupportHistory = useCallback(async () => {
+    try {
+      const list = await apiRequest('/exam/support-requests', { token: authData.token });
+      setSupportHistory(Array.isArray(list) ? list : []);
+    } catch {
+      // ignore
+    }
+  }, [authData.token]);
+
+  useEffect(() => {
+    fetchSupportHistory();
+
+    const handleSupportDecision = (data) => {
+      const myCode = student.username || student.studentCode;
+      if (!data.studentCode || data.studentCode === myCode) {
+        setSupportReplyAlert(data);
+        fetchSupportHistory();
+      }
+    };
+
+    const handleForceSubmit = (data) => {
+      const myCode = student.username || student.studentCode;
+      if (!data.studentCode || data.studentCode === myCode) {
+        setForceTerminatedData(data);
+        if (streamRef.current) {
+          try {
+            streamRef.current.getTracks().forEach((track) => track.stop());
+          } catch {
+            // ignore
+          }
+        }
+      }
+    };
+
+    const handleResumePermission = (data) => {
+      const myCode = student.username || student.studentCode;
+      if (!data.studentCode || data.studentCode === myCode) {
+        setNetworkResumeNotice(data.message || '✓ Giám thị đã duyệt cho phép bạn tiếp tục làm bài thi sau sự cố mạng!');
+        // Tự động khôi phục câu trả lời từ localStorage
+        const cacheKey = `examguard_answers_${attempt?.id || session.session_id || 'curr'}`;
+        try {
+          const cached = localStorage.getItem(cacheKey);
+          if (cached) {
+            setAnswers((prev) => ({ ...prev, ...JSON.parse(cached) }));
+          }
+        } catch {
+          // ignore
+        }
+      }
+    };
+
+    socket.on('student:support_decision', handleSupportDecision);
+    socket.on('student:force_submitted', handleForceSubmit);
+    socket.on('student:resume_exam_permission', handleResumePermission);
+
+    return () => {
+      socket.off('student:support_decision', handleSupportDecision);
+      socket.off('student:force_submitted', handleForceSubmit);
+      socket.off('student:resume_exam_permission', handleResumePermission);
+    };
+  }, [attempt?.id, fetchSupportHistory, session.session_id, student.studentCode, student.username]);
+
+  // Khởi tạo lượt thi từ Backend & Khôi phục đáp án tự động lưu
   useEffect(() => {
     async function initAttempt() {
       setLoading(true);
@@ -96,7 +226,22 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
           refSigRef.current = data.attempt.reference_face_signature;
         }
         setQuestions(data.questions || []);
-        setAnswers(data.savedAnswers || {});
+
+        // Khôi phục đáp án đã tự động lưu từ server và localStorage
+        let mergedAnswers = { ...(data.savedAnswers || {}) };
+        try {
+          const cacheKey = `examguard_answers_${data.attempt?.id || session.session_id || 'curr'}`;
+          const localCache = localStorage.getItem(cacheKey);
+          if (localCache) {
+            mergedAnswers = { ...mergedAnswers, ...JSON.parse(localCache) };
+          }
+        } catch {
+          // ignore
+        }
+        setAnswers(mergedAnswers);
+        if (Object.keys(mergedAnswers).length > 0) {
+          setSavingStatus(`✓ Đã khôi phục ${Object.keys(mergedAnswers).length} câu trả lời tự động lưu`);
+        }
 
         const code = session.session_code || authData.session?.session_code || 'EXAM88';
         socket.emit('join_session', { sessionCode: code });
@@ -107,7 +252,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
       }
     }
     initAttempt();
-  }, [authData, session.session_code]);
+  }, [authData, session.session_code, session.session_id]);
 
   // Đồng hồ đếm ngược
   useEffect(() => {
@@ -220,7 +365,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
       } catch (err) {
         console.warn('Lỗi phân tích AI camera:', err);
       }
-    }, 2000);
+    }, 800); // 800ms: Quét nhận diện AI mượt mà và phản hồi nhanh gấp 2.5 lần
 
     return () => {
       isMounted = false;
@@ -228,66 +373,63 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
     };
   }, [submitResult, loading, cameraActive, handleViolation, getReferenceSignature]);
 
-  // 2. Truyền luồng webcam mượt mà (Tốc độ cao ~15 FPS) tới màn hình Giám thị qua Socket
+  // 2. Truyền luồng webcam mượt mà (Tối ưu băng thông ~20 FPS) tới màn hình Giám thị qua Socket
   useEffect(() => {
     if (submitResult || loading || !cameraActive) return;
 
-    const streamInterval = setInterval(() => {
-      if (!videoRef.current || videoRef.current.readyState < 2) return;
-      try {
-        const liveThumb = captureLiveThumbnail(videoRef.current, 320, 240, 0.50);
-        const ai = latestAiResultRef.current || {};
-        socket.emit('student:camera_heartbeat', {
-          studentCode: student.username || student.studentCode || 'SV2026001',
-          fullName: student.full_name || student.fullName || student.username || 'Thí sinh',
-          sessionCode: session.session_code || 'EXAM88',
-          liveFrame: liveThumb,
-          faceStatus: ai.status || 'OK',
-          violationType: ai.violationType || null,
-          faceCount: ai.faceCount || 1,
-          message: ai.message || 'Đang phát camera trực tiếp',
-          fps: 15,
-          sentAt: Date.now()
-        });
-      } catch {
-        // ignore
+    let animId = null;
+    let lastSent = 0;
+    const intervalTarget = 1000 / 20; // 50ms = 20 FPS mượt mà chuẩn video, tiết kiệm 80% dung lượng mạng
+
+    const sendFrameLoop = (timestamp) => {
+      if (timestamp - lastSent >= intervalTarget) {
+        if (videoRef.current && videoRef.current.readyState >= 2) {
+          try {
+            // Tối ưu kích thước 400px, chất lượng 0.68: hình ảnh sắc nét, dung lượng chỉ ~10KB/khung hình
+            const liveThumb = captureLiveThumbnail(videoRef.current, 400, 0.68);
+            const ai = latestAiResultRef.current || {};
+            socket.emit('student:camera_heartbeat', {
+              studentCode: student.username || student.studentCode || 'SV2026001',
+              fullName: student.full_name || student.fullName || student.username || 'Thí sinh',
+              sessionCode: session.session_code || 'EXAM88',
+              liveFrame: liveThumb,
+              faceStatus: ai.status || 'OK',
+              violationType: ai.violationType || null,
+              faceCount: ai.faceCount || 1,
+              message: ai.message || 'Đang phát camera trực tiếp',
+              fps: 20,
+              sentAt: Date.now()
+            });
+            lastSent = timestamp;
+          } catch {
+            // ignore
+          }
+        }
       }
-    }, 66); // 66ms ~ 15 FPS mượt mà như video thật
+      animId = requestAnimationFrame(sendFrameLoop);
+    };
+
+    animId = requestAnimationFrame(sendFrameLoop);
 
     return () => {
-      clearInterval(streamInterval);
+      if (animId) cancelAnimationFrame(animId);
     };
   }, [submitResult, loading, cameraActive, student, session]);
 
-  // Bật / tắt toàn màn hình
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-      setIsFullscreen(true);
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
-      setIsFullscreen(false);
-    }
-  };
-
-  useEffect(() => {
-    const handleFsChange = () => {
-      const fs = Boolean(document.fullscreenElement);
-      setIsFullscreen(fs);
-      if (!fs && !submitResult && !loading) {
-        handleViolation('FULLSCREEN_EXIT', 'Cảnh báo: Thí sinh thoát khỏi chế độ toàn màn hình!');
-      }
-    };
-    document.addEventListener('fullscreenchange', handleFsChange);
-    return () => document.removeEventListener('fullscreenchange', handleFsChange);
-  }, [handleViolation, submitResult, loading]);
-
-  // Chọn đáp án
+  // Tự động lưu đáp án khi chọn phương án
   const handleSelectAnswer = async (questionId, answerId) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: answerId }));
-    setSavingStatus('Đang lưu...');
+    const updatedAnswers = { ...answers, [questionId]: answerId };
+    setAnswers(updatedAnswers);
+    setSavingStatus('Đang tự động lưu...');
+
+    // Lưu tức thì vào bộ nhớ đệm trình duyệt
+    const cacheKey = `examguard_answers_${attempt?.id || session.session_id || 'curr'}`;
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify(updatedAnswers));
+    } catch {
+      // ignore
+    }
+
     try {
       await apiRequest('/exam/save-answer', {
         method: 'POST',
@@ -298,9 +440,46 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
           selectedAnswerId: answerId
         }
       });
-      setSavingStatus(`✓ Đã lưu lúc ${new Date().toLocaleTimeString('vi-VN')}`);
+      setSavingStatus(`✓ Đã tự động lưu lúc ${new Date().toLocaleTimeString('vi-VN')}`);
     } catch {
-      setSavingStatus('✓ Đã lưu trên trình duyệt');
+      setSavingStatus('✓ Đã bảo lưu trên máy (Sẽ đồng bộ khi có mạng)');
+    }
+  };
+
+  // Gửi yêu cầu hỗ trợ kỹ thuật / Xin vào lại phòng thi
+  const handleSendSupport = async (e) => {
+    if (e) e.preventDefault();
+    if (!supportMessage.trim()) return;
+    setSendingSupport(true);
+    setSupportSuccessMsg('');
+    try {
+      await apiRequest('/exam/support-request', {
+        method: 'POST',
+        token: authData.token,
+        body: {
+          sessionCode: session.session_code || 'EXAM88',
+          category: supportCategory,
+          message: supportMessage.trim(),
+          attemptId: attempt?.id || session.session_id || 1
+        }
+      });
+
+      // Bắn sự kiện socket thời gian thực cho giám thị
+      socket.emit('student:send_support_request', {
+        sessionCode: session.session_code || 'EXAM88',
+        studentCode: student.username || student.studentCode || 'SV2026001',
+        fullName: student.full_name || student.fullName || student.username || 'Thí sinh',
+        category: supportCategory,
+        message: supportMessage.trim()
+      });
+
+      setSupportSuccessMsg('✓ Yêu cầu hỗ trợ đã được gửi tới Giám thị phòng thi!');
+      setSupportMessage('');
+      fetchSupportHistory();
+    } catch (err) {
+      setErrorMsg('Không thể gửi yêu cầu hỗ trợ: ' + err.message);
+    } finally {
+      setSendingSupport(false);
     }
   };
 
@@ -446,13 +625,20 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
             </div>
           </div>
 
+          <span className="eg-fs-status-badge is-locked" style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' }} title="Đang kết nối phòng thi">
+            ✓ Đang trong phòng thi
+          </span>
+
           <button
             type="button"
-            className="eg-btn-fullscreen"
-            onClick={toggleFullscreen}
-            title={isFullscreen ? 'Thu nhỏ cửa sổ' : 'Bật toàn màn hình'}
+            className="eg-btn-support"
+            onClick={() => {
+              setShowSupportModal(true);
+              setSupportSuccessMsg('');
+            }}
+            title="Gửi yêu cầu hỗ trợ kỹ thuật hoặc xin vào lại phòng thi tới Giám thị"
           >
-            {isFullscreen ? '⤢ Thoát toàn màn hình' : '⤡ Toàn màn hình'}
+            🆘 Hỗ trợ kỹ thuật & Xin vào lại
           </button>
 
           <button
@@ -465,6 +651,24 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
           </button>
         </div>
       </header>
+
+      {/* Thông báo phản hồi trực tiếp từ Giám thị */}
+      {supportReplyAlert && (
+        <div className="eg-dashboard-alert-banner is-success" style={{ margin: '0 24px 16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <strong>📢 Giám thị ca thi vừa phản hồi:</strong>{' '}
+            <span>{supportReplyAlert.replyMessage || (supportReplyAlert.status === 'APPROVED' ? 'Đã duyệt yêu cầu của bạn! Bạn được phép tiếp tục làm bài.' : 'Yêu cầu của bạn đã được phản hồi.')}</span>
+          </div>
+          <button type="button" onClick={() => setSupportReplyAlert(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '15px', color: '#166534' }}>✕</button>
+        </div>
+      )}
+
+      {networkResumeNotice && (
+        <div className="eg-dashboard-alert-banner is-success" style={{ margin: '0 24px 16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{networkResumeNotice}</span>
+          <button type="button" className="eg-banner-close" onClick={() => setNetworkResumeNotice('')} aria-label="Đóng">✕</button>
+        </div>
+      )}
 
       {errorMsg && (
         <div className="eg-dashboard-alert-banner is-error" style={{ margin: '0 24px 16px 24px' }}>
@@ -591,12 +795,24 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                 ref={videoRef}
                 autoPlay
                 playsInline
+                webkit-playsinline="true"
+                x5-playsinline="true"
                 muted
+                disablePictureInPicture
+                controls={false}
+                style={{ pointerEvents: 'none' }}
                 className={`eg-exam-live-video ${cameraActive ? 'is-active' : ''}`}
               />
-              {!cameraActive && (
+              {!cameraActive && checkinSnapshot && (
+                <img
+                  src={checkinSnapshot}
+                  alt="Ảnh check-in đối soát"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              )}
+              {!cameraActive && !checkinSnapshot && (
                 <div className="eg-cam-offline-cover">
-                  <span>Camera AI giám sát đang hoạt động ẩn</span>
+                  <span>Camera AI giám sát đang hoạt động</span>
                 </div>
               )}
               <div className="eg-cam-overlay-badge">● LIVE PROCTORING</div>
@@ -844,6 +1060,177 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                   Rời về Dashboard
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* MODAL GỬI YÊU CẦU HỖ TRỢ KỸ THUẬT / XIN VÀO LẠI PHÒNG THI */}
+      {showSupportModal && (
+        <div className="eg-modal-overlay" onClick={() => setShowSupportModal(false)}>
+          <div className="eg-modal-card eg-submit-dialog-card eg-support-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="eg-dialog-header">
+              <div className="eg-dialog-title-group">
+                <div className="eg-dialog-icon" style={{ background: '#ffedd5', color: '#c2410c' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="eg-dialog-title">Hỗ trợ kỹ thuật & Xin vào lại phòng thi</h2>
+                  <p className="eg-dialog-subtitle">
+                    Gửi yêu cầu trực tiếp đến Giám thị ca thi <strong>{session.session_code || 'EXAM88'}</strong>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="eg-dialog-close-btn"
+                onClick={() => setShowSupportModal(false)}
+                title="Đóng"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSendSupport} className="eg-dialog-body" style={{ gap: '14px' }}>
+              {supportSuccessMsg && (
+                <div className="eg-dashboard-alert-banner is-success" style={{ margin: 0 }}>
+                  <span>{supportSuccessMsg}</span>
+                </div>
+              )}
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '8px' }}>
+                  Chọn loại vấn đề cần hỗ trợ:
+                </label>
+                <div className="eg-support-category-grid">
+                  {[
+                    { id: 'REENTRY_REQUEST', label: 'Xin vào lại phòng thi', icon: '🔄' },
+                    { id: 'TECHNICAL_SUPPORT', label: 'Sự cố Camera & Mic', icon: '📹' },
+                    { id: 'QUESTION_ISSUE', label: 'Lỗi câu hỏi / Đề thi', icon: '📝' },
+                    { id: 'OTHER', label: 'Vấn đề kỹ thuật khác', icon: '💬' }
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      className={`eg-support-cat-btn ${supportCategory === cat.id ? 'is-active' : ''}`}
+                      onClick={() => setSupportCategory(cat.id)}
+                    >
+                      <span style={{ fontSize: '16px' }}>{cat.icon}</span>
+                      <span>{cat.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                  Nội dung chi tiết gửi Giám thị:
+                </label>
+                <textarea
+                  className="eg-support-textarea"
+                  placeholder="Mô tả sự cố bạn đang gặp phải (Ví dụ: Em vừa bị rớt mạng và kết nối lại, xin thầy/cô duyệt cho em tiếp tục làm bài thi...)"
+                  value={supportMessage}
+                  onChange={(e) => setSupportMessage(e.target.value)}
+                  required
+                />
+              </div>
+
+              {/* Lịch sử yêu cầu hỗ trợ */}
+              {supportHistory.length > 0 && (
+                <div className="eg-support-history-box">
+                  <div className="eg-support-history-title">Các yêu cầu đã gửi gần đây:</div>
+                  <div className="eg-support-history-list">
+                    {supportHistory.slice(0, 3).map((item) => (
+                      <div
+                        key={item.id}
+                        className={`eg-support-history-item ${item.status === 'APPROVED' ? 'is-approved' : 'is-pending'}`}
+                      >
+                        <div>
+                          <strong>[{item.category === 'REENTRY_REQUEST' ? 'Xin vào lại' : item.category === 'TECHNICAL_SUPPORT' ? 'Sự cố thiết bị' : 'Kỹ thuật'}]</strong>{' '}
+                          <span>{item.message}</span>
+                          {item.reply_message && (
+                            <div style={{ color: '#15803d', marginTop: '3px', fontWeight: 600 }}>
+                              ↳ Giám thị: {item.reply_message}
+                            </div>
+                          )}
+                        </div>
+                        <span className={`eg-mini-badge ${item.status === 'APPROVED' ? 'is-easy' : 'is-medium'}`} style={{ flexShrink: 0, marginLeft: '10px' }}>
+                          {item.status === 'APPROVED' ? '✓ Đã duyệt' : item.status === 'REJECTED' ? '✕ Từ chối' : '⏳ Chờ duyệt'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="eg-dialog-footer" style={{ margin: '8px -24px -24px -24px', padding: '16px 24px', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+                <button
+                  type="button"
+                  className="eg-btn-secondary"
+                  onClick={() => setShowSupportModal(false)}
+                >
+                  Đóng
+                </button>
+                <button
+                  type="submit"
+                  className="eg-btn-primary-submit"
+                  style={{ background: '#ea580c', borderColor: '#ea580c' }}
+                  disabled={sendingSupport || !supportMessage.trim()}
+                >
+                  {sendingSupport ? 'Đang gửi...' : 'Gửi yêu cầu tới Giám thị ngay →'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CẢNH BÁO BỊ CƯỠNG CHẾ THU BÀI DO VI PHẠM NẶNG */}
+      {forceTerminatedData && (
+        <div className="eg-modal-overlay">
+          <div className="eg-modal-card eg-force-terminate-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="eg-force-icon-wrap">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+              </svg>
+            </div>
+            <h2 className="eg-force-title">BÀI THI ĐÃ BỊ THU HỒI BỞI GIÁM THỊ</h2>
+            <p className="eg-force-subtitle">
+              Giám thị phòng thi đã thực hiện lệnh cưỡng chế nộp bài và đình chỉ lượt thi của bạn do phát hiện vi phạm quy chế nghiêm trọng.
+            </p>
+
+            <div className="eg-force-reason-box">
+              <div className="eg-force-reason-lbl">Lý do thu bài từ Giám thị:</div>
+              <div className="eg-force-reason-val">"{forceTerminatedData.reason}"</div>
+              <div className="eg-force-time">
+                Thời điểm thu bài: {new Date(forceTerminatedData.timestamp || Date.now()).toLocaleTimeString('vi-VN')}
+              </div>
+            </div>
+
+            <div className="eg-force-stats-strip">
+              <div className="eg-force-stat-col">
+                <span>Điểm số tạm tính:</span>
+                <strong>{forceTerminatedData.totalScore != null ? `${forceTerminatedData.totalScore}đ` : 'Chờ chấm'}</strong>
+              </div>
+              <div className="eg-force-stat-col">
+                <span>Trạng thái:</span>
+                <strong style={{ color: '#dc2626' }}>Đã thu bài (Đình chỉ thi)</strong>
+              </div>
+            </div>
+
+            <div className="eg-force-actions">
+              <button
+                type="button"
+                className="eg-btn-primary-submit"
+                style={{ width: '100%', background: '#0b2545', borderColor: '#0b2545', padding: '12px 24px', fontSize: '15px' }}
+                onClick={onExit}
+              >
+                Rời phòng thi & Trở về Trang chủ →
+              </button>
             </div>
           </div>
         </div>

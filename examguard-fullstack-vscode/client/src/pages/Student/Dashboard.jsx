@@ -7,7 +7,12 @@ import './Dashboard.css';
 export default function StudentDashboard({ authData, onStartExam, onLogout }) {
   // Navigation active tab: 'open_exams' | 'upcoming' | 'history' | 'rules'
   const [activeTab, setActiveTab] = useState('open_exams');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 960) {
+      return true;
+    }
+    return false;
+  });
 
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [selectedAttemptId, setSelectedAttemptId] = useState(null);
@@ -314,6 +319,15 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
 
   return (
     <div className="eg-dashboard eg-shell">
+      {/* Mobile Drawer Backdrop */}
+      {!sidebarCollapsed && (
+        <div
+          className="eg-sidebar-backdrop"
+          onClick={() => setSidebarCollapsed(true)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* ===== Sidebar Điều hướng bên trái ===== */}
       <aside className={`eg-sidebar ${sidebarCollapsed ? 'is-collapsed' : ''}`}>
         <div className="eg-brand">
@@ -331,12 +345,12 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
           )}
           <button
             type="button"
-            className="eg-btn-collapse-sidebar"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            title={sidebarCollapsed ? "Mở rộng menu chức năng" : "Thu gọn menu chức năng"}
-            aria-label="Đóng mở menu chức năng"
+            className="eg-btn-close-drawer-mobile"
+            onClick={() => setSidebarCollapsed(true)}
+            title="Đóng menu"
+            aria-label="Đóng menu trên điện thoại"
           >
-            {sidebarCollapsed ? '»' : '«'}
+            ✕
           </button>
         </div>
 
@@ -347,7 +361,12 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
               type="button"
               className={`eg-nav-btn ${activeTab === item.key ? 'is-active' : ''}`}
               aria-current={activeTab === item.key ? 'page' : undefined}
-              onClick={() => setActiveTab(item.key)}
+              onClick={() => {
+                setActiveTab(item.key);
+                if (typeof window !== 'undefined' && window.innerWidth <= 960) {
+                  setSidebarCollapsed(true);
+                }
+              }}
               title={sidebarCollapsed ? `${item.label} ${typeof item.count === 'number' ? `(${item.count})` : ''}` : undefined}
             >
               {item.icon}
@@ -359,14 +378,48 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
           ))}
         </nav>
 
-        <button type="button" onClick={onLogout} className="eg-dashboard-logout" title={sidebarCollapsed ? "Đăng xuất" : undefined}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          {!sidebarCollapsed && <span>Đăng xuất</span>}
-        </button>
+        <div className="eg-sidebar-bottom-actions">
+          <button
+            type="button"
+            className="eg-sidebar-toggle-row"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            title={sidebarCollapsed ? "Mở rộng thanh menu" : "Thu gọn thanh menu"}
+            aria-label="Đóng mở thanh menu"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              {sidebarCollapsed ? (
+                <>
+                  <polyline points="13 17 18 12 13 7" />
+                  <polyline points="6 17 11 12 6 7" />
+                </>
+              ) : (
+                <>
+                  <polyline points="11 17 6 12 11 7" />
+                  <polyline points="18 17 13 12 18 7" />
+                </>
+              )}
+            </svg>
+            {!sidebarCollapsed && <span>Thu gọn thanh menu</span>}
+          </button>
+
+          <button type="button" onClick={onLogout} className="eg-dashboard-logout" title={sidebarCollapsed ? "Đăng xuất" : undefined}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            {!sidebarCollapsed && <span>Đăng xuất</span>}
+          </button>
+
+          <button
+            type="button"
+            className="eg-sidebar-close-mobile-row"
+            onClick={() => setSidebarCollapsed(true)}
+            title="Đóng menu trên điện thoại"
+          >
+            ✕ Đóng menu
+          </button>
+        </div>
       </aside>
 
       {/* ===== Khu vực nội dung chính ===== */}
@@ -374,20 +427,6 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
         {/* 1. Header trên cùng */}
         <div className="eg-dashboard-header">
           <div className="eg-dashboard-welcome-wrap">
-            <button
-              type="button"
-              className="eg-btn-menu-toggle"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              title={sidebarCollapsed ? "Mở menu chức năng" : "Đóng menu chức năng"}
-              aria-label="Đóng mở menu chức năng"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-              <span>{sidebarCollapsed ? "Mở menu" : "Đóng menu"}</span>
-            </button>
             <div className="eg-dashboard-welcome">
               <span className="eg-dashboard-eyebrow">HỆ THỐNG KHẢO THÍ TRỰC TUYẾN · KHU VỰC THÍ SINH</span>
               <h1 className="eg-dashboard-title">Bảng điều khiển Thí sinh</h1>
@@ -422,6 +461,23 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
           </div>
         </div>
 
+        {/* Thanh chuyển tab trực tiếp trên điện thoại (Không cần bấm menu 3 gạch) */}
+        <div className="eg-mobile-nav-tabs">
+          {navItems.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              className={`eg-mobile-tab-btn ${activeTab === item.key ? 'is-active' : ''}`}
+              onClick={() => setActiveTab(item.key)}
+            >
+              <span className="eg-mobile-tab-label">{item.label}</span>
+              {typeof item.count === 'number' && item.count > 0 && (
+                <span className="eg-mobile-tab-count">({item.count})</span>
+              )}
+            </button>
+          ))}
+        </div>
+
         {/* Global alert notifications */}
         {statusMsg && (
           <div className="eg-dashboard-alert-banner is-success" role="status">
@@ -438,25 +494,28 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
 
         {/* 2. DÃY THỐNG KÊ (STATS ROW) */}
         <section className="eg-dashboard-stats" aria-label="Thống kê học tập">
-          <div className="eg-dashboard-stat">
-            <span className="eg-dashboard-stat-label">Tổng bài thi đã tham gia</span>
+          <div className="eg-dashboard-stat eg-stat-total">
+            <span className="eg-dashboard-stat-label">Tổng bài thi tham gia</span>
             <strong>{stats.totalParticipated}</strong>
           </div>
-          <div className="eg-dashboard-stat eg-dashboard-stat-warning">
-            <span className="eg-dashboard-stat-label">Ca thi đang mở (Vào thi ngay)</span>
-            <strong>{stats.openCount}</strong>
+          <div className="eg-dashboard-stat eg-stat-online eg-stat-highlight">
+            <span className="eg-dashboard-stat-label">
+              <span className="eg-live-pulse-dot" style={{ display: 'inline-block', marginRight: '6px' }} />
+              Ca thi đang mở
+            </span>
+            <strong style={{ color: '#059669' }}>{stats.openCount}</strong>
           </div>
-          <div className="eg-dashboard-stat">
+          <div className="eg-dashboard-stat eg-stat-offline">
             <span className="eg-dashboard-stat-label">Lịch thi sắp tới</span>
             <strong>{stats.upcomingCount}</strong>
           </div>
-          <div className="eg-dashboard-stat">
+          <div className="eg-dashboard-stat eg-stat-submitted">
             <span className="eg-dashboard-stat-label">Bài thi đã hoàn thành</span>
             <strong>{stats.completedCount}</strong>
           </div>
-          <div className="eg-dashboard-stat">
-            <span className="eg-dashboard-stat-label">Điểm trung bình tích lũy</span>
-            <strong style={{ color: 'var(--eg-accent)' }}>{stats.averageScore}đ</strong>
+          <div className="eg-dashboard-stat eg-stat-score">
+            <span className="eg-dashboard-stat-label">Điểm TB tích lũy</span>
+            <strong style={{ color: 'var(--eg-accent, #1a66e0)' }}>{stats.averageScore}đ</strong>
           </div>
         </section>
 
@@ -790,8 +849,8 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
                 <li>
                   <div className="eg-rule-icon ok">✓</div>
                   <div>
-                    <strong>Bắt buộc chế độ toàn màn hình (Fullscreen):</strong>
-                    <p>Không thoát toàn màn hình trước khi hoàn thành và bấm nộp bài.</p>
+                    <strong>Làm bài trực tiếp trên trình duyệt:</strong>
+                    <p>Hỗ trợ làm bài linh hoạt trên cả máy tính và điện thoại di động mà không cần khóa toàn màn hình.</p>
                   </div>
                 </li>
               </ul>

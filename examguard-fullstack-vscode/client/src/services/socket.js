@@ -4,8 +4,9 @@ const getSocketUrl = () => {
   if (import.meta.env.VITE_SOCKET_URL) {
     return import.meta.env.VITE_SOCKET_URL;
   }
-  if (typeof window !== 'undefined' && window.location.hostname) {
-    return `http://${window.location.hostname}:5000`;
+  // Kết nối Socket.io qua origin hiện tại (Vite proxy sẽ chuyển tiếp /socket.io tới backend :5000)
+  if (typeof window !== 'undefined' && window.location.origin) {
+    return window.location.origin;
   }
   return 'http://localhost:5000';
 };
@@ -14,7 +15,8 @@ const SOCKET_URL = getSocketUrl();
 
 export const socket = io(SOCKET_URL, {
   autoConnect: false,
-  reconnection: true
+  reconnection: true,
+  transports: ['websocket', 'polling']
 });
 
 export function connectSocket(token) {

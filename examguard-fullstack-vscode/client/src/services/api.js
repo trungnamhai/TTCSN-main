@@ -2,10 +2,10 @@ const getBackendBaseUrl = () => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  if (typeof window !== 'undefined' && window.location.hostname) {
-    return `http://${window.location.hostname}:5000/api`;
-  }
-  return 'http://localhost:5000/api';
+  // Dùng relative path '/api' để mọi truy cập (localhost, LAN IP, hoặc ngrok tunnel)
+  // đều đi qua Vite dev server proxy -> chuyển tiếp an toàn tới backend http://localhost:5000.
+  // Điều này tránh hoàn toàn lỗi Mixed Content (HTTPS -> HTTP:5000) và việc ngrok không mở port 5000.
+  return '/api';
 };
 
 const API_URL = getBackendBaseUrl();
@@ -16,7 +16,9 @@ export async function apiRequest(endpoint, { method = 'GET', body, token } = {})
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  const response = await fetch(`${API_URL}${normalizedEndpoint}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined
@@ -25,7 +27,7 @@ export async function apiRequest(endpoint, { method = 'GET', body, token } = {})
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('json')) {
     throw new Error(
-      `API ${endpoint} trả về HTML thay vì JSON (${response.status}). Hãy khởi động lại backend ExamGuard ở cổng 5000.`
+      `API ${endpoint} trả về HTML thay vì JSON (${response.status}). Hãy kiểm tra xem backend Node.js ở cổng 5000 đã được bật chưa.`
     );
   }
 

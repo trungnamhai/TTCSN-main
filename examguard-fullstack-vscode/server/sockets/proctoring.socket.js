@@ -53,6 +53,34 @@ module.exports = function setupProctoringSocket(io) {
       });
     });
 
+    socket.on('student:send_support_request', (payload) => {
+      io.emit('teacher:new_support_request', {
+        ...payload,
+        timestamp: new Date().toISOString()
+      });
+    });
+
+    socket.on('teacher:reply_support_request', (payload) => {
+      io.emit('student:support_decision', {
+        ...payload,
+        timestamp: new Date().toISOString()
+      });
+    });
+
+    socket.on('teacher:force_submit_student', (payload) => {
+      io.emit('student:force_submitted', {
+        ...payload,
+        timestamp: new Date().toISOString()
+      });
+    });
+
+    socket.on('teacher:allow_resume_student', (payload) => {
+      io.emit('student:resume_exam_permission', {
+        ...payload,
+        timestamp: new Date().toISOString()
+      });
+    });
+
     socket.on('disconnect', () => {
       const wentOffline = studentPresence.removeSocket(socket.id);
       if (wentOffline) {

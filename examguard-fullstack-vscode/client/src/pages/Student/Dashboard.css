@@ -33,13 +33,16 @@
   padding: 24px;
   background: var(--eg-surface, #ffffff);
   border: 1px solid var(--eg-tint-strong, #dce8f8);
+  border-top: 3.5px solid var(--eg-accent, #1a66e0);
   border-radius: var(--eg-radius, 2px);
+  box-shadow: 0 1px 3px rgba(11, 37, 69, 0.05);
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .eg-student-session-card:hover {
   border-color: var(--eg-accent, #1a66e0);
-  box-shadow: 0 4px 12px rgba(26, 102, 224, 0.08);
+  box-shadow: 0 6px 18px rgba(26, 102, 224, 0.12);
+  transform: translateY(-2px);
 }
 
 .eg-student-card-top {
@@ -109,20 +112,23 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
   padding: 0 16px;
   border: 0;
   border-radius: var(--eg-radius, 2px);
-  background: var(--eg-accent, #1a66e0);
+  background: linear-gradient(135deg, #1a66e0 0%, #1555bd 100%);
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease;
+  box-shadow: 0 2px 8px rgba(26, 102, 224, 0.22);
+  transition: all 0.15s ease;
 }
 
 .eg-student-enter-btn:hover {
-  background: var(--eg-accent-hover, #1457c2);
+  background: linear-gradient(135deg, #1457c2 0%, #0e449a 100%);
+  box-shadow: 0 4px 12px rgba(26, 102, 224, 0.32);
+  transform: translateY(-1px);
 }
 
 /* Two-column layout for Tab 4 */
@@ -254,4 +260,61 @@
   font-size: 12px;
   color: var(--eg-subtle, #54698a);
   margin-top: 2px;
+}
+
+/* Thanh chuyển tab trực tiếp trên điện thoại (Mobile Navigation Tabs) */
+.eg-mobile-nav-tabs {
+  display: none;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 6px 2px 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-bottom: 8px;
+}
+.eg-mobile-nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+.eg-mobile-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--eg-tint-strong, #dce8f8);
+  background: #ffffff;
+  color: var(--eg-ink-light, #475569);
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(11, 37, 69, 0.05);
+  transition: all 0.15s ease;
+}
+.eg-mobile-tab-btn:hover {
+  background: #f1f6fd;
+  color: var(--eg-accent, #1a66e0);
+}
+.eg-mobile-tab-btn.is-active {
+  background: var(--eg-accent, #1a66e0);
+  border-color: var(--eg-accent, #1a66e0);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(26, 102, 224, 0.28);
+}
+.eg-mobile-tab-count {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.08);
+}
+.eg-mobile-tab-btn.is-active .eg-mobile-tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+@media (max-width: 960px) {
+  .eg-mobile-nav-tabs {
+    display: flex !important;
+  }
 }

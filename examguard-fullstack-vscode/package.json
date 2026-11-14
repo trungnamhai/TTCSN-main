@@ -1,4 +1,11 @@
 {
+  "name": "examguard-monorepo",
+  "version": "1.0.0",
+  "scripts": {
+    "server": "node server/server.js",
+    "client": "npm --prefix client run dev",
+    "tunnel": ".\\cloudflared.exe tunnel --url http://localhost:5174"
+  },
   "devDependencies": {
     "@vitejs/plugin-basic-ssl": "^2.3.0"
   }

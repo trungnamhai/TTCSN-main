@@ -456,3 +456,51 @@ exports.getCheckinStatus = async (req, res) => {
     updated_at: userReq.updated_at || userReq.created_at
   });
 };
+
+exports.submitSupportRequest = async (req, res) => {
+  const { sessionCode, category, message, attemptId } = req.body;
+  const studentCode = req.user?.username || req.body?.studentCode || 'SV2026001';
+  let fullName = req.user?.full_name || req.body?.fullName;
+
+  if (!fullName) {
+    const foundUser = (fallbackStore.users || []).find((u) => u.username === studentCode);
+    fullName = foundUser?.full_name || ('Thí sinh ' + studentCode);
+  }
+
+  const newRequest = {
+    id: Date.now(),
+    student_code: studentCode,
+    full_name: fullName,
+    session_code: sessionCode || 'EXAM88',
+    attempt_id: attemptId || null,
+    category: category || 'REENTRY_REQUEST',
+    message: message || 'Xin giám thị hỗ trợ kỹ thuật / duyệt vào lại phòng thi.',
+    status: 'PENDING',
+    reply_message: null,
+    created_at: new Date().toISOString()
+  };
+
+  if (!fallbackStore.supportRequests) {
+    fallbackStore.supportRequests = [];
+  }
+  fallbackStore.supportRequests.unshift(newRequest);
+
+  const io = req.app.get('io');
+  if (io) {
+    io.emit('teacher:new_support_request', newRequest);
+  }
+
+  return res.json({
+    success: true,
+    message: 'Yêu cầu hỗ trợ đã được chuyển tiếp trực tiếp tới Giám thị phòng thi.',
+    request: newRequest
+  });
+};
+
+exports.getStudentSupportRequests = async (req, res) => {
+  const studentCode = req.user?.username || 'SV2026001';
+  const list = (fallbackStore.supportRequests || []).filter(
+    (r) => r.student_code === studentCode
+  );
+  return res.json(list);
+};
