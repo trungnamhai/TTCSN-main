@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
-import ExamLogin from './pages/Auth/ExamLogin';
-import TeacherLogin from './pages/Auth/TeacherLogin';
+import LandingPage from './pages/Landing/LandingPage';
+import RegisterPage from './pages/Auth/RegisterPage';
 import StudentDashboard from './pages/Student/Dashboard';
 import FaceVerification from './pages/Student/FaceVerification';
 import ExamRoom from './pages/Student/ExamRoom';
@@ -78,29 +78,49 @@ export default function App() {
     disconnectSocket();
     sessionStorage.removeItem('examguard.student');
     setAuthData(null);
-    navigate('/student/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   const handleTeacherLogout = () => {
     disconnectSocket();
     sessionStorage.removeItem('examguard.teacher');
     setTeacherData(null);
-    navigate('/teacher/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/student/login" replace />} />
       <Route
-        path="/student/login"
-        element={authData
-          ? <Navigate to="/student/dashboard" replace />
-          : (
-            <ExamLogin
-              onLoginSuccess={handleLoginSuccess}
-              onSwitchToTeacher={() => navigate('/teacher/login')}
-            />
-          )}
+        path="/"
+        element={
+          <LandingPage
+            authData={authData}
+            teacherData={teacherData}
+            onStudentLogin={handleLoginSuccess}
+            onTeacherLogin={handleTeacherLoginSuccess}
+            onStudentLogout={handleStudentLogout}
+            onTeacherLogout={handleTeacherLogout}
+            onNavigateTo={navigate}
+          />
+        }
+      />
+      <Route
+        path="/intro"
+        element={
+          <LandingPage
+            authData={authData}
+            teacherData={teacherData}
+            onStudentLogin={handleLoginSuccess}
+            onTeacherLogin={handleTeacherLoginSuccess}
+            onStudentLogout={handleStudentLogout}
+            onTeacherLogout={handleTeacherLogout}
+            onNavigateTo={navigate}
+          />
+        }
+      />
+      <Route
+        path="/register"
+        element={<Navigate to="/" replace />}
       />
       <Route
         path="/student/dashboard"
@@ -112,7 +132,7 @@ export default function App() {
               onLogout={handleStudentLogout}
             />
           )
-          : <Navigate to="/student/login" replace />}
+          : <Navigate to="/" replace />}
       />
       <Route
         path="/student/verify"
@@ -125,7 +145,7 @@ export default function App() {
               onBack={() => navigate('/student/dashboard')}
             />
           )
-          : <Navigate to="/student/login" replace />}
+          : <Navigate to="/" replace />}
       />
       <Route
         path="/student/exam"
@@ -138,18 +158,7 @@ export default function App() {
               onLogout={handleStudentLogout}
             />
           )
-          : <Navigate to="/student/login" replace />}
-      />
-      <Route
-        path="/teacher/login"
-        element={teacherData
-          ? <Navigate to="/teacher/dashboard" replace />
-          : (
-            <TeacherLogin
-              onLoginSuccess={handleTeacherLoginSuccess}
-              onSwitchToStudent={() => navigate('/student/login')}
-            />
-          )}
+          : <Navigate to="/" replace />}
       />
       <Route
         path="/teacher/dashboard"
@@ -161,9 +170,11 @@ export default function App() {
               onLogout={handleTeacherLogout}
             />
           )
-          : <Navigate to="/teacher/login" replace />}
+          : <Navigate to="/" replace />}
       />
-      <Route path="*" element={<Navigate to="/student/login" replace />} />
+      <Route path="/student/login" element={<Navigate to="/" replace />} />
+      <Route path="/teacher/login" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

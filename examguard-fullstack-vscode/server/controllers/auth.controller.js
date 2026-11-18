@@ -20,9 +20,9 @@ exports.loginTeacher = async (req, res) => {
         `SELECT u.id, u.username, u.full_name, u.email, u.password_hash, r.role_name
          FROM users u
          JOIN roles r ON u.role_id = r.id
-         WHERE u.username = ? AND r.role_name = 'TEACHER'
+         WHERE (u.username = ? OR LOWER(u.username) = LOWER(?)) AND UPPER(r.role_name) IN ('TEACHER', 'GIANGVIEN', 'ADMIN')
          LIMIT 1`,
-        [username.trim()],
+        [username.trim(), username.trim()],
       );
       user = users[0];
     } catch (dbErr) {
@@ -33,7 +33,7 @@ exports.loginTeacher = async (req, res) => {
       user = fallbackStore.users.find(
         (u) =>
           u.username.toUpperCase() === username.trim().toUpperCase() &&
-          u.role_name === "TEACHER",
+          ['TEACHER', 'GIANGVIEN', 'ADMIN'].includes((u.role_name || '').toUpperCase()),
       );
     }
 
@@ -65,8 +65,9 @@ exports.loginTeacher = async (req, res) => {
         .json({ message: "Tên đăng nhập hoặc mật khẩu không chính xác." });
     }
 
+    const roleName = (user.role_name || 'TEACHER').toUpperCase();
     const token = jwt.sign(
-      { id: user.id, username: user.username, role_name: user.role_name, full_name: user.full_name },
+      { id: user.id, username: user.username, role_name: roleName, full_name: user.full_name },
       JWT_SECRET,
       { expiresIn: "8h" },
     );
@@ -202,8 +203,9 @@ exports.loginExam = async (req, res) => {
       status_label: r.status === "SUBMITTED" ? "Đã chấm" : "Đang chấm",
     }));
 
+    const roleName = (user.role_name || 'TEACHER').toUpperCase();
     const token = jwt.sign(
-      { id: user.id, username: user.username, role_name: user.role_name, full_name: user.full_name },
+      { id: user.id, username: user.username, role_name: roleName, full_name: user.full_name },
       JWT_SECRET,
       { expiresIn: "8h" },
     );
@@ -342,6 +344,218 @@ exports.changePassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi khi đổi mật khẩu:", error);
+    return res.status(500).json({
+      message: "Lỗi hệ thống khi đổi mật khẩu: " + error.message,
+    });
+  }
+};
+
+/**
+ * Đăng ký tài khoản thí sinh mới (Student Registration)
+ */
+exports.register = async (req, res) => {
+  try {
+    const { username, full_name, email, password, confirmPassword } = req.body;
+
+    if (!username?.trim() || !password || !full_name?.trim()) {
+      return res.status(400).json({
+        message: "Vui lòng nhập đầy đủ Mã sinh viên / Tên đăng nhập, Họ và tên, và Mật khẩu.",
+      });
+    }
+
+    const cleanUsername = username.trim();
+    const cleanFullName = full_name.trim();
+    const cleanEmail = email?.trim() || `${cleanUsername.toLowerCase()}@examguard.edu.vn`;
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: "Mật khẩu phải có tối thiểu 6 ký tự.",
+      });
+    }
+
+    if (confirmPassword && password !== confirmPassword) {
+      return res.status(400).json({
+        message: "Mật khẩu xác nhận không khớp.",
+      });
+    }
+
+    // Kiểm tra xem tài khoản đã tồn tại chưa
+    let existingUser = null;
+    try {
+      const [users] = await pool.query(
+        `SELECT id, username FROM users WHERE username = ? OR email = ? LIMIT 1`,
+        [cleanUsername, cleanEmail]
+      );
+      if (users && users.length > 0) {
+        existingUser = users[0];
+      }
+    } catch (dbErr) {
+      console.warn("Lỗi kiểm tra CSDL khi đăng ký:", dbErr.message);
+    }
+
+    if (!existingUser) {
+      existingUser = fallbackStore.users.find(
+        (u) => u.username.toUpperCase() === cleanUsername.toUpperCase()
+      );
+    }
+
+    if (existingUser) {
+      return res.status(400).json({
+        message: `Tài khoản "${cleanUsername}" đã tồn tại trong hệ thống. Vui lòng đăng nhập hoặc chọn tên khác.`,
+      });
+    }
+
+    // Băm mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    let newUserId = Date.now();
+    try {
+      // Tìm role_id của STUDENT
+      const [roles] = await pool.query(
+        `SELECT id FROM roles WHERE role_name = 'STUDENT' LIMIT 1`
+      );
+      const roleId = roles && roles.length > 0 ? roles[0].id : 3;
+
+      const [insertRes] = await pool.query(
+        `INSERT INTO users (username, password_hash, full_name, email, role_id)
+         VALUES (?, ?, ?, ?, ?)`,
+        [cleanUsername, hashedPassword, cleanFullName, cleanEmail, roleId]
+      );
+      if (insertRes && insertRes.insertId) {
+        newUserId = insertRes.insertId;
+      }
+    } catch (insertErr) {
+      console.warn("Lưu MySQL thất bại, lưu vào bộ nhớ dự phòng:", insertErr.message);
+    }
+
+    // Thêm vào fallbackStore
+    fallbackStore.users.push({
+      id: newUserId,
+      role_id: 3,
+      role_name: 'STUDENT',
+      username: cleanUsername,
+      full_name: cleanFullName,
+      email: cleanEmail,
+      password_hash: hashedPassword,
+      face_embedding: null
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: `Đăng ký tài khoản "${cleanUsername}" thành công! Bạn có thể đăng nhập để tham gia ca thi ngay bây giờ.`,
+      user: {
+        id: newUserId,
+        username: cleanUsername,
+        full_name: cleanFullName,
+        email: cleanEmail,
+        role_name: 'STUDENT'
+      }
+    });
+  } catch (error) {
+    console.error("Lỗi khi đăng ký tài khoản:", error);
+    return res.status(500).json({
+      message: "Lỗi hệ thống khi đăng ký tài khoản: " + error.message,
+    });
+  }
+};
+
+/**
+ * Đổi mật khẩu trực tiếp bằng Tên đăng nhập / MSSV (Không cần đăng nhập trước)
+ */
+exports.publicChangePassword = async (req, res) => {
+  try {
+    const { username, currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!username?.trim() || !currentPassword || !newPassword) {
+      return res.status(400).json({
+        message: "Vui lòng nhập đầy đủ Tên đăng nhập/Mã SV, Mật khẩu hiện tại và Mật khẩu mới.",
+      });
+    }
+
+    const cleanUsername = username.trim();
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        message: "Mật khẩu mới phải có tối thiểu 6 ký tự.",
+      });
+    }
+
+    if (confirmPassword && newPassword !== confirmPassword) {
+      return res.status(400).json({
+        message: "Xác nhận mật khẩu mới không khớp.",
+      });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({
+        message: "Mật khẩu mới không được trùng với mật khẩu hiện tại.",
+      });
+    }
+
+    let user = null;
+    let dbConnected = true;
+
+    try {
+      const [users] = await pool.query(
+        `SELECT id, username, password_hash, full_name FROM users WHERE username = ? LIMIT 1`,
+        [cleanUsername]
+      );
+      user = users && users[0];
+    } catch (dbErr) {
+      dbConnected = false;
+    }
+
+    if (!user) {
+      user = fallbackStore.users.find(
+        (u) => u.username.toUpperCase() === cleanUsername.toUpperCase()
+      );
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        message: `Không tìm thấy tài khoản "${cleanUsername}" trong hệ thống.`,
+      });
+    }
+
+    // So khớp mật khẩu cũ
+    let isMatch = false;
+    if (user.password_hash) {
+      if (user.password_hash.startsWith("$2a$") || user.password_hash.startsWith("$2b$")) {
+        isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+      } else {
+        isMatch = user.password_hash === currentPassword;
+      }
+    } else {
+      isMatch = currentPassword === "123456789";
+    }
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Mật khẩu hiện tại không chính xác.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    if (dbConnected && pool) {
+      try {
+        await pool.query(
+          `UPDATE users SET password_hash = ? WHERE username = ?`,
+          [hashedPassword, user.username]
+        );
+      } catch (err) {
+        console.warn("Lỗi update MySQL:", err.message);
+      }
+    }
+
+    user.password_hash = hashedPassword;
+
+    return res.status(200).json({
+      success: true,
+      message: `Đổi mật khẩu cho tài khoản "${cleanUsername}" thành công! Vui lòng sử dụng mật khẩu mới để đăng nhập.`,
+    });
+  } catch (error) {
+    console.error("Lỗi khi đổi mật khẩu công khai:", error);
     return res.status(500).json({
       message: "Lỗi hệ thống khi đổi mật khẩu: " + error.message,
     });

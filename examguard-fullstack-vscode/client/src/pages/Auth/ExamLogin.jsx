@@ -113,22 +113,38 @@ export default function ExamLogin({ onLoginSuccess, onSwitchToTeacher }) {
   return (
     <div className="eg-login-page" style={{ backgroundImage: `url(${bgImg})` }}>
       <header className="eg-glass-header">
-        <div className="eg-header-brand">
+        <div className="eg-header-brand" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
           <img src={logoImg} alt="TRACNGHIEM Logo" className="eg-login-logo" />
         </div>
-        <button
-          type="button"
-          className="eg-header-btn"
-          onClick={onSwitchToTeacher}
-        >
-          Đăng nhập giáo viên
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            type="button"
+            className="eg-header-btn"
+            onClick={() => window.location.href = '/'}
+          >
+            Trang chủ
+          </button>
+          <button
+            type="button"
+            className="eg-header-btn"
+            onClick={() => window.location.href = '/register'}
+          >
+            Đăng ký
+          </button>
+          <button
+            type="button"
+            className="eg-header-btn"
+            onClick={onSwitchToTeacher}
+          >
+            Đăng nhập Giáo viên
+          </button>
+        </div>
       </header>
 
       <div className="eg-auth-card">
-        <h1 className="eg-card-title">Đăng nhập phòng thi</h1>
+        <h1 className="eg-card-title">Đăng nhập Học sinh</h1>
         <p className="eg-card-desc">
-          Tài khoản do giáo viên hoặc nhà trường cung cấp.
+          Nhập mã sinh viên và mật khẩu để vào Bảng điều khiển khảo thí
         </p>
 
         {error && <div className="eg-alert-box eg-alert-error">{error}</div>}

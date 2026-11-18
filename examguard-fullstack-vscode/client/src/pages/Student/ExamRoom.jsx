@@ -186,7 +186,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
     const handleResumePermission = (data) => {
       const myCode = student.username || student.studentCode;
       if (!data.studentCode || data.studentCode === myCode) {
-        setNetworkResumeNotice(data.message || '✓ Giám thị đã duyệt cho phép bạn tiếp tục làm bài thi sau sự cố mạng!');
+        setNetworkResumeNotice(data.message || 'Giám thị đã duyệt cho phép bạn tiếp tục làm bài thi sau sự cố mạng!');
         // Tự động khôi phục câu trả lời từ localStorage
         const cacheKey = `examguard_answers_${attempt?.id || session.session_id || 'curr'}`;
         try {
@@ -240,7 +240,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
         }
         setAnswers(mergedAnswers);
         if (Object.keys(mergedAnswers).length > 0) {
-          setSavingStatus(`✓ Đã khôi phục ${Object.keys(mergedAnswers).length} câu trả lời tự động lưu`);
+          setSavingStatus(`Đã khôi phục ${Object.keys(mergedAnswers).length} câu trả lời tự động lưu`);
         }
 
         const code = session.session_code || authData.session?.session_code || 'EXAM88';
@@ -311,7 +311,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
     status: 'OK',
     violationType: null,
     faceCount: 1,
-    message: '✓ Xác thực 1 khuôn mặt thí sinh hợp lệ.'
+    message: 'Xác thực khuôn mặt thí sinh hợp lệ.'
   });
 
   const getReferenceSignature = useCallback(() => {
@@ -360,7 +360,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
             handleViolation(analysis.violationType, analysis.message);
           }
         } else {
-          setFaceStatus(analysis.message || '✓ Khuôn mặt hợp lệ (Đúng thí sinh)');
+          setFaceStatus(analysis.message || 'Khuôn mặt hợp lệ (Đúng thí sinh)');
         }
       } catch (err) {
         console.warn('Lỗi phân tích AI camera:', err);
@@ -440,9 +440,9 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
           selectedAnswerId: answerId
         }
       });
-      setSavingStatus(`✓ Đã tự động lưu lúc ${new Date().toLocaleTimeString('vi-VN')}`);
+      setSavingStatus(`Đã tự động lưu lúc ${new Date().toLocaleTimeString('vi-VN')}`);
     } catch {
-      setSavingStatus('✓ Đã bảo lưu trên máy (Sẽ đồng bộ khi có mạng)');
+      setSavingStatus('Đã bảo lưu trên máy (sẽ đồng bộ khi có mạng)');
     }
   };
 
@@ -473,7 +473,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
         message: supportMessage.trim()
       });
 
-      setSupportSuccessMsg('✓ Yêu cầu hỗ trợ đã được gửi tới Giám thị phòng thi!');
+      setSupportSuccessMsg('Yêu cầu hỗ trợ đã được gửi tới Giám thị phòng thi');
       setSupportMessage('');
       fetchSupportHistory();
     } catch (err) {
@@ -527,11 +527,11 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
         <div className="eg-result-card">
           <div className="eg-result-header">
             <span className="eg-mini-badge is-easy" style={{ fontSize: '13px', padding: '4px 10px' }}>
-              ✓ ĐÃ HOÀN THÀNH & NỘP BÀI THÀNH CÔNG
+              Đã hoàn thành và nộp bài thi
             </span>
             <h1 className="eg-result-title">Kết quả bài thi</h1>
             <p className="eg-result-desc">
-              Hệ thống khảo thí ExamGuard đã tự động chấm điểm và bảo lưu toàn bộ câu trả lời của bạn.
+              Hệ thống khảo thí ExamGuard đã chấm điểm tự động và lưu trữ toàn bộ bài làm của bạn.
             </p>
           </div>
 
@@ -546,7 +546,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
             <div className="eg-metric-item">
               <span className="eg-metric-lbl">Kết quả đánh giá</span>
               <strong className={`eg-metric-status ${isPassed ? 'is-pass' : 'is-fail'}`}>
-                {isPassed ? '✓ ĐẠT YÊU CẦU' : 'CHƯA ĐẠT'}
+                {isPassed ? 'Đạt yêu cầu' : 'Chưa đạt'}
               </strong>
             </div>
 
@@ -626,7 +626,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
           </div>
 
           <span className="eg-fs-status-badge is-locked" style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' }} title="Đang kết nối phòng thi">
-            ✓ Đang trong phòng thi
+            Đang trong phòng thi
           </span>
 
           <button
@@ -638,7 +638,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
             }}
             title="Gửi yêu cầu hỗ trợ kỹ thuật hoặc xin vào lại phòng thi tới Giám thị"
           >
-            🆘 Hỗ trợ kỹ thuật & Xin vào lại
+            Hỗ trợ kỹ thuật & Vào lại
           </button>
 
           <button
@@ -656,17 +656,37 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
       {supportReplyAlert && (
         <div className="eg-dashboard-alert-banner is-success" style={{ margin: '0 24px 16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <strong>📢 Giám thị ca thi vừa phản hồi:</strong>{' '}
+            <strong>Giám thị ca thi vừa phản hồi:</strong>{' '}
             <span>{supportReplyAlert.replyMessage || (supportReplyAlert.status === 'APPROVED' ? 'Đã duyệt yêu cầu của bạn! Bạn được phép tiếp tục làm bài.' : 'Yêu cầu của bạn đã được phản hồi.')}</span>
           </div>
-          <button type="button" onClick={() => setSupportReplyAlert(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '15px', color: '#166534' }}>✕</button>
+          <button
+            type="button"
+            onClick={() => setSupportReplyAlert(null)}
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#166534', display: 'inline-flex', alignItems: 'center' }}
+            aria-label="Đóng thông báo"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
       )}
 
       {networkResumeNotice && (
         <div className="eg-dashboard-alert-banner is-success" style={{ margin: '0 24px 16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{networkResumeNotice}</span>
-          <button type="button" className="eg-banner-close" onClick={() => setNetworkResumeNotice('')} aria-label="Đóng">✕</button>
+          <button
+            type="button"
+            className="eg-banner-close"
+            onClick={() => setNetworkResumeNotice('')}
+            aria-label="Đóng"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
       )}
 
@@ -714,7 +734,11 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                   }
                   className={`eg-btn-flag ${flagged[currentQuestion.id] ? 'is-flagged' : ''}`}
                 >
-                  {flagged[currentQuestion.id] ? '★ Đã đánh dấu xem lại' : '☆ Đánh dấu xem lại'}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill={flagged[currentQuestion.id] ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ marginRight: '6px' }}>
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                    <line x1="4" y1="22" x2="4" y2="15" />
+                  </svg>
+                  {flagged[currentQuestion.id] ? 'Đã đánh dấu xem lại' : 'Đánh dấu xem lại'}
                 </button>
               </div>
 
@@ -738,7 +762,11 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                       onClick={() => handleSelectAnswer(currentQuestion.id, ans.id)}
                     >
                       <span className="eg-option-indicator">
-                        {isSelected ? '✓' : letter}
+                        {isSelected ? (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        ) : letter}
                       </span>
                       <span className="eg-option-letter">{letter}.</span>
                       <span className="eg-option-text">{ans.answer_text}</span>
@@ -815,16 +843,16 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                   <span>Camera AI giám sát đang hoạt động</span>
                 </div>
               )}
-              <div className="eg-cam-overlay-badge">● LIVE PROCTORING</div>
+              <div className="eg-cam-overlay-badge">Giám sát trực tiếp</div>
             </div>
 
             <div className="eg-ai-rules-tags">
-              <span className="eg-mini-badge is-easy">✓ Khóa Tab</span>
-              <span className="eg-mini-badge is-easy">✓ Chặn Copy</span>
-              <span className="eg-mini-badge is-easy">✓ OpenCV AI</span>
+              <span className="eg-mini-badge is-easy">Khóa Tab</span>
+              <span className="eg-mini-badge is-easy">Chặn sao chép</span>
+              <span className="eg-mini-badge is-easy">Giám sát AI YOLOv8</span>
             </div>
 
-            <div className={`eg-face-realtime-status ${faceStatus.includes('✓') ? 'is-ok' : 'is-warning'}`}>
+            <div className={`eg-face-realtime-status ${!faceStatus.toLowerCase().includes('vi phạm') && !faceStatus.toLowerCase().includes('cảnh báo') && !faceStatus.toLowerCase().includes('lỗi') ? 'is-ok' : 'is-warning'}`}>
               <span className="eg-live-status-dot" />
               <span>{faceStatus}</span>
             </div>
@@ -874,7 +902,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                     }`}
                   >
                     {idx + 1}
-                    {isFlag && <span className="eg-matrix-flag-star">★</span>}
+                    {isFlag && <span className="eg-matrix-flag-dot" title="Đã đánh dấu" />}
                   </button>
                 );
               })}
@@ -924,7 +952,10 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                 title="Đóng cửa sổ"
                 aria-label="Đóng"
               >
-                ✕
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
 
@@ -1034,8 +1065,12 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                 className="eg-dialog-close-btn"
                 onClick={() => setShowExitModal(false)}
                 title="Đóng"
+                aria-label="Đóng"
               >
-                ✕
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
             <div className="eg-dialog-body">
@@ -1089,8 +1124,12 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                 className="eg-dialog-close-btn"
                 onClick={() => setShowSupportModal(false)}
                 title="Đóng"
+                aria-label="Đóng"
               >
-                ✕
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
 
@@ -1107,10 +1146,47 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                 </label>
                 <div className="eg-support-category-grid">
                   {[
-                    { id: 'REENTRY_REQUEST', label: 'Xin vào lại phòng thi', icon: '🔄' },
-                    { id: 'TECHNICAL_SUPPORT', label: 'Sự cố Camera & Mic', icon: '📹' },
-                    { id: 'QUESTION_ISSUE', label: 'Lỗi câu hỏi / Đề thi', icon: '📝' },
-                    { id: 'OTHER', label: 'Vấn đề kỹ thuật khác', icon: '💬' }
+                    {
+                      id: 'REENTRY_REQUEST',
+                      label: 'Xin vào lại phòng thi',
+                      icon: (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="1 4 1 10 7 10" />
+                          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                        </svg>
+                      )
+                    },
+                    {
+                      id: 'TECHNICAL_SUPPORT',
+                      label: 'Sự cố Camera & Mic',
+                      icon: (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M23 7l-7 5 7 5V7z" />
+                          <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                        </svg>
+                      )
+                    },
+                    {
+                      id: 'QUESTION_ISSUE',
+                      label: 'Lỗi câu hỏi / Đề thi',
+                      icon: (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                      )
+                    },
+                    {
+                      id: 'OTHER',
+                      label: 'Vấn đề kỹ thuật khác',
+                      icon: (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                      )
+                    }
                   ].map((cat) => (
                     <button
                       key={cat.id}
@@ -1118,7 +1194,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                       className={`eg-support-cat-btn ${supportCategory === cat.id ? 'is-active' : ''}`}
                       onClick={() => setSupportCategory(cat.id)}
                     >
-                      <span style={{ fontSize: '16px' }}>{cat.icon}</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center' }}>{cat.icon}</span>
                       <span>{cat.label}</span>
                     </button>
                   ))}
@@ -1158,7 +1234,7 @@ export default function ExamRoom({ authData, onExit, onLogout }) {
                           )}
                         </div>
                         <span className={`eg-mini-badge ${item.status === 'APPROVED' ? 'is-easy' : 'is-medium'}`} style={{ flexShrink: 0, marginLeft: '10px' }}>
-                          {item.status === 'APPROVED' ? '✓ Đã duyệt' : item.status === 'REJECTED' ? '✕ Từ chối' : '⏳ Chờ duyệt'}
+                          {item.status === 'APPROVED' ? 'Đã duyệt' : item.status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt'}
                         </span>
                       </div>
                     ))}

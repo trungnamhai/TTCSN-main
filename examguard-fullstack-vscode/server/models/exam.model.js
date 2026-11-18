@@ -68,6 +68,15 @@ const fallbackStore = {
       full_name: 'TS. Nguyễn Văn Giám Thị',
       email: 'gv001@examguard.edu.vn',
       face_embedding: null
+    },
+    {
+      id: 8,
+      role_id: 2,
+      role_name: 'TEACHER',
+      username: 'ThsPhamTheAnh',
+      full_name: 'ThS. Phạm Thế Anh',
+      email: 'thsphamtheanh@examguard.edu.vn',
+      face_embedding: null
     }
   ],
   session: {

@@ -31,8 +31,9 @@ export default function TeacherLogin({ onLoginSuccess, onSwitchToStudent }) {
     } catch (requestError) {
       const trimmedUser = username.trim();
       const savedPass = localStorage.getItem(`sample_pwd_${trimmedUser}`) || '123456789';
+      const uLower = trimmedUser.toLowerCase();
       if (
-        (trimmedUser.toLowerCase() === 'thsphamtheanh' || trimmedUser.toLowerCase() === 'gv001') &&
+        (uLower === 'thsphamtheanh' || uLower === 'gv001' || uLower === 'anhpt') &&
         (password === savedPass || password === '123456789')
       ) {
         onLoginSuccess({
@@ -40,8 +41,8 @@ export default function TeacherLogin({ onLoginSuccess, onSwitchToStudent }) {
           teacher: {
             id: 1,
             username: trimmedUser,
-            full_name: trimmedUser.toLowerCase() === 'thsphamtheanh' ? 'ThS. Phạm Thế Anh' : 'TS. Nguyễn Văn Giám Thị',
-            email: `${trimmedUser.toLowerCase()}@examguard.edu.vn`,
+            full_name: uLower === 'thsphamtheanh' ? 'ThS. Phạm Thế Anh' : uLower === 'anhpt' ? 'ThS. Phạm Thế Anh' : 'TS. Nguyễn Văn Giám Thị',
+            email: `${uLower}@examguard.edu.vn`,
             role_name: 'TEACHER'
           }
         });
@@ -61,12 +62,28 @@ export default function TeacherLogin({ onLoginSuccess, onSwitchToStudent }) {
   return (
     <div className="eg-login-page eg-teacher-login" style={{ backgroundImage: `url(${bgImg})` }}>
       <header className="eg-glass-header">
-        <div className="eg-header-brand">
+        <div className="eg-header-brand" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
           <img src={logoImg} alt="TRACNGHIEM Logo" className="eg-login-logo" />
         </div>
-        <button type="button" className="eg-header-btn" onClick={onSwitchToStudent}>
-          Đăng nhập thí sinh
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            type="button"
+            className="eg-header-btn"
+            onClick={() => window.location.href = '/'}
+          >
+            Trang chủ
+          </button>
+          <button
+            type="button"
+            className="eg-header-btn"
+            onClick={() => window.location.href = '/register'}
+          >
+            Đăng ký
+          </button>
+          <button type="button" className="eg-header-btn" onClick={onSwitchToStudent}>
+            Đăng nhập Học sinh
+          </button>
+        </div>
       </header>
 
       <main className="eg-auth-card eg-teacher-login-card">

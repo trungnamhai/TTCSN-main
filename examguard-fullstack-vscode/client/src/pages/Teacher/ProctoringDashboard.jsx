@@ -334,6 +334,8 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
     const reasonMap = {
       FACE_MISMATCH: 'Gian lận thi cử: Phát hiện khuôn mặt không phù hợp với ảnh check-in ban đầu (Nghi vấn thi hộ)',
       MULTIPLE_FACES: 'Phát hiện nhiều người cùng xuất hiện trong phòng thi để hỗ trợ làm bài',
+      PHONE_DETECTED: 'Sử dụng điện thoại di động trong phòng thi (Phát hiện bởi YOLOv8 AI)',
+      MATERIAL_DETECTED: 'Sử dụng tài liệu / sách nghi vấn trong phòng thi (Phát hiện bởi YOLOv8 AI)',
       TAB_SWITCH_EXCESSIVE: 'Cố tình thoát toàn màn hình và chuyển tab nhiều lần vi phạm quy chế',
       DISOBEY_RULES: 'Không tuân thủ hiệu lệnh phòng thi và quy chế khảo thí của Giám thị',
       OTHER: customForceReason.trim() || 'Vi phạm nghiêm trọng quy chế phòng thi'
@@ -854,7 +856,10 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
             title="Đóng menu"
             aria-label="Đóng menu trên điện thoại"
           >
-            ✕
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
@@ -919,7 +924,11 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
             onClick={() => setSidebarCollapsed(true)}
             title="Đóng menu trên điện thoại"
           >
-            ✕ Đóng menu
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+            <span>Đóng menu</span>
           </button>
         </div>
       </aside>
@@ -1006,13 +1015,23 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
         {statusMsg && (
           <div className="eg-dashboard-alert-banner is-success" role="status">
             <span>{statusMsg}</span>
-            <button type="button" onClick={() => setStatusMsg('')} className="eg-banner-close" aria-label="Đóng thông báo">✕</button>
+            <button type="button" onClick={() => setStatusMsg('')} className="eg-banner-close" aria-label="Đóng thông báo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </div>
         )}
         {errorMsg && (
           <div className="eg-dashboard-alert-banner is-error" role="alert">
             <span>{errorMsg}</span>
-            <button type="button" onClick={() => setErrorMsg('')} className="eg-banner-close" aria-label="Đóng thông báo">✕</button>
+            <button type="button" onClick={() => setErrorMsg('')} className="eg-banner-close" aria-label="Đóng thông báo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </div>
         )}
 
@@ -1067,7 +1086,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
             </div>
             <div className="eg-dashboard-stat eg-stat-violations eg-dashboard-stat-warning">
               <span className="eg-dashboard-stat-label">
-                ⚠️ Cảnh báo vi phạm
+                Cảnh báo vi phạm
               </span>
               <strong>{dashboard.logs.length}</strong>
             </div>
@@ -1144,13 +1163,17 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
 
                       <div className={`eg-cam-ai-overlay ${isViolation ? 'is-alert' : 'is-ok'}`}>
                         {hasMismatch ? (
-                          <span>⚠️ KHUÔN MẶT KHÔNG PHÙ HỢP (NGHI THI HỘ)</span>
+                          <span>Khuôn mặt không phù hợp (Nghi thi hộ)</span>
                         ) : hasMulti ? (
-                          <span>⚠️ PHÁT HIỆN NHIỀU NGƯỜI ({feed.faceCount || 2})</span>
+                          <span>Phát hiện nhiều người ({feed.faceCount || 2})</span>
                         ) : hasNoFace ? (
-                          <span>⚠️ KHÔNG CÓ THÍ SINH TRƯỚC CAMERA</span>
+                          <span>Không có thí sinh trước camera</span>
+                        ) : feed.violationType === 'PHONE_DETECTED' ? (
+                          <span>Phát hiện dùng điện thoại (YOLOv8)</span>
+                        ) : feed.violationType === 'MATERIAL_DETECTED' ? (
+                          <span>Phát hiện tài liệu / sách (YOLOv8)</span>
                         ) : (
-                          <span>✓ KHUÔN MẶT HỢP LỆ (1 THÍ SINH)</span>
+                          <span>Khuôn mặt hợp lệ · 1 thí sinh</span>
                         )}
                       </div>
                     </div>
@@ -1170,7 +1193,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                           }}
                           title="Duyệt cho phép tiếp tục thi lại khi gặp sự cố mạng"
                         >
-                          🔄 Duyệt thi lại
+                          Duyệt thi lại
                         </button>
                         <button
                           type="button"
@@ -1185,7 +1208,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                           }}
                           title="Cưỡng chế nộp bài hoặc đình chỉ thi khi vi phạm nặng"
                         >
-                          🛑 Thu bài
+                          Thu bài
                         </button>
                         <button
                           type="button"
@@ -1251,8 +1274,12 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                     className="eg-dashboard-search-clear"
                     onClick={() => setStudentSearchQuery('')}
                     title="Xóa tìm kiếm"
+                    aria-label="Xóa tìm kiếm"
                   >
-                    ✕
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
                   </button>
                 )}
               </div>
@@ -1335,7 +1362,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                                 onClick={() => handleAllowResume(student.student_code, student.session_code, student.full_name)}
                                 title="Duyệt cho phép tiếp tục thi lại khi thí sinh gặp sự cố mạng"
                               >
-                                🔄 Duyệt thi lại
+                                Duyệt thi lại
                               </button>
                               <button
                                 type="button"
@@ -1349,7 +1376,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                                 }
                                 title="Cưỡng chế nộp bài hoặc đình chỉ thi khi vi phạm nặng"
                               >
-                                🛑 Thu bài
+                                Thu bài
                               </button>
                               <button
                                 type="button"
@@ -1401,14 +1428,16 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                       <div>
                         <div className="eg-dashboard-log-student">
                           <span className={`eg-status-tag ${
-                            log.violation_type === 'FACE_MISMATCH' || log.violation_type === 'MULTIPLE_FACES' ? 'is-danger' : 'is-warning'
+                            log.violation_type === 'FACE_MISMATCH' || log.violation_type === 'MULTIPLE_FACES' || log.violation_type === 'PHONE_DETECTED' ? 'is-danger' : 'is-warning'
                           }`} style={{ marginRight: '8px', fontWeight: 600 }}>
-                            {log.violation_type === 'FACE_MISMATCH' ? '⚠️ Khuôn mặt khác (Nghi vấn thi hộ)' :
-                             log.violation_type === 'MULTIPLE_FACES' ? '⚠️ Nhiều người trong khung hình' :
-                             log.violation_type === 'NO_FACE' ? '⚠️ Không có mặt thí sinh' :
-                             log.violation_type === 'TAB_SWITCH' ? '⚠️ Chuyển Tab làm bài' :
-                             log.violation_type === 'WINDOW_BLUR' ? '⚠️ Mất tiêu điểm cửa sổ' :
-                             log.violation_type === 'FULLSCREEN_EXIT' ? '⚠️ Thoát toàn màn hình' : `[${log.violation_type}]`}
+                            {log.violation_type === 'FACE_MISMATCH' ? 'Khuôn mặt khác (Nghi thi hộ)' :
+                             log.violation_type === 'MULTIPLE_FACES' ? 'Nhiều người trong khung hình' :
+                             log.violation_type === 'PHONE_DETECTED' ? 'Dùng điện thoại (YOLOv8)' :
+                             log.violation_type === 'MATERIAL_DETECTED' ? 'Tài liệu nghi vấn (YOLOv8)' :
+                             log.violation_type === 'NO_FACE' ? 'Không có mặt thí sinh' :
+                             log.violation_type === 'TAB_SWITCH' ? 'Chuyển tab' :
+                             log.violation_type === 'WINDOW_BLUR' ? 'Mất tiêu điểm' :
+                             log.violation_type === 'FULLSCREEN_EXIT' ? 'Thoát toàn màn hình' : `[${log.violation_type}]`}
                           </span>
                           <strong>{log.student_code || 'SV2026001'}</strong> ({log.full_name || log.student_code || 'Thí sinh'})
                         </div>
@@ -1475,11 +1504,11 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                 {pendingCheckinCount > 0 && (
                   <button type="button" className="eg-primary-btn" onClick={handleApproveAllCheckin}>
-                    ✓ Duyệt tất cả ({pendingCheckinCount} thí sinh)
+                    Duyệt tất cả ({pendingCheckinCount} thí sinh)
                   </button>
                 )}
                 <button type="button" className="eg-btn-cancel" onClick={fetchCheckinRequests} disabled={loadingCheckin}>
-                  {loadingCheckin ? 'Đang tải...' : '↻ Làm mới'}
+                  {loadingCheckin ? 'Đang tải...' : 'Làm mới'}
                 </button>
               </div>
             </div>
@@ -1531,14 +1560,14 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                     <div key={req.id} className={`eg-checkin-card ${isPending ? 'is-pending' : ''}`}>
                       <div className="eg-checkin-card-img-wrap" onClick={() => setViewingSnapshot(photoSrc)}>
                         <img src={photoSrc} alt={req.full_name} className="eg-checkin-card-img" />
-                        <span className="eg-img-zoom-hint">🔍 Nhấn để phóng to</span>
+                        <span className="eg-img-zoom-hint">Phóng to ảnh</span>
                       </div>
 
                       <div className="eg-checkin-card-info">
                         <div className="eg-checkin-card-head">
                           <span className="eg-session-code-tag">{req.session_code}</span>
                           <span className={`eg-status-tag ${isPending ? 'is-upcoming' : isApproved ? 'is-completed' : 'is-closed'}`}>
-                            {isPending ? '⏳ Chờ duyệt' : isApproved ? '✓ Đã duyệt' : '✕ Từ chối'}
+                            {isPending ? 'Chờ duyệt' : isApproved ? 'Đã duyệt' : 'Từ chối'}
                           </span>
                         </div>
 
@@ -1548,12 +1577,12 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                         <div className="eg-checkin-specs-list">
                           <div className="eg-spec-row">
                             <span>Phần cứng:</span>
-                            <strong>Webcam ✓ · Mic ✓</strong>
+                            <strong>Webcam · Mic sẵn sàng</strong>
                           </div>
                           <div className="eg-spec-row">
                             <span>AI Nhận diện:</span>
                             <span className={req.face_count === 1 ? 'ok-text' : 'err-text'}>
-                              {req.face_count === 1 ? '✓ 1 người hợp lệ' : `⚠️ Phát hiện ${req.face_count} người`}
+                              {req.face_count === 1 ? '1 người hợp lệ' : `Phát hiện ${req.face_count} người`}
                             </span>
                           </div>
                           {req.euclidean_distance != null && (
@@ -1583,20 +1612,20 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                                 className="eg-btn-approve-checkin"
                                 onClick={() => handleApproveCheckin(req.id)}
                               >
-                                ✓ Duyệt vào thi
+                                Duyệt vào thi
                               </button>
                               <button
                                 type="button"
                                 className="eg-btn-reject-checkin"
                                 onClick={() => handleRejectCheckin(req.id)}
                               >
-                                ✕ Từ chối
+                                Từ chối
                               </button>
                             </>
                           )}
                           {isApproved && (
                             <div className="eg-approved-mark">
-                              <span style={{ color: '#16a34a', fontWeight: 600, fontSize: '13px' }}>✓ Đã cấp quyền vào phòng thi</span>
+                              <span style={{ color: '#16a34a', fontWeight: 600, fontSize: '13px' }}>Đã cấp quyền vào phòng thi</span>
                               <button
                                 type="button"
                                 className="eg-btn-revert"
@@ -1696,11 +1725,11 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                   const isRejected = req.status === 'REJECTED';
 
                   const categoryMeta = {
-                    REENTRY_REQUEST: { label: 'Xin vào lại phòng thi', icon: '🔄', color: '#1a66e0' },
-                    TECHNICAL_SUPPORT: { label: 'Sự cố Camera & Mic', icon: '📹', color: '#ea580c' },
-                    QUESTION_ISSUE: { label: 'Lỗi câu hỏi / Đề thi', icon: '📝', color: '#8b5cf6' },
-                    OTHER: { label: 'Vấn đề kỹ thuật khác', icon: '💬', color: '#64748b' }
-                  }[req.category] || { label: 'Yêu cầu hỗ trợ', icon: '💬', color: '#1a66e0' };
+                    REENTRY_REQUEST: { label: 'Xin vào lại phòng thi', color: '#1a66e0' },
+                    TECHNICAL_SUPPORT: { label: 'Sự cố Camera & Mic', color: '#ea580c' },
+                    QUESTION_ISSUE: { label: 'Lỗi câu hỏi / Đề thi', color: '#8b5cf6' },
+                    OTHER: { label: 'Vấn đề kỹ thuật khác', color: '#64748b' }
+                  }[req.category] || { label: 'Yêu cầu hỗ trợ', color: '#1a66e0' };
 
                   return (
                     <div
@@ -1739,10 +1768,10 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                             }`}
                           >
                             {isApproved
-                              ? '✓ Đã phê duyệt'
+                              ? 'Đã phê duyệt'
                               : isPending
-                              ? '⏳ Đang chờ duyệt'
-                              : '✕ Đã từ chối'}
+                              ? 'Đang chờ duyệt'
+                              : 'Đã từ chối'}
                           </span>
                         </div>
 
@@ -1811,7 +1840,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                                   )
                                 }
                               >
-                                ✓ Duyệt cho vào lại phòng thi
+                                Duyệt vào lại phòng thi
                               </button>
                               <button
                                 type="button"
@@ -1824,7 +1853,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                                   )
                                 }
                               >
-                                ✕ Từ chối
+                                Từ chối
                               </button>
                               <button
                                 type="button"
@@ -1839,7 +1868,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                                 }
                                 title="Cưỡng chế thu bài khi phát hiện gian lận nghiêm trọng"
                               >
-                                🛑 Cưỡng chế thu bài
+                                Cưỡng chế thu bài
                               </button>
                             </>
                           )}
@@ -1857,7 +1886,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                                 )
                               }
                             >
-                              💬 Gửi thêm phản hồi / lời nhắn
+                              Gửi thêm phản hồi
                             </button>
                           )}
 
@@ -1874,7 +1903,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                                 )
                               }
                             >
-                              ✓ Duyệt lại cho vào phòng thi
+                              Duyệt lại cho vào phòng thi
                             </button>
                           )}
                         </div>
@@ -1941,8 +1970,12 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                     className="eg-dashboard-search-clear"
                     onClick={() => setSessionSearch('')}
                     title="Xóa tìm kiếm"
+                    aria-label="Xóa tìm kiếm"
                   >
-                    ✕
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
                   </button>
                 )}
               </div>
@@ -2041,7 +2074,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                             <span className={`eg-status-tag ${
                               isOpen ? 'is-open' : isUpcoming ? 'is-upcoming' : isCancelled ? 'is-hard' : 'is-completed'
                             }`}>
-                              {isOpen ? '● Đang mở' : isUpcoming ? '○ Sắp diễn ra' : isCancelled ? '✕ Đã hủy' : 'Đã kết thúc'}
+                              {isOpen ? 'Đang mở' : isUpcoming ? 'Sắp diễn ra' : isCancelled ? 'Đã hủy' : 'Đã kết thúc'}
                             </span>
                           </td>
                           <td style={{ textAlign: 'center' }}>
@@ -2145,8 +2178,12 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                     className="eg-dashboard-search-clear"
                     onClick={() => setExamSearch('')}
                     title="Xóa tìm kiếm"
+                    aria-label="Xóa tìm kiếm"
                   >
-                    ✕
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
                   </button>
                 )}
               </div>
@@ -2229,10 +2266,10 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                         <td>
                           <div className="eg-shuffle-badges">
                             <span className={`eg-mini-tag ${ex.shuffle_questions ? 'is-on' : 'is-off'}`} title="Đảo thứ tự câu hỏi">
-                              {ex.shuffle_questions ? '✓ Đảo câu' : '— Thứ tự cố định'}
+                              {ex.shuffle_questions ? 'Đảo câu' : 'Thứ tự cố định'}
                             </span>
                             <span className={`eg-mini-tag ${ex.shuffle_answers ? 'is-on' : 'is-off'}`} title="Đảo đáp án A, B, C, D">
-                              {ex.shuffle_answers ? '✓ Đảo đáp án' : '— Đáp án cố định'}
+                              {ex.shuffle_answers ? 'Đảo đáp án' : 'Đáp án cố định'}
                             </span>
                             <span className="eg-mini-tag is-variants">
                               {ex.variants_count || 4} mã đề
@@ -2335,8 +2372,12 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                     className="eg-dashboard-search-clear"
                     onClick={() => setQuestionSearch('')}
                     title="Xóa tìm kiếm"
+                    aria-label="Xóa tìm kiếm"
                   >
-                    ✕
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
                   </button>
                 )}
               </div>
@@ -2445,7 +2486,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                                 <span className="eg-answer-text">{ans.answer_text}</span>
                                 {isCorrect && (
                                   <span className="eg-correct-badge" title="Đáp án đúng">
-                                    ✓ Đúng
+                                    Đúng
                                   </span>
                                 )}
                               </div>
@@ -2530,8 +2571,12 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                     className="eg-dashboard-search-clear"
                     onClick={() => setSubjectSearch('')}
                     title="Xóa tìm kiếm"
+                    aria-label="Xóa tìm kiếm"
                   >
-                    ✕
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
                   </button>
                 )}
               </div>
@@ -2755,7 +2800,17 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
           <div className="eg-modal-card eg-snapshot-zoom-modal" onClick={(e) => e.stopPropagation()}>
             <div className="eg-modal-header">
               <h2 className="eg-modal-title">Ảnh chụp xác thực khuôn mặt lúc check-in</h2>
-              <button type="button" className="eg-modal-close" onClick={() => setViewingSnapshot(null)}>✕</button>
+              <button
+                type="button"
+                className="eg-modal-close"
+                onClick={() => setViewingSnapshot(null)}
+                aria-label="Đóng"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
             <div className="eg-modal-body" style={{ display: 'flex', justifyContent: 'center' }}>
               <img src={viewingSnapshot} alt="Ảnh chụp chân dung" style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain', borderRadius: '4px' }} />
@@ -2777,7 +2832,17 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                   Ca thi: <strong>{selectedLiveCam.sessionCode || 'EXAM88'}</strong>
                 </span>
               </div>
-              <button type="button" className="eg-modal-close" onClick={() => setSelectedLiveCam(null)}>✕</button>
+              <button
+                type="button"
+                className="eg-modal-close"
+                onClick={() => setSelectedLiveCam(null)}
+                aria-label="Đóng"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
             <div className="eg-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ position: 'relative', background: '#0b2545', borderRadius: '4px', overflow: 'hidden', minHeight: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -2794,12 +2859,16 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
               <div className={`eg-dashboard-alert-banner ${selectedLiveCam.violationType ? 'is-error' : 'is-success'}`} style={{ margin: 0 }}>
                 <span>
                   {selectedLiveCam.violationType === 'FACE_MISMATCH'
-                    ? '⚠️ CẢNH BÁO: Phát hiện khuôn mặt không phù hợp với thí sinh đã check-in ban đầu (Nghi vấn thi hộ)!'
+                    ? 'Cảnh báo: Phát hiện khuôn mặt không phù hợp với thí sinh đã check-in ban đầu (Nghi vấn thi hộ)'
                     : selectedLiveCam.violationType === 'MULTIPLE_FACES'
-                    ? '⚠️ CẢNH BÁO: Phát hiện nhiều người trong phòng thi cùng xuất hiện trước camera!'
+                    ? 'Cảnh báo: Phát hiện nhiều người trong phòng thi cùng xuất hiện trước camera'
+                    : selectedLiveCam.violationType === 'PHONE_DETECTED'
+                    ? 'Cảnh báo (YOLOv8): Phát hiện thí sinh đang sử dụng điện thoại di động trong phòng thi'
+                    : selectedLiveCam.violationType === 'MATERIAL_DETECTED'
+                    ? 'Cảnh báo (YOLOv8): Phát hiện tài liệu / sách nghi vấn trong phòng thi'
                     : selectedLiveCam.violationType === 'NO_FACE'
-                    ? '⚠️ CẢNH BÁO: Không có thí sinh trước màn hình hoặc camera bị che tối!'
-                    : '✓ Trạng thái AI: Khuôn mặt hợp lệ, đang làm bài thi nghiêm túc.'}
+                    ? 'Cảnh báo: Không có thí sinh trước màn hình hoặc camera bị che tối'
+                    : 'Trạng thái AI (YOLOv8): 1 thí sinh hợp lệ, không có thiết bị lạ'}
                 </span>
               </div>
 
@@ -2823,7 +2892,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                   style={{ padding: '8px 14px', fontSize: '13px' }}
                   onClick={() => handleAllowResume(selectedLiveCam.studentCode, selectedLiveCam.sessionCode, selectedLiveCam.fullName)}
                 >
-                  🔄 Duyệt tiếp tục thi (Sự cố mạng)
+                  Duyệt tiếp tục thi (Sự cố mạng)
                 </button>
                 <button
                   type="button"
@@ -2835,7 +2904,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                     setForceSubmittingStudent(target);
                   }}
                 >
-                  🛑 Cưỡng chế nộp bài (Vi phạm nặng)
+                  Cưỡng chế nộp bài
                 </button>
               </div>
               <button type="button" className="eg-primary-btn" onClick={() => setSelectedLiveCam(null)}>
@@ -2853,7 +2922,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
             <div className="eg-modal-header" style={{ borderBottom: '1px solid #fee2e2', background: '#fef2f2' }}>
               <div>
                 <h2 className="eg-modal-title" style={{ color: '#991b1b', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-                  <span style={{ fontSize: '20px' }}>🛑</span> Xác nhận Cưỡng chế Thu bài thi
+                  Xác nhận cưỡng chế thu bài thi
                 </h2>
                 <span style={{ fontSize: '12px', color: '#b91c1c' }}>
                   Áp dụng khi thí sinh vi phạm nghiêm trọng quy chế phòng thi hoặc gian lận
@@ -2864,8 +2933,12 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                 className="eg-modal-close"
                 onClick={() => !submittingForce && setForceSubmittingStudent(null)}
                 disabled={submittingForce}
+                aria-label="Đóng"
               >
-                ✕
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
 
@@ -2988,7 +3061,7 @@ export default function ProctoringDashboard({ token, teacher, onLogout }) {
                 onClick={handleExecuteForceSubmit}
                 disabled={submittingForce || (forceReasonOption === 'OTHER' && !customForceReason.trim())}
               >
-                {submittingForce ? 'Đang xử lý...' : '🛑 Xác nhận cưỡng chế nộp bài'}
+                {submittingForce ? 'Đang xử lý...' : 'Xác nhận cưỡng chế thu bài'}
               </button>
             </div>
           </div>

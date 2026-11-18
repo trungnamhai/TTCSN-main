@@ -350,7 +350,10 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
             title="Đóng menu"
             aria-label="Đóng menu trên điện thoại"
           >
-            ✕
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
@@ -417,7 +420,11 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
             onClick={() => setSidebarCollapsed(true)}
             title="Đóng menu trên điện thoại"
           >
-            ✕ Đóng menu
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+            <span>Đóng menu</span>
           </button>
         </div>
       </aside>
@@ -482,13 +489,23 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
         {statusMsg && (
           <div className="eg-dashboard-alert-banner is-success" role="status">
             <span>{statusMsg}</span>
-            <button type="button" onClick={() => setStatusMsg('')} className="eg-banner-close" aria-label="Đóng thông báo">✕</button>
+            <button type="button" onClick={() => setStatusMsg('')} className="eg-banner-close" aria-label="Đóng thông báo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </div>
         )}
         {errorMsg && (
           <div className="eg-dashboard-alert-banner is-error" role="alert">
             <span>{errorMsg}</span>
-            <button type="button" onClick={() => setErrorMsg('')} className="eg-banner-close" aria-label="Đóng thông báo">✕</button>
+            <button type="button" onClick={() => setErrorMsg('')} className="eg-banner-close" aria-label="Đóng thông báo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </div>
         )}
 
@@ -550,7 +567,12 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 {searchQuery && (
-                  <button type="button" className="eg-dashboard-search-clear" onClick={() => setSearchQuery('')}>✕</button>
+                  <button type="button" className="eg-dashboard-search-clear" onClick={() => setSearchQuery('')} aria-label="Xóa nội dung tìm kiếm">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
                 )}
               </div>
             </div>
@@ -597,13 +619,13 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
                       {/* Tiêu chí bảo mật AI */}
                       <div className="eg-student-sec-badges">
                         <span className="eg-mini-badge is-easy" title="Giám sát khuôn mặt định kỳ">
-                          {sec.require_face_check !== false ? '✓ AI Camera' : '— No Camera'}
+                          {sec.require_face_check !== false ? 'AI Camera' : 'Không dùng Camera'}
                         </span>
                         <span className="eg-mini-badge is-medium" title="Bắt sự kiện chuyển tab">
-                          {sec.detect_tab_switch !== false ? '✓ Khóa chuyển tab' : '— Tự do tab'}
+                          {sec.detect_tab_switch !== false ? 'Khóa chuyển tab' : 'Không khóa tab'}
                         </span>
                         <span className="eg-mini-badge is-hard" title="Bắt buộc toàn màn hình">
-                          {sec.require_fullscreen !== false ? '✓ Toàn màn hình' : '— Cửa sổ'}
+                          {sec.require_fullscreen !== false ? 'Toàn màn hình' : 'Chế độ cửa sổ'}
                         </span>
                       </div>
 
@@ -672,7 +694,7 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
                         <td><strong>{ses.duration_minutes || 60} phút</strong></td>
                         <td>{ses.room || 'Phòng máy trực tuyến'}</td>
                         <td>
-                          <span className="eg-status-tag is-upcoming">○ Sắp diễn ra</span>
+                          <span className="eg-status-tag is-upcoming">Sắp diễn ra</span>
                         </td>
                       </tr>
                     ))}
@@ -735,7 +757,7 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
                         </td>
                         <td>
                           <span className={`eg-mini-badge ${Number(att.total_score) >= 5.0 ? 'is-easy' : 'is-hard'}`}>
-                            {Number(att.total_score) >= 5.0 ? '✓ Đạt yêu cầu' : 'Chưa đạt'}
+                            {Number(att.total_score) >= 5.0 ? 'Đạt yêu cầu' : 'Chưa đạt'}
                           </span>
                         </td>
                         <td>
@@ -746,11 +768,11 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
                         <td>
                           {vCount > 0 ? (
                             <span className="eg-mini-badge is-hard" title={`${vCount} lần bị giám sát AI cảnh báo`}>
-                              ⚠️ {vCount} lần
+                              {vCount} cảnh báo
                             </span>
                           ) : (
                             <span className="eg-mini-badge is-easy">
-                              ✓ 0 vi phạm
+                              Không vi phạm
                             </span>
                           )}
                         </td>
@@ -826,28 +848,44 @@ export default function StudentDashboard({ authData, onStartExam, onLogout }) {
               <h2 className="eg-dashboard-section-title">Quy chế phòng thi chống gian lận (ExamGuard AI)</h2>
               <ul className="eg-rules-checklist">
                 <li>
-                  <div className="eg-rule-icon ok">✓</div>
+                  <div className="eg-rule-icon ok">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
                   <div>
                     <strong>Luôn giữ khuôn mặt trong khung hình camera:</strong>
                     <p>Hệ thống AI sẽ quét so khớp khuôn mặt định kỳ. Tránh cúi đầu quá thấp hoặc che mặt.</p>
                   </div>
                 </li>
                 <li>
-                  <div className="eg-rule-icon ok">✓</div>
+                  <div className="eg-rule-icon ok">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
                   <div>
                     <strong>Không có người thứ hai trong phòng:</strong>
                     <p>Cảnh báo vi phạm `MULTIPLE_FACES` sẽ được gửi ngay đến giám thị nếu phát hiện thêm người.</p>
                   </div>
                 </li>
                 <li>
-                  <div className="eg-rule-icon ok">✓</div>
+                  <div className="eg-rule-icon ok">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
                   <div>
                     <strong>Không chuyển tab hoặc mở ứng dụng ngoài:</strong>
                     <p>Hệ thống tự động phát hiện chuyển tab (`TAB_SWITCH`) và đếm số lần vi phạm.</p>
                   </div>
                 </li>
                 <li>
-                  <div className="eg-rule-icon ok">✓</div>
+                  <div className="eg-rule-icon ok">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
                   <div>
                     <strong>Làm bài trực tiếp trên trình duyệt:</strong>
                     <p>Hỗ trợ làm bài linh hoạt trên cả máy tính và điện thoại di động mà không cần khóa toàn màn hình.</p>

@@ -6,26 +6,27 @@
    Phân tách khối bằng màu nền và khoảng trắng thay cho đường viền.
    ========================================================================== */
 
+:root,
 .eg-dashboard {
-  --eg-bg: #eef4fc;
-  --eg-side: #dceafb;
+  --eg-bg: #f8fafc;
+  --eg-side: #ffffff;
   --eg-surface: #ffffff;
-  --eg-surface-alt: #f6f9fe;
-  --eg-tint: #e4eefc;
-  --eg-tint-strong: #dce8f8;
-  --eg-ink: #0b2545;
-  --eg-muted: #3f5878;
-  --eg-subtle: #54698a;
-  --eg-accent: #1a66e0;
-  --eg-accent-hover: #1457c2;
-  --eg-accent-dark: #0f3f8f;
-  --eg-danger: #b42318;
-  --eg-danger-tint: #fdecea;
-  --eg-ok: #0b6b3a;
-  --eg-ok-tint: #ddf5e8;
-  --eg-warn: #8a4b00;
-  --eg-warn-tint: #fff0cc;
-  --eg-radius: 2px;
+  --eg-surface-alt: #f8fafc;
+  --eg-tint: #f1f5f9;
+  --eg-tint-strong: #e2e8f0;
+  --eg-ink: #0f172a;
+  --eg-muted: #475569;
+  --eg-subtle: #64748b;
+  --eg-accent: #2563eb;
+  --eg-accent-hover: #1d4ed8;
+  --eg-accent-dark: #1e40af;
+  --eg-danger: #dc2626;
+  --eg-danger-tint: #fef2f2;
+  --eg-ok: #16a34a;
+  --eg-ok-tint: #f0fdf4;
+  --eg-warn: #d97706;
+  --eg-warn-tint: #fffbeb;
+  --eg-radius: 8px;
   --eg-mono:
     "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
@@ -77,9 +78,10 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 36px;
-  padding: 28px 16px 24px;
+  gap: 28px;
+  padding: 24px 16px 20px;
   background: var(--eg-side);
+  border-right: 1px solid var(--eg-tint-strong);
   overflow-y: auto;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 10;
@@ -354,7 +356,7 @@
 }
 
 .eg-nav-btn:hover {
-  background: #ccdef5;
+  background: var(--eg-tint);
   color: var(--eg-ink);
 }
 
@@ -401,9 +403,7 @@
 .eg-dashboard-eyebrow {
   color: var(--eg-accent);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .eg-dashboard-title {
@@ -468,25 +468,26 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  min-height: 48px;
+  min-height: 44px;
   padding: 0 14px;
-  border: 0;
+  border: 1px solid #fee2e2;
   border-radius: var(--eg-radius);
-  background: #cfe0f6;
+  background: #fef2f2;
   color: var(--eg-danger);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .eg-dashboard-logout:hover {
-  background: #c3d8f2;
+  background: #fee2e2;
+  border-color: #fca5a5;
 }
 
 /* ==========================================================================
-   1b. DẢI GIÁM SÁT AI (điểm nhấn chính)
+   1b. DẢI GIÁM SÁT AI (điểm nhấn chính - Unslop Refined)
    ========================================================================== */
 .eg-monitor-strip {
   display: flex;
@@ -494,16 +495,12 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px 32px;
-  padding: 20px 28px;
+  padding: 18px 24px;
   color: #ffffff;
-  background-color: var(--eg-accent-dark);
-  background-image: repeating-linear-gradient(
-    0deg,
-    rgba(255, 255, 255, 0.05) 0,
-    rgba(255, 255, 255, 0.05) 1px,
-    transparent 1px,
-    transparent 4px
-  );
+  background-color: #0f172a;
+  border-radius: var(--eg-radius);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
 .eg-monitor-status {
@@ -523,28 +520,31 @@
 .eg-monitor-badge {
   display: inline-block;
   padding: 4px 10px;
-  background: #ffffff;
-  color: var(--eg-accent-dark);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #93c5fd;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
 .eg-live-dot {
   flex: none;
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: #34d17e;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
   animation: eg-live-pulse 2s ease-out infinite;
 }
 
 @keyframes eg-live-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(52, 209, 126, 0.6);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
   }
   100% {
-    box-shadow: 0 0 0 10px rgba(52, 209, 126, 0);
+    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
   }
 }
 
@@ -556,17 +556,18 @@
 
 .eg-monitor-session span {
   font-size: 12px;
-  letter-spacing: 0.1em;
-  color: #b4cdf2;
+  color: #94a3b8;
 }
 
 .eg-monitor-session strong {
   display: inline-block;
-  padding: 4px 14px;
-  background: #ffffff;
-  color: var(--eg-accent-dark);
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #ffffff;
   font-family: var(--eg-mono);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.08em;
 }
@@ -617,46 +618,67 @@
   color: #ffffff;
 }
 
-/* Stat card accent variants with vibrant top borders and SaaS accents */
+/* Stat card accent variants - Unslop Refined */
 .eg-stat-total {
-  border-top: 3.5px solid #3b82f6;
-  border-radius: var(--eg-radius, 2px);
-  box-shadow: 0 1px 3px rgba(11, 37, 69, 0.04);
+  border-left: 4px solid #3b82f6;
+  border-radius: var(--eg-radius);
+  border-top: 1px solid var(--eg-tint-strong);
+  border-right: 1px solid var(--eg-tint-strong);
+  border-bottom: 1px solid var(--eg-tint-strong);
 }
 .eg-stat-online {
-  border-top: 3.5px solid #10b981;
-  border-radius: var(--eg-radius, 2px);
-  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.08);
+  border-left: 4px solid #10b981;
+  border-radius: var(--eg-radius);
+  border-top: 1px solid var(--eg-tint-strong);
+  border-right: 1px solid var(--eg-tint-strong);
+  border-bottom: 1px solid var(--eg-tint-strong);
 }
 .eg-stat-offline {
-  border-top: 3.5px solid #94a3b8;
-  border-radius: var(--eg-radius, 2px);
+  border-left: 4px solid #94a3b8;
+  border-radius: var(--eg-radius);
+  border-top: 1px solid var(--eg-tint-strong);
+  border-right: 1px solid var(--eg-tint-strong);
+  border-bottom: 1px solid var(--eg-tint-strong);
 }
 .eg-stat-examining {
-  border-top: 3.5px solid #0284c7;
-  border-radius: var(--eg-radius, 2px);
+  border-left: 4px solid #0284c7;
+  border-radius: var(--eg-radius);
+  border-top: 1px solid var(--eg-tint-strong);
+  border-right: 1px solid var(--eg-tint-strong);
+  border-bottom: 1px solid var(--eg-tint-strong);
 }
 .eg-stat-submitted {
-  border-top: 3.5px solid #8b5cf6;
-  border-radius: var(--eg-radius, 2px);
+  border-left: 4px solid #8b5cf6;
+  border-radius: var(--eg-radius);
+  border-top: 1px solid var(--eg-tint-strong);
+  border-right: 1px solid var(--eg-tint-strong);
+  border-bottom: 1px solid var(--eg-tint-strong);
 }
 .eg-stat-violations {
-  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
-  border-top: 3.5px solid #f87171 !important;
-  border-radius: var(--eg-radius, 2px);
-  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.22);
+  background: var(--eg-surface) !important;
+  border-left: 4px solid #ef4444 !important;
+  border-top: 1px solid var(--eg-tint-strong) !important;
+  border-right: 1px solid var(--eg-tint-strong) !important;
+  border-bottom: 1px solid var(--eg-tint-strong) !important;
+  border-radius: var(--eg-radius);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
-.eg-stat-violations strong,
+.eg-stat-violations strong {
+  color: #dc2626 !important;
+}
 .eg-stat-violations .eg-dashboard-stat-label {
-  color: #ffffff !important;
+  color: var(--eg-subtle) !important;
 }
 .eg-stat-score {
-  border-top: 3.5px solid #1a66e0;
-  border-radius: var(--eg-radius, 2px);
+  border-left: 4px solid #2563eb;
+  border-radius: var(--eg-radius);
+  border-top: 1px solid var(--eg-tint-strong);
+  border-right: 1px solid var(--eg-tint-strong);
+  border-bottom: 1px solid var(--eg-tint-strong);
 }
 .eg-stat-highlight {
   background: #f0fdf4 !important;
-  border-top: 3.5px solid #10b981;
+  border-left: 4px solid #10b981;
 }
 
 /* ==========================================================================
@@ -921,10 +943,8 @@
   height: 44px;
   background: var(--eg-tint);
   color: #2b4a75;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .eg-dashboard-roster-table tbody tr:nth-child(even) {
@@ -1341,14 +1361,9 @@
 .eg-mini-badge {
   display: inline-block;
   padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
-}
-
-.eg-difficulty-tag {
-  text-transform: uppercase;
 }
 
 .eg-difficulty-tag.is-easy,

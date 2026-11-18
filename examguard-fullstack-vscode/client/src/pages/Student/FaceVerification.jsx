@@ -199,7 +199,7 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
         face_count: 1,
         euclidean_distance: analysis.euclideanDistance || 0.22,
         faceSignature: analysis.faceSignature || null,
-        message: '✓ Nhận diện 1 khuôn mặt thí sinh hợp lệ. Sẵn sàng gửi yêu cầu check-in!',
+        message: 'Nhận diện khuôn mặt thí sinh hợp lệ. Sẵn sàng gửi yêu cầu check-in',
         boxes: analysis.boxes || []
       });
     }
@@ -246,7 +246,7 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
             face_count: 1,
             euclidean_distance: analysis.euclideanDistance || 0.22,
             faceSignature: analysis.faceSignature || null,
-            message: '✓ Nhận diện 1 khuôn mặt thí sinh hợp lệ. Sẵn sàng gửi yêu cầu check-in!',
+            message: 'Nhận diện khuôn mặt thí sinh hợp lệ. Sẵn sàng gửi yêu cầu check-in',
             boxes: analysis.boxes || []
           });
         }
@@ -406,7 +406,7 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
             {deviceError === 'INSECURE_HTTP' ? (
               <div style={{ lineHeight: 1.6 }}>
                 <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '6px', color: '#b91c1c' }}>
-                  ⚠️ Trình duyệt chặn Camera do đang truy cập qua địa chỉ HTTP nội bộ (Mạng LAN)
+                  Trình duyệt chặn Camera do đang truy cập qua địa chỉ HTTP nội bộ (Mạng LAN)
                 </div>
                 <div style={{ fontSize: '13.5px', color: '#374151', marginBottom: '10px' }}>
                   Google Chrome & Microsoft Edge chỉ cho phép bật Camera/Mic trên <code>https://</code> hoặc <code>localhost</code>. Để bật camera trên máy tính này, bạn thực hiện <strong>3 bước đơn giản (mất 20 giây)</strong>:
@@ -442,7 +442,7 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
                         setTimeout(() => setCopiedHost(false), 2500);
                       }}
                     >
-                      {copiedHost ? '✓ Đã sao chép URL' : '📋 Sao chép URL'}
+                      {copiedHost ? 'Đã sao chép liên kết' : 'Sao chép liên kết'}
                     </button>
                   </li>
                   <li style={{ marginTop: '6px' }}>
@@ -455,34 +455,34 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
                   style={{ padding: '6px 14px', fontSize: '13px' }}
                   onClick={initMedia}
                 >
-                  ↻ Sau khi bật xong, nhấn vào đây để thử lại Camera
+                  Sau khi cấu hình xong, nhấn vào đây để thử lại Camera
                 </button>
               </div>
             ) : deviceError === 'PERMISSION_DENIED' ? (
               <div>
-                <div style={{ fontWeight: 700, marginBottom: '4px', color: '#b91c1c' }}>⚠️ Trình duyệt chưa được cấp quyền Camera hoặc Microphone</div>
+                <div style={{ fontWeight: 700, marginBottom: '4px', color: '#b91c1c' }}>Trình duyệt chưa được cấp quyền Camera hoặc Microphone</div>
                 <div style={{ fontSize: '13px' }}>
-                  Vui lòng bấm vào biểu tượng <strong>Ổ khóa 🔒</strong> hoặc <strong>Máy ảnh 📷</strong> trên thanh địa chỉ trình duyệt, chọn <strong>Cho phép (Allow)</strong> cho Camera và Micro, sau đó bấm nút bên dưới.
+                  Vui lòng bấm vào biểu tượng <strong>Ổ khóa</strong> hoặc <strong>Máy ảnh</strong> trên thanh địa chỉ trình duyệt, chọn <strong>Cho phép (Allow)</strong> cho Camera và Micro, sau đó bấm nút bên dưới.
                 </div>
                 <button type="button" className="eg-btn-submit" style={{ marginTop: '10px', padding: '6px 14px', fontSize: '13px' }} onClick={initMedia}>
-                  ↻ Thử lại kết nối Camera
+                  Thử lại kết nối Camera
                 </button>
               </div>
             ) : deviceError === 'DEVICE_IN_USE' ? (
               <div>
-                <div style={{ fontWeight: 700, marginBottom: '4px', color: '#b91c1c' }}>⚠️ Camera đang bị ứng dụng khác chiếm dụng</div>
+                <div style={{ fontWeight: 700, marginBottom: '4px', color: '#b91c1c' }}>Camera đang bị ứng dụng khác chiếm dụng</div>
                 <div style={{ fontSize: '13px' }}>
                   Vui lòng tắt các phần mềm đang dùng webcam (Zoom, Google Meet, Teams, Zalo, ứng dụng Camera của máy...), rồi bấm thử lại.
                 </div>
                 <button type="button" className="eg-btn-submit" style={{ marginTop: '10px', padding: '6px 14px', fontSize: '13px' }} onClick={initMedia}>
-                  ↻ Thử lại kết nối Camera
+                  Thử lại kết nối Camera
                 </button>
               </div>
             ) : (
               <div>
                 <span>{deviceError}</span>
                 <button type="button" className="eg-btn-submit" style={{ marginLeft: '12px', padding: '4px 10px', fontSize: '12px' }} onClick={initMedia}>
-                  ↻ Thử lại
+                  Thử lại
                 </button>
               </div>
             )}
@@ -516,9 +516,9 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
             )}
 
             <div className="eg-waiting-status-pills">
-              <span className="eg-status-tag is-open">● Đang chờ giám thị phê duyệt</span>
-              <span className="eg-mini-badge is-easy">✓ Webcam & Mic OK</span>
-              <span className="eg-mini-badge is-easy">✓ AI Nhận diện hợp lệ</span>
+              <span className="eg-status-tag is-open">Đang chờ giám thị phê duyệt</span>
+              <span className="eg-mini-badge is-easy">Webcam & Mic sẵn sàng</span>
+              <span className="eg-mini-badge is-easy">AI nhận diện hợp lệ</span>
             </div>
           </div>
         )}
@@ -528,7 +528,11 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
             ========================================================================= */}
         {checkinStage === 'APPROVED' && (
           <div className="eg-panel eg-checkin-approved-panel">
-            <div className="eg-approved-icon">✓</div>
+            <div className="eg-approved-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
             <h2 className="eg-approved-title">Giám thị đã duyệt yêu cầu check-in!</h2>
             <p className="eg-approved-desc">
               Bạn đã đủ điều kiện vào phòng thi. Đang chuyển vào phòng làm bài thi sau <strong>{autoRedirectSec || 1} giây...</strong>
@@ -548,13 +552,18 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
             ========================================================================= */}
         {checkinStage === 'REJECTED' && (
           <div className="eg-panel eg-checkin-rejected-panel">
-            <div className="eg-rejected-icon">✕</div>
+            <div className="eg-rejected-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </div>
             <h2 className="eg-rejected-title">Giám thị đã từ chối yêu cầu check-in</h2>
             <p className="eg-rejected-desc">
               Lý do: <strong>{rejectReason || 'Ảnh chụp không rõ ràng hoặc không nhận diện được thí sinh.'}</strong>
             </p>
             <button type="button" className="eg-primary-btn" onClick={handleRetakePhoto}>
-              ↻ Chụp lại ảnh xác thực khác
+              Chụp lại ảnh xác thực khác
             </button>
           </div>
         )}
@@ -572,8 +581,8 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
                     <img src={capturedPhoto} alt="Ảnh chân dung thí sinh" className="eg-captured-img" />
                     <div className={`eg-captured-badge ${verifyResult?.status === 'VIOLATION' ? 'is-danger' : ''}`}>
                       {verifyResult?.status === 'VIOLATION'
-                        ? `⚠️ ${verifyResult.message}`
-                        : '📸 Ảnh chụp xác thực hợp lệ'}
+                        ? verifyResult.message
+                        : 'Ảnh chụp xác thực hợp lệ'}
                     </div>
                   </div>
                 ) : (
@@ -661,12 +670,12 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
                       style={{ padding: '0 16px', fontSize: '13px' }}
                       title="Mở camera điện thoại hoặc tải ảnh chân dung"
                     >
-                      📱 Mở Camera điện thoại
+                      Mở camera trên thiết bị
                     </button>
                   </div>
                 ) : (
                   <button type="button" className="eg-btn-cancel" onClick={handleRetakePhoto}>
-                    ↻ Chụp lại ảnh khác
+                    Chụp lại ảnh khác
                   </button>
                 )}
               </div>
@@ -681,7 +690,13 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
 
               <ul className="eg-checkin-steps">
                 <li className={`eg-step-item ${cameraReady ? 'is-done' : ''}`}>
-                  <div className="eg-step-num">{cameraReady ? '✓' : '1'}</div>
+                  <div className="eg-step-num">
+                    {cameraReady ? (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : '1'}
+                  </div>
                   <div className="eg-step-text">
                     <strong>Kiểm tra Camera (Webcam):</strong>
                     <span>{cameraReady ? 'Đã nhận luồng hình ảnh video thời gian thực' : 'Đang chờ cấp quyền truy cập Camera'}</span>
@@ -689,7 +704,13 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
                 </li>
 
                 <li className={`eg-step-item ${micReady ? 'is-done' : ''}`}>
-                  <div className="eg-step-num">{micReady ? '✓' : '2'}</div>
+                  <div className="eg-step-num">
+                    {micReady ? (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : '2'}
+                  </div>
                   <div className="eg-step-text">
                     <strong>Kiểm tra Microphone:</strong>
                     <span>{micReady ? 'Đã nhận micro thu âm phục vụ giám sát' : 'Đang chờ cấp quyền truy cập Micro'}</span>
@@ -697,7 +718,13 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
                 </li>
 
                 <li className={`eg-step-item ${capturedPhoto ? 'is-done' : ''}`}>
-                  <div className="eg-step-num">{capturedPhoto ? '✓' : '3'}</div>
+                  <div className="eg-step-num">
+                    {capturedPhoto ? (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : '3'}
+                  </div>
                   <div className="eg-step-text">
                     <strong>Chụp ảnh chân dung xác thực:</strong>
                     <span>{capturedPhoto ? 'Đã chụp ảnh chân dung từ camera' : 'Nhấn nút "Chụp ảnh xác thực" bên trái'}</span>
@@ -705,7 +732,13 @@ export default function FaceVerification({ authData, onVerifiedSuccess, onBack }
                 </li>
 
                 <li className={`eg-step-item ${verifyResult?.verified ? 'is-done' : ''}`}>
-                  <div className="eg-step-num">{verifyResult?.verified ? '✓' : '4'}</div>
+                  <div className="eg-step-num">
+                    {verifyResult?.verified ? (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : '4'}
+                  </div>
                   <div className="eg-step-text">
                     <strong>Nhận diện khuôn mặt AI:</strong>
                     <span>{verifyResult ? verifyResult.message : 'Chờ chụp ảnh để AI đối soát'}</span>

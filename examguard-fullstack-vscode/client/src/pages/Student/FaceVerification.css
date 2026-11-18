@@ -74,7 +74,7 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   background: #0f172a;
-  border-radius: var(--eg-radius, 2px);
+  border-radius: var(--eg-radius, 8px);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -177,9 +177,9 @@
   flex-wrap: wrap;
   gap: 12px;
   padding: 12px 16px;
-  background: var(--eg-surface-alt, #f6f9fe);
-  border: 1px solid var(--eg-tint-strong, #dce8f8);
-  border-radius: var(--eg-radius, 2px);
+  background: var(--eg-surface, #ffffff);
+  border: 1px solid var(--eg-tint-strong, #e2e8f0);
+  border-radius: var(--eg-radius, 8px);
   font-size: 13px;
 }
 
@@ -310,8 +310,6 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--eg-muted, #3f5878);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .eg-sim-buttons {

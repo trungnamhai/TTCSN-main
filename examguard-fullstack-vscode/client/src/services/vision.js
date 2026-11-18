@@ -10,6 +10,7 @@
 
 // Canvas tái sử dụng để nén thumbnail camera mượt mà, không tốn RAM và không lag
 let sharedLiveCanvas = null;
+let isYoloAnalyzing = false;
 
 export function captureFrameFromVideo(videoElement) {
   if (!videoElement || videoElement.readyState < 2) {
@@ -161,12 +162,12 @@ export function compareFaceSignatures(sig1, sig2) {
 }
 
 /**
- * Phân tích thực tế khung hình từ thẻ <video>:
- * @param {HTMLVideoElement} videoElement
+ * Phân tích thực tế khung hình từ thẻ <video>, <img> hoặc <canvas>:
+ * @param {HTMLVideoElement|HTMLImageElement|HTMLCanvasElement} mediaElement
  * @param {Array<number>|null} referenceSignature - Vector khuôn mặt lúc check-in (nếu có để đối soát người khác)
  */
-export async function analyzeRealFrame(videoElement, referenceSignature = null) {
-  if (!videoElement || videoElement.readyState < 2) {
+export async function analyzeRealFrame(mediaElement, referenceSignature = null) {
+  if (!mediaElement) {
     return {
       faceCount: 0,
       status: 'VIOLATION',
@@ -177,21 +178,142 @@ export async function analyzeRealFrame(videoElement, referenceSignature = null) 
     };
   }
 
-  // Tự động khôi phục phát hình nếu trình duyệt tạm ngắt
-  if (videoElement.paused) {
-    videoElement.play().catch(() => {});
-  }
+  // Xác định kích thước và tính hợp lệ của nguồn hình ảnh (video hoặc image)
+  let w = 640;
+  let h = 480;
 
-  const w = videoElement.videoWidth || 640;
-  const h = videoElement.videoHeight || 480;
+  if (typeof HTMLVideoElement !== 'undefined' && mediaElement instanceof HTMLVideoElement) {
+    if (mediaElement.readyState < 2) {
+      return {
+        faceCount: 0,
+        status: 'VIOLATION',
+        violationType: 'NO_FACE',
+        verified: false,
+        message: 'Đang kết nối camera...',
+        boxes: []
+      };
+    }
+    if (mediaElement.paused) {
+      mediaElement.play().catch(() => {});
+    }
+    w = mediaElement.videoWidth || 640;
+    h = mediaElement.videoHeight || 480;
+  } else if (typeof HTMLImageElement !== 'undefined' && mediaElement instanceof HTMLImageElement) {
+    w = mediaElement.naturalWidth || mediaElement.width || 640;
+    h = mediaElement.naturalHeight || mediaElement.height || 480;
+  } else if (typeof HTMLCanvasElement !== 'undefined' && mediaElement instanceof HTMLCanvasElement) {
+    w = mediaElement.width || 640;
+    h = mediaElement.height || 480;
+  }
 
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  ctx.drawImage(videoElement, 0, 0, w, h);
+  ctx.drawImage(mediaElement, 0, 0, w, h);
 
-  // 1. Kiểm tra API FaceDetector gốc của trình duyệt (nếu có hỗ trợ)
+  // 1. Phân tích AI bằng mô hình YOLOv8 Deep Learning (hỗ trợ phát hiện điện thoại, nhiều người, sách vở)
+  if (!isYoloAnalyzing) {
+    try {
+      isYoloAnalyzing = true;
+      const yoloScale = Math.min(1, 480 / Math.max(w, 1));
+      const yw = Math.round(w * yoloScale);
+      const yh = Math.round(h * yoloScale);
+      const yoloCanvas = document.createElement('canvas');
+      yoloCanvas.width = yw;
+      yoloCanvas.height = yh;
+      const yctx = yoloCanvas.getContext('2d');
+      yctx.drawImage(canvas, 0, 0, yw, yh);
+      const thumb = yoloCanvas.toDataURL('image/jpeg', 0.6);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+      const yoloRes = await fetch('/api/ai/analyze-frame', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: thumb }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+    if (yoloRes.ok) {
+      const yolo = await yoloRes.json();
+      if (yolo && yolo.status !== 'FALLBACK' && yolo.status !== 'ERROR') {
+        // Nếu phát hiện hành vi vi phạm (dùng điện thoại, nhiều người, không có mặt, sách vở)
+        if (yolo.status === 'VIOLATION') {
+          return {
+            faceCount: yolo.personCount ?? 0,
+            status: 'VIOLATION',
+            violationType: yolo.violationType || null,
+            verified: false,
+            message: yolo.message,
+            hasPhone: yolo.hasPhone || false,
+            hasBook: yolo.hasBook || false,
+            boxes: yolo.boxes || [],
+            aiModel: 'YOLOv8 Deep Learning'
+          };
+        }
+
+        // Nếu YOLOv8 xác nhận 1 thí sinh hợp lệ: kiểm tra thêm đối soát định danh (FACE_MISMATCH)
+        let primaryBox = {
+          x: Math.round(w * 0.25),
+          y: Math.round(h * 0.15),
+          w: Math.round(w * 0.5),
+          h: Math.round(h * 0.6)
+        };
+        if (Array.isArray(yolo.boxes) && yolo.boxes.length > 0) {
+          const personBox = yolo.boxes.find((b) => b.class === 'person');
+          if (personBox && personBox.box) {
+            const [x1, y1, x2, y2] = personBox.box;
+            primaryBox = {
+              x: Math.max(0, x1),
+              y: Math.max(0, y1),
+              w: Math.max(10, x2 - x1),
+              h: Math.max(10, y2 - y1)
+            };
+          }
+        }
+
+        const liveSig = computeFaceSignature(canvas, primaryBox);
+        if (referenceSignature && liveSig) {
+          const dist = compareFaceSignatures(liveSig, referenceSignature);
+          if (dist > 0.48) {
+            return {
+              faceCount: 1,
+              status: 'VIOLATION',
+              violationType: 'FACE_MISMATCH',
+              verified: false,
+              euclideanDistance: dist,
+              message: 'Cảnh báo vi phạm: Phát hiện khuôn mặt không phù hợp với thí sinh đã check-in ban đầu (Nghi vấn thi hộ)!',
+              boxes: [primaryBox],
+              liveSignature: liveSig,
+              aiModel: 'YOLOv8 + Biometrics'
+            };
+          }
+        }
+
+        return {
+          faceCount: 1,
+          status: 'OK',
+          violationType: null,
+          verified: true,
+          euclideanDistance: 0.2,
+          message: yolo.message || '✓ Giám sát YOLOv8: 1 thí sinh hợp lệ, không có thiết bị lạ.',
+          boxes: [primaryBox],
+          faceSignature: liveSig,
+          aiModel: 'YOLOv8 Deep Learning'
+        };
+      }
+    }
+    } catch {
+      // Nếu AI service offline hoặc timeout, tự động fallback mượt mà sang thị giác máy tính bên dưới
+    } finally {
+      isYoloAnalyzing = false;
+    }
+  }
+
+  // 2. Kiểm tra API FaceDetector gốc của trình duyệt (nếu có hỗ trợ)
   if (typeof window !== 'undefined' && 'FaceDetector' in window) {
     try {
       const detector = new window.FaceDetector({ fastMode: false, maxDetectedFaces: 5 });

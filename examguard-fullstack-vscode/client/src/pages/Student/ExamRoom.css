@@ -72,8 +72,6 @@
 .eg-timer-lbl {
   font-size: 11px;
   color: var(--eg-muted, #3f5878);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   font-weight: 600;
 }
 
@@ -82,7 +80,6 @@
   font-size: 20px;
   font-weight: 700;
   color: var(--eg-ink, #0b2545);
-  letter-spacing: 0.05em;
 }
 
 .eg-exam-timer-box.is-urgent {
@@ -224,9 +221,9 @@
   width: 100%;
   padding: 14px 18px;
   background: var(--eg-surface, #ffffff);
-  border: 1px solid var(--eg-tint-strong, #dce8f8);
-  border-radius: var(--eg-radius, 2px);
-  color: var(--eg-ink, #0b2545);
+  border: 1px solid var(--eg-tint-strong, #e2e8f0);
+  border-radius: var(--eg-radius, 8px);
+  color: var(--eg-ink, #0f172a);
   font-size: 14.5px;
   text-align: left;
   cursor: pointer;
@@ -234,14 +231,14 @@
 }
 
 .eg-option-card:hover {
-  background: var(--eg-surface-alt, #f6f9fe);
-  border-color: #93c5fd;
+  background: var(--eg-surface-alt, #f8fafc);
+  border-color: #cbd5e1;
 }
 
 .eg-option-card.is-selected {
   background: #eff6ff;
-  border-color: var(--eg-accent, #1a66e0);
-  box-shadow: 0 0 0 1px var(--eg-accent, #1a66e0);
+  border-color: var(--eg-accent, #2563eb);
+  box-shadow: 0 0 0 1px var(--eg-accent, #2563eb);
 }
 
 .eg-option-indicator {
@@ -255,19 +252,19 @@
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  color: var(--eg-muted, #3f5878);
+  color: var(--eg-muted, #475569);
   background: #ffffff;
 }
 
 .eg-option-card.is-selected .eg-option-indicator {
-  border-color: var(--eg-accent, #1a66e0);
-  background: var(--eg-accent, #1a66e0);
+  border-color: var(--eg-accent, #2563eb);
+  background: var(--eg-accent, #2563eb);
   color: #ffffff;
 }
 
 .eg-option-letter {
   font-weight: 700;
-  color: var(--eg-ink, #0b2545);
+  color: var(--eg-ink, #0f172a);
 }
 
 .eg-option-text {
@@ -282,7 +279,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 20px;
-  border-top: 1px solid var(--eg-tint-strong, #dce8f8);
+  border-top: 1px solid var(--eg-tint-strong, #e2e8f0);
   gap: 16px;
 }
 
@@ -290,10 +287,10 @@
 .eg-btn-nav-next {
   min-height: 42px;
   padding: 0 20px;
-  border: 1px solid var(--eg-tint-strong, #dce8f8);
-  border-radius: var(--eg-radius, 2px);
+  border: 1px solid var(--eg-tint-strong, #e2e8f0);
+  border-radius: 6px;
   background: #ffffff;
-  color: var(--eg-ink, #0b2545);
+  color: var(--eg-ink, #0f172a);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -301,18 +298,18 @@
 }
 
 .eg-btn-nav-next {
-  background: var(--eg-accent, #1a66e0);
-  border-color: var(--eg-accent, #1a66e0);
+  background: var(--eg-accent, #2563eb);
+  border-color: var(--eg-accent, #2563eb);
   color: #ffffff;
   font-weight: 600;
 }
 
 .eg-btn-nav-next:hover:not(:disabled) {
-  background: var(--eg-accent-hover, #1457c2);
+  background: var(--eg-accent-hover, #1d4ed8);
 }
 
 .eg-btn-nav-prev:hover:not(:disabled) {
-  background: var(--eg-tint, #e4eefc);
+  background: var(--eg-tint, #f1f5f9);
 }
 
 .eg-btn-nav-prev:disabled,
@@ -578,12 +575,15 @@
   color: #92400e;
 }
 
-.eg-matrix-flag-star {
+.eg-matrix-flag-star,
+.eg-matrix-flag-dot {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: 9px;
-  color: #d97706;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #d97706;
 }
 
 .eg-submit-exam-wrap {
